@@ -16,7 +16,6 @@
     }
   ],
   "require": {
-    "jtl/connector": "^2.4",
     "doctrine/dbal": "^2.5"
   },
   "autoload": {

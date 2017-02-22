@@ -6,7 +6,7 @@
 namespace jtl\Connector\CDBC\Tables;
 
 
-abstract class Table
+abstract class BaseTable
 {
     /**
      * @var DBManager
