@@ -4,7 +4,9 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace jtl\Connector\CDBC;
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table as SchemaTable;
 
@@ -90,8 +92,20 @@ class DBManager
     {
         $schemaTables = array();
         foreach($this->tables as $table){
-            $schemaTables[] = $table->createSchemaTable();
+            $schemaTables[] = $table->createTableSchema();
         }
         return $schemaTables;
+    }
+
+    /**
+     * @param \PDO $pdo
+     * @param Configuration|null $config
+     * @return DBManager
+     */
+    public static function createFromPDO(\PDO $pdo, Configuration $config = null)
+    {
+        $params = ['pdo' => $pdo];
+        $connection = DriverManager::getConnection($params, $config);
+        return new self($connection);
     }
 }
