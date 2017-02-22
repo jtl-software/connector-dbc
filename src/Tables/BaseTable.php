@@ -4,7 +4,7 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace jtl\Connector\CDBC\Tables;
-
+use jtl\Connector\CDBC\DBManager;
 
 abstract class BaseTable
 {
@@ -14,6 +14,11 @@ abstract class BaseTable
     protected $dbManager;
 
     /**
+     * @var string
+     */
+    private $fullTableName;
+
+    /**
      * @var \Doctrine\DBAL\Schema\Table
      */
     protected $tableSchema;
@@ -21,6 +26,7 @@ abstract class BaseTable
     /**
      * Table constructor.
      * @param DBManager $dbManager
+     * @throws \Exception
      */
     public function __construct(DBManager $dbManager)
     {
@@ -30,6 +36,12 @@ abstract class BaseTable
         if(!$tableSchema instanceof \Doctrine\DBAL\Schema\Table) {
             throw new \Exception(get_class($this) . "::createTableSchema() has to return an instance of Doctrine\\DBAL\\Schema\\Table!");
         }
+
+        $this->fullTableName = '';
+        if($dbManager->hasTablesPrefix()) {
+            $this->fullTableName = $dbManager->getTablesPrefix() . '_';
+        }
+        $this->fullTableName .= $this->getName();
         $this->tableSchema = $tableSchema;
     }
 
@@ -44,11 +56,19 @@ abstract class BaseTable
     /**
      * @return string
      */
-    abstract public function getName();
+    public function getFullTableName()
+    {
+        return $this->fullTableName;
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function getName();
 
     /**
      * @return \Doctrine\DBAL\Schema\Table
      * @throws \Exception
      */
-    abstract public function createTableSchema(\Doctrine\DBAL\Schema\Table $tableSchema);
+    abstract protected function createTableSchema(\Doctrine\DBAL\Schema\Table $tableSchema);
 }
