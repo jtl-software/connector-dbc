@@ -5,23 +5,19 @@
  */
 namespace jtl\Connector\CDBC\Tables;
 use jtl\Connector\CDBC\DBManager;
+use Doctrine\DBAL\Schema\Table;
 
-abstract class BaseTable
+abstract class AbstractTable
 {
     /**
      * @var DBManager
      */
-    protected $dbManager;
+    private $dbManager;
 
     /**
-     * @var string
+     * @var Table
      */
-    protected $fullTableName;
-
-    /**
-     * @var \Doctrine\DBAL\Schema\Table
-     */
-    protected $tableSchema;
+    private $tableSchema;
 
     /**
      * Table constructor.
@@ -32,21 +28,23 @@ abstract class BaseTable
     {
         $dbManager->registerTable($this);
         $this->dbManager = $dbManager;
-        $tableSchema = $this->createTableSchema(new \Doctrine\DBAL\Schema\Table($this->getName()));
-        if(!$tableSchema instanceof \Doctrine\DBAL\Schema\Table) {
+        $tableSchema = $this->createTableSchema(new Table($this->getTableName()));
+        if(!$tableSchema instanceof Table) {
             throw new \Exception(get_class($this) . "::createTableSchema() has to return an instance of Doctrine\\DBAL\\Schema\\Table!");
         }
-
-        $this->fullTableName = '';
-        if($dbManager->hasTablesPrefix()) {
-            $this->fullTableName = $dbManager->getTablesPrefix() . '_';
-        }
-        $this->fullTableName .= $this->getName();
         $this->tableSchema = $tableSchema;
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Table
+     * @return DBManager
+     */
+    public function getDbManager()
+    {
+        return $this->dbManager;
+    }
+
+    /**
+     * @return Table
      */
     public function getTableSchema()
     {
@@ -56,9 +54,12 @@ abstract class BaseTable
     /**
      * @return string
      */
-    public function getFullTableName()
+    public function getTableName()
     {
-        return $this->fullTableName;
+        if($this->getDbManager()->hasTablesPrefix()){
+            return $this->getDbManager()->getTablesPrefix() . '_' . $this->getName();
+        }
+        return $this->getName();
     }
 
     /**
@@ -67,8 +68,8 @@ abstract class BaseTable
     abstract protected function getName();
 
     /**
-     * @return \Doctrine\DBAL\Schema\Table
-     * @throws \Exception
+     * @param $tableSchema Table
+     * @return Table
      */
-    abstract protected function createTableSchema(\Doctrine\DBAL\Schema\Table $tableSchema);
+    abstract protected function createTableSchema(Table $tableSchema);
 }

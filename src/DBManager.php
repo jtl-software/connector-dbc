@@ -9,7 +9,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
-use jtl\Connector\CDBC\Tables\BaseTable;
+use jtl\Connector\CDBC\Tables\AbstractTable;
 
 class DBManager
 {
@@ -19,7 +19,7 @@ class DBManager
     protected $connection;
 
     /**
-     * @var BaseTable[]
+     * @var AbstractTable[]
      */
     protected $tables = array();
 
@@ -33,7 +33,7 @@ class DBManager
      * @param Connection $connection
      * @param string $tablesPrefix
      */
-    public function __construct(Connection $connection, $tablesPrefix = '')
+    public function __construct(Connection $connection, $tablesPrefix = null)
     {
         $this->connection = $connection;
         $this->tablesPrefix = $tablesPrefix;
@@ -48,12 +48,12 @@ class DBManager
     }
 
     /**
-     * @param BaseTable $table
+     * @param AbstractTable $table
      * @return DBManager
      */
-    public function registerTable(BaseTable $table)
+    public function registerTable(AbstractTable $table)
     {
-        $this->tables[$table->getFullTableName()] = $table;
+        $this->tables[$table->getTableName()] = $table;
         return $this;
     }
 
@@ -122,7 +122,7 @@ class DBManager
     }
 
     /**
-     * @return BaseTable[]
+     * @return AbstractTable[]
      */
     protected function getTables()
     {
@@ -132,12 +132,24 @@ class DBManager
     /**
      * @param \PDO $pdo
      * @param Configuration|null $config
-     * @param string $tablesPrefix
+     * @param string|null $tablesPrefix
      * @return DBManager
      */
-    public static function createFromPDO(\PDO $pdo, Configuration $config = null, $tablesPrefix = '')
+    public static function createFromPDO(\PDO $pdo, Configuration $config = null, $tablesPrefix = null)
     {
         $params = ['pdo' => $pdo];
+        $connection = DriverManager::getConnection($params, $config);
+        return new self($connection, $tablesPrefix);
+    }
+
+    /**
+     * @param string[] $params
+     * @param Configuration|null $config
+     * @param string|null $tablesPrefix
+     * @return DBManager
+     */
+    public static function createFromParams(array $params, Configuration $config = null, $tablesPrefix = null)
+    {
         $connection = DriverManager::getConnection($params, $config);
         return new self($connection, $tablesPrefix);
     }
