@@ -77,7 +77,7 @@ class DBManager
     {
         $fromSchema = new Schema($this->getSchemaTables());
         $toSchema = $this->connection->getSchemaManager()->createSchema();
-        return $toSchema->getMigrateFromSql($fromSchema, $this->connection);
+        return $toSchema->getMigrateFromSql($fromSchema, $this->connection->getDatabasePlatform());
     }
 
     /**
