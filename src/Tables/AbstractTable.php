@@ -21,8 +21,8 @@ abstract class AbstractTable
      */
     public function __construct(DBManager $dbManager)
     {
-        $dbManager->registerTable($this);
         $this->dbManager = $dbManager;
+        $dbManager->registerTable($this);
     }
 
     /**
