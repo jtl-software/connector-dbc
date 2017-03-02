@@ -81,12 +81,16 @@ class DBManager
     }
 
     /**
-     * @return boolean
+     * @return void
      */
     public function updateDatabaseSchema()
     {
-        $stmt = $this->connection->executeQuery($this->getSchemaUpdate());
-        return count($stmt->errorInfo()) === 0;
+        $ddls = $this->getSchemaUpdate();
+        $this->connection->transactional(function($connection) use ($ddls){
+           foreach($ddls as $ddl){
+               $connection->executeQuery($ddl);
+           }
+        });
     }
 
     /**
