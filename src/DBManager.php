@@ -5,7 +5,6 @@
  */
 namespace jtl\Connector\CDBC;
 use Doctrine\DBAL\Configuration;
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -39,12 +38,9 @@ class DBManager
         $this->tablesPrefix = $tablesPrefix;
     }
 
-    /**
-     * @return \Doctrine\DBAL\Query\QueryBuilder
-     */
-    public function createQueryBuilder()
+    public function getConnection()
     {
-        return $this->connection->createQueryBuilder();
+        return $this->connection;
     }
 
     /**
@@ -137,7 +133,10 @@ class DBManager
      */
     public static function createFromPDO(\PDO $pdo, Configuration $config = null, $tablesPrefix = null)
     {
-        $params = ['pdo' => $pdo];
+        $params = [
+            'pdo' => $pdo,
+            'wrapperClass' => Connection::class
+        ];
         $connection = DriverManager::getConnection($params, $config);
         return new self($connection, $tablesPrefix);
     }
@@ -150,6 +149,7 @@ class DBManager
      */
     public static function createFromParams(array $params, Configuration $config = null, $tablesPrefix = null)
     {
+        $params['wrapperClass'] = Connection::class;
         $connection = DriverManager::getConnection($params, $config);
         return new self($connection, $tablesPrefix);
     }
