@@ -55,9 +55,10 @@ abstract class AbstractTable
      */
     public function getTableSchema()
     {
-        $tableSchema = $this->createTableSchema(new Table($this->getTableName()));
-        if(!$tableSchema instanceof Table) {
-            throw new \Exception(get_class($this) . "::createTableSchema() has to return an instance of Doctrine\\DBAL\\Schema\\Table!");
+        $tableSchema = new Table($this->getTableName());
+        $this->createTableSchema($tableSchema);
+        if(count($tableSchema->getColumns()) === 0) {
+            throw new TableSchemaException("The table schema needs at least one column!");
         }
         return $tableSchema;
     }
@@ -92,7 +93,7 @@ abstract class AbstractTable
 
     /**
      * @param $tableSchema Table
-     * @return Table
+     * @return void
      */
     abstract protected function createTableSchema(Table $tableSchema);
 }
