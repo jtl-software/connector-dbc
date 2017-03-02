@@ -75,9 +75,9 @@ class DBManager
      */
     public function getSchemaUpdate()
     {
-        $fromSchema = new Schema($this->getSchemaTables());
-        $toSchema = $this->connection->getSchemaManager()->createSchema();
-        return $toSchema->getMigrateFromSql($fromSchema, $this->connection->getDatabasePlatform());
+        $fromSchema = $this->connection->getSchemaManager()->createSchema();
+        $toSchema = new Schema($this->getSchemaTables());
+        return $fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform());
     }
 
     /**
