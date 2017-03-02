@@ -12,12 +12,7 @@ abstract class AbstractTable
     /**
      * @var DBManager
      */
-    private $dbManager;
-
-    /**
-     * @var Table
-     */
-    private $tableSchema;
+    protected $dbManager;
 
     /**
      * Table constructor.
@@ -28,11 +23,6 @@ abstract class AbstractTable
     {
         $dbManager->registerTable($this);
         $this->dbManager = $dbManager;
-        $tableSchema = $this->createTableSchema(new Table($this->getTableName()));
-        if(!$tableSchema instanceof Table) {
-            throw new \Exception(get_class($this) . "::createTableSchema() has to return an instance of Doctrine\\DBAL\\Schema\\Table!");
-        }
-        $this->tableSchema = $tableSchema;
     }
 
     /**
@@ -44,11 +34,32 @@ abstract class AbstractTable
     }
 
     /**
+     * @return \jtl\Connector\CDBC\Query\QueryBuilder
+     */
+    protected function createQueryBuilder()
+    {
+        return $this->getConnection()->createQueryBuilder();
+    }
+
+    /**
+     * @return \jtl\Connector\CDBC\Connection
+     */
+    protected function getConnection()
+    {
+        return $this->getDbManager()->getConnection();
+    }
+
+    /**
      * @return Table
+     * @throws \Exception
      */
     public function getTableSchema()
     {
-        return clone $this->tableSchema;
+        $tableSchema = $this->createTableSchema(new Table($this->getTableName()));
+        if(!$tableSchema instanceof Table) {
+            throw new \Exception(get_class($this) . "::createTableSchema() has to return an instance of Doctrine\\DBAL\\Schema\\Table!");
+        }
+        return $tableSchema;
     }
 
     /**
@@ -60,6 +71,18 @@ abstract class AbstractTable
             return $this->getDbManager()->getTablesPrefix() . '_' . $this->getName();
         }
         return $this->getName();
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTableColumns()
+    {
+        $columns = [];
+        foreach($this->getTableSchema()->getColumns() as $column) {
+            $columns[] = $column->getName();
+        }
+        return $columns;
     }
 
     /**
