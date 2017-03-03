@@ -22,5 +22,10 @@
     "psr-4": {
       "jtl\\Connector\\CDBC\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "jtl\\Connector\\CDBC\\": "tests/src/"
+    }
   }
 }

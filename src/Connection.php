@@ -54,7 +54,7 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function createQueryBuilder()
     {
-        return new QueryBuilder($this, $this->globalIdentifiers);
+        return new QueryBuilder($this, $this->getGlobalIdentifiers());
     }
 
     /**

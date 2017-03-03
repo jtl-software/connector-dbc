@@ -3,12 +3,14 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Tables;
+namespace jtl\Connector\CDBC\Tables\Mappings;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
 abstract class AbstractMappingTable extends AbstractTable implements MappingTableInterface
 {
+    const HOST_ID = 'host_id';
+
     /**
      * @var string
      */
@@ -26,8 +28,8 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     {
         if(!$this->tableSchema instanceof Table) {
             $tableSchema = parent::getTableSchema();
-            $tableSchema->addColumn('host_id', Type::INTEGER, ['notnull' => false]);
-            $tableSchema->addUniqueIndex(['host_id'], 'unique_host');
+            $tableSchema->addColumn(self::HOST_ID, Type::INTEGER, ['notnull' => false]);
+            $tableSchema->addUniqueIndex([self::HOST_ID], 'unique_host');
             $this->tableSchema = $tableSchema;
         }
         return $this->tableSchema;
@@ -40,7 +42,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     public function getHostId($endpointId)
     {
         $qb = $this->createQueryBuilder()
-            ->select('host_id')
+            ->select(self::HOST_ID)
             ->from($this->getTableName());
 
         foreach(self::extractEndpoint($endpointId) as $column => $value) {
@@ -61,12 +63,12 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function getEndpointId($hostId)
     {
-        $columns = array_diff($this->getTableColumns(), 'host_id');
+        $columns = array_diff($this->getTableColumns(), self::HOST_ID);
         $endpointData = $this->createQueryBuilder()
             ->select($columns)
             ->from($this->getTableName())
-            ->where('host_id = :hostId')
-            ->setParameter('hostId', $hostId)
+            ->where(self::HOST_ID . ' = :' . self::HOST_ID)
+            ->setParameter(self::HOST_ID, $hostId)
             ->execute()
             ->fetch();
 
@@ -84,7 +86,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     public function save($endpointId, $hostId)
     {
         $data = self::extractEndpoint($endpointId);
-        $data['host_id'] = $hostId;
+        $data[self::HOST_ID] = $hostId;
         return $this->getConnection()->insert($this->getTableName(), $data);
     }
 
@@ -97,6 +99,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     {
         $qb = $this->createQueryBuilder();
         $qb->delete($this->getTableName());
+
         if($endpointId !== null){
             foreach(self::explodeEndpoint($endpointId) as $column => $value){
                 $qb->andWhere($column . ' = :' . $column)
@@ -105,8 +108,8 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         }
 
         if($hostId !== null) {
-            $qb->andWhere('host_id = :hostId')
-               ->setParameter('hostId', $hostId);
+            $qb->andWhere(self::HOST_ID . ' = :' . self::HOST_ID)
+               ->setParameter(self::HOST_ID, $hostId);
         }
 
         return $qb->execute();
@@ -139,7 +142,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function findAllEndpoints()
     {
-        $columns = array_diff($this->getTableColumns(), 'host_id');
+        $columns = array_diff($this->getTableColumns(), self::HOST_ID);
 
         $qb = $this->createQueryBuilder();
         $stmt = $qb->select($columns)
@@ -160,7 +163,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function findNotFetchedEndpoints(array $endpoints)
     {
-        $columns = array_diff($this->getTableColumns(), 'host_id');
+        $columns = array_diff($this->getTableColumns(), self::HOST_ID);
         $concatString = 'CONCAT(' . implode(',\'' . self::$endpointDelimiter . '\',', $columns) . ')';
         $stmt = $this->createQueryBuilder()
             ->select($concatString)

@@ -8,7 +8,6 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
-use jtl\Connector\CDBC\Tables\AbstractTable;
 
 class DBManager
 {
@@ -18,9 +17,9 @@ class DBManager
     protected $connection;
 
     /**
-     * @var AbstractTable[]
+     * @var Table[]
      */
-    protected $tables = array();
+    protected $tables = [];
 
     /**
      * @var string
@@ -44,12 +43,12 @@ class DBManager
     }
 
     /**
-     * @param AbstractTable $table
+     * @param Table $table
      * @return DBManager
      */
-    public function registerTable(AbstractTable $table)
+    public function registerTable(Table $table)
     {
-        $this->tables[$table->getTableName()] = $table;
+        $this->tables[$table->getName()] = $table;
         return $this;
     }
 
@@ -58,7 +57,7 @@ class DBManager
      */
     public function getSchema()
     {
-        $schema = new Schema($this->getSchemaTables());
+        $schema = new Schema($this->getTables());
         return $schema->toSql($this->connection->getDatabasePlatform());
     }
 
@@ -76,7 +75,7 @@ class DBManager
     public function getSchemaUpdate()
     {
         $fromSchema = $this->connection->getSchemaManager()->createSchema();
-        $toSchema = new Schema($this->getSchemaTables());
+        $toSchema = new Schema($this->getTables());
         return $fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform());
     }
 
@@ -111,18 +110,6 @@ class DBManager
 
     /**
      * @return Table[]
-     */
-    protected function getSchemaTables()
-    {
-        $schemaTables = [];
-        foreach($this->getTables() as $table) {
-            $schemaTables[] = $table->getTableSchema();
-        }
-        return $schemaTables;
-    }
-
-    /**
-     * @return AbstractTable[]
      */
     protected function getTables()
     {
