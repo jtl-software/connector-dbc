@@ -37,6 +37,9 @@ class DBManager
         $this->tablesPrefix = $tablesPrefix;
     }
 
+    /**
+     * @return Connection
+     */
     public function getConnection()
     {
         return $this->connection;
