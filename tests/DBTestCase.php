@@ -8,30 +8,28 @@ use PHPUnit\DbUnit\Database\DefaultConnection;
 
 class DBTestCase extends \PHPUnit\DbUnit\TestCase
 {
+    const TABLES_PREFIX = 'pre';
+    const SCHEMA = TESTROOT . '/tmp/db.sqlite';
+
     /**
      * @var PDO
      */
     protected $pdo;
-
     /**
-     * @var string
-     */
-    protected $schema = TESTROOT . '/tmp/db.sqlite';
-
-    /**
-     * @var \jtl\Connector\CDBC\DBManager
+     * @var \jtl\Connector\CDBC\DBManagerStub
      */
     protected $dbManager;
 
     /**
-     * @var \jtl\Connector\CDBC\Tables\StubTable
+     * @var \jtl\Connector\CDBC\Tables\TableStub
      */
     protected $stubTable;
 
+
     protected function setUp()
     {
-        $this->dbManager = \jtl\Connector\CDBC\DBManager::createFromPDO($this->getConnection()->getConnection());
-        $this->stubTable = new \jtl\Connector\CDBC\Tables\StubTable($this->dbManager);
+        $this->dbManager = \jtl\Connector\CDBC\DBManagerStub::createFromPDO($this->getConnection()->getConnection(), null, self::TABLES_PREFIX);
+        $this->stubTable = new \jtl\Connector\CDBC\Tables\TableStub($this->dbManager);
         if($this->dbManager->hasSchemaUpdate()){
             $this->dbManager->updateDatabaseSchema();
         }
@@ -45,9 +43,9 @@ class DBTestCase extends \PHPUnit\DbUnit\TestCase
     protected function getConnection()
     {
         if (!$this->pdo instanceof \PDO) {
-                $this->pdo = new \PDO('sqlite:' . $this->schema);
+                $this->pdo = new \PDO('sqlite:' . self::SCHEMA);
         }
-        return $this->createDefaultDBConnection($this->pdo, $this->schema);
+        return $this->createDefaultDBConnection($this->pdo, self::SCHEMA);
     }
 
     /**

@@ -3,14 +3,48 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-
 namespace jtl\Connector\CDBC;
+use Doctrine\DBAL\Schema\Table;
+use jtl\Connector\CDBC\Tables\CoordinatesStub;
 
 
 class DBManagerTest extends \DBTestCase
 {
-    public function testTest()
+    public function testRegisterTable()
     {
-        self::markTestIncomplete('Not implemented yet!');
+        new CoordinatesStub($this->dbManager);
+        $tables = $this->dbManager->getSchemaTables();
+        $this->assertCount(2, $tables);
+        $this->assertInstanceOf(Table::class, $tables[1]);
+        //$table->addColumn()
+    }
+
+    public function testTablesPrefix()
+    {
+        new CoordinatesStub($this->dbManager);
+        $this->assertTrue($this->dbManager->hasTablesPrefix());
+        $this->assertEquals(self::TABLES_PREFIX, $this->dbManager->getTablesPrefix());
+        $tables = $this->dbManager->getTables();
+        /** @var CoordinatesStub $coordinateTable */
+        $coordinateTable = $tables[1];
+        $this->assertEquals('coordinates', $coordinateTable->getName());
+        $schemaTables = $this->dbManager->getSchemaTables();
+        $this->assertEquals(self::TABLES_PREFIX, substr($schemaTables[1]->getName(), 0, 3));
+    }
+
+    public function testHasSchemaUpdate()
+    {
+        new CoordinatesStub($this->dbManager);
+        $tables = $this->dbManager->getSchemaTables();
+        $this->assertCount(2, $tables);
+        $this->assertTrue($this->dbManager->hasSchemaUpdate());
+    }
+
+    public function testUpdateDatabaseSchema()
+    {
+        new CoordinatesStub($this->dbManager);
+        $this->assertTrue($this->dbManager->hasSchemaUpdate());
+        $this->dbManager->updateDatabaseSchema();
+        $this->assertFalse($this->dbManager->hasSchemaUpdate());
     }
 }

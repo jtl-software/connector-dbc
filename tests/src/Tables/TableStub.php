@@ -7,12 +7,12 @@ namespace jtl\Connector\CDBC\Tables;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
-class StubTable extends AbstractTable
+class TableStub extends AbstractTable
 {
     /**
      * @return string
      */
-    protected function getName()
+    public function getName()
     {
         return 'test_table';
     }
