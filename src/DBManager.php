@@ -8,6 +8,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
+use jtl\Connector\CDBC\Tables\AbstractTable;
 
 class DBManager
 {
@@ -17,7 +18,7 @@ class DBManager
     protected $connection;
 
     /**
-     * @var Table[]
+     * @var AbstractTable[]
      */
     protected $tables = [];
 
@@ -46,12 +47,12 @@ class DBManager
     }
 
     /**
-     * @param Table $table
+     * @param AbstractTable $table
      * @return DBManager
      */
-    public function registerTable(Table $table)
+    public function registerTable(AbstractTable $table)
     {
-        $this->tables[$table->getName()] = $table;
+        $this->tables[$table->getTableName()] = $table;
         return $this;
     }
 
@@ -60,16 +61,8 @@ class DBManager
      */
     public function getSchema()
     {
-        $schema = new Schema($this->getTables());
+        $schema = new Schema($this->getSchemaTables());
         return $schema->toSql($this->connection->getDatabasePlatform());
-    }
-
-    /**
-     * @return boolean
-     */
-    public function hasSchemaUpdate()
-    {
-        return count($this->getSchemaUpdate()) > 0;
     }
 
     /**
@@ -78,8 +71,16 @@ class DBManager
     public function getSchemaUpdate()
     {
         $fromSchema = $this->connection->getSchemaManager()->createSchema();
-        $toSchema = new Schema($this->getTables());
+        $toSchema = new Schema($this->getSchemaTables());
         return $fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform());
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasSchemaUpdate()
+    {
+        return count($this->getSchemaUpdate()) > 0;
     }
 
     /**
@@ -112,11 +113,23 @@ class DBManager
     }
 
     /**
-     * @return Table[]
+     * @return AbstractTable[]
      */
     protected function getTables()
     {
-        return $this->tables;
+        return array_values($this->tables);
+    }
+
+    /**
+     * @return Table[]
+     */
+    protected function getSchemaTables()
+    {
+        $schemaTables = [];
+        foreach($this->getTables() as $table){
+            $schemaTables[] = $table->getTableSchema();
+        }
+        return $schemaTables;
     }
 
     /**
@@ -132,7 +145,7 @@ class DBManager
             'wrapperClass' => Connection::class
         ];
         $connection = DriverManager::getConnection($params, $config);
-        return new self($connection, $tablesPrefix);
+        return new static($connection, $tablesPrefix);
     }
 
     /**
@@ -145,6 +158,6 @@ class DBManager
     {
         $params['wrapperClass'] = Connection::class;
         $connection = DriverManager::getConnection($params, $config);
-        return new self($connection, $tablesPrefix);
+        return new static($connection, $tablesPrefix);
     }
 }
