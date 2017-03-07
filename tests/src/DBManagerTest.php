@@ -13,10 +13,12 @@ class DBManagerTest extends \DBTestCase
     public function testRegisterTable()
     {
         new CoordinatesStub($this->dbManager);
-        $tables = $this->dbManager->getSchemaTables();
+        $schemaTables = $this->dbManager->getSchemaTables();
+        $this->assertCount(2, $schemaTables);
+        $this->assertInstanceOf(Table::class, $schemaTables[1]);
+        $tables = $this->dbManager->getTables();
         $this->assertCount(2, $tables);
-        $this->assertInstanceOf(Table::class, $tables[1]);
-        //$table->addColumn()
+        $this->assertInstanceOf(CoordinatesStub::class, $tables[1]);
     }
 
     public function testTablesPrefix()

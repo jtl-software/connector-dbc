@@ -109,6 +109,8 @@ class QueryBuilderTest extends \DBTestCase
         $this->assertCount(4, $datasets);
         $this->assertEquals(9.2, $datasets[0]['z']);
         $this->assertEquals(9.2, $datasets[1]['z']);
+        $this->assertEquals(2., $datasets[2]['z']);
+        $this->assertEquals(23., $datasets[3]['z']);
     }
 
     public function myTrim($str)
