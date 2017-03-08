@@ -14,7 +14,7 @@ class TableStub extends AbstractTable
      */
     public function getName()
     {
-        return 'test_table';
+        return 'table';
     }
 
     /**

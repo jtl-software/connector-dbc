@@ -5,8 +5,10 @@
  */
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\Database\DefaultConnection;
+use jtl\Connector\CDBC\DBManagerStub;
+use jtl\Connector\CDBC\Tables\TableStub;
 
-class DBTestCase extends \PHPUnit\DbUnit\TestCase
+abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
 {
     const TABLES_PREFIX = 'pre';
     const SCHEMA = TESTROOT . '/tmp/db.sqlite';
@@ -25,17 +27,31 @@ class DBTestCase extends \PHPUnit\DbUnit\TestCase
      */
     protected $stubTable;
 
+    /**
+     * @var YamlDataSet
+     */
+    protected $yamlDataSet;
+
 
     protected function setUp()
     {
-        $this->dbManager = \jtl\Connector\CDBC\DBManagerStub::createFromPDO($this->getConnection()->getConnection(), null, self::TABLES_PREFIX);
-        $this->stubTable = new \jtl\Connector\CDBC\Tables\TableStub($this->dbManager);
-        if($this->dbManager->hasSchemaUpdate()){
-            $this->dbManager->updateDatabaseSchema();
+        $this->stubTable = new TableStub($this->getDBManager());
+        if($this->getDBManager()->hasSchemaUpdate()){
+            $this->getDBManager()->updateDatabaseSchema();
         }
         parent::setUp();
     }
 
+    /**
+     * @return DBManagerStub
+     */
+    protected function getDBManager()
+    {
+        if(!$this->dbManager instanceof \jtl\Connector\CDBC\DBManagerStub){
+            $this->dbManager = DBManagerStub::createFromPDO($this->getConnection()->getConnection(), null, self::TABLES_PREFIX);
+        }
+        return $this->dbManager;
+    }
 
     /**
      * @return DefaultConnection;
@@ -51,8 +67,19 @@ class DBTestCase extends \PHPUnit\DbUnit\TestCase
     /**
      * @return YamlDataSet
      */
+    protected function getYamlDataSet()
+    {
+        if(!$this->yamlDataSet instanceof YamlDataSet){
+            $this->yamlDataSet = new YamlDataSet(TESTROOT . '/files/table_stub.yaml');
+        }
+        return $this->yamlDataSet;
+    }
+
+    /**
+     * @return YamlDataSet
+     */
     protected function getDataSet()
     {
-        return new YamlDataSet(TESTROOT . '/files/datasets.yaml');
+        return $this->getYamlDataSet();
     }
 }

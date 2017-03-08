@@ -3,12 +3,14 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Tables\Mappings;
+namespace jtl\Connector\CDBC\Tables;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
 abstract class AbstractMappingTable extends AbstractTable implements MappingTableInterface
 {
+    const HOST_UNIQUE_KEY_NAME = 'unique_host';
     const HOST_ID = 'host_id';
 
     /**
@@ -29,7 +31,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         if(!$this->tableSchema instanceof Table) {
             $tableSchema = parent::getTableSchema();
             $tableSchema->addColumn(self::HOST_ID, Type::INTEGER, ['notnull' => false]);
-            $tableSchema->addUniqueIndex([self::HOST_ID], 'unique_host');
+            $tableSchema->addUniqueIndex([self::HOST_ID], self::HOST_UNIQUE_KEY_NAME);
             $this->tableSchema = $tableSchema;
         }
         return $this->tableSchema;
@@ -50,9 +52,9 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
                ->setParameter($column, $value);
         }
 
-        $stmt = $qb->execute();
-        if($stmt->rowCount() > 0){
-            return (int)$stmt->fetchColumn(0);
+        $column = $qb->execute()->fetchColumn(0);
+        if($column !== false){
+            return (int)$column;
         }
         return null;
     }
@@ -63,7 +65,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function getEndpointId($hostId)
     {
-        $columns = array_diff($this->getTableColumns(), self::HOST_ID);
+        $columns = array_diff($this->getTableColumns(), [self::HOST_ID]);
         $endpointData = $this->createQueryBuilder()
             ->select($columns)
             ->from($this->getTableName())
@@ -101,7 +103,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         $qb->delete($this->getTableName());
 
         if($endpointId !== null){
-            foreach(self::explodeEndpoint($endpointId) as $column => $value){
+            foreach(self::extractEndpoint($endpointId) as $column => $value){
                 $qb->andWhere($column . ' = :' . $column)
                    ->setParameter($column, $value);
             }
@@ -131,7 +133,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     public function count()
     {
         $qb = $this->createQueryBuilder();
-        $stmt = $qb->select('COUNT(*)')
+        $stmt = $qb->select($this->getDbManager()->getConnection()->getDatabasePlatform()->getCountExpression('*'))
             ->from($this->getTableName())
             ->execute();
         return $stmt->fetchColumn(0);
@@ -142,7 +144,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function findAllEndpoints()
     {
-        $columns = array_diff($this->getTableColumns(), self::HOST_ID);
+        $columns = array_diff($this->getTableColumns(), [self::HOST_ID]);
 
         $qb = $this->createQueryBuilder();
         $stmt = $qb->select($columns)
@@ -163,16 +165,29 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function findNotFetchedEndpoints(array $endpoints)
     {
-        $columns = array_diff($this->getTableColumns(), self::HOST_ID);
-        $concatString = 'CONCAT(' . implode(',\'' . self::$endpointDelimiter . '\',', $columns) . ')';
-        $stmt = $this->createQueryBuilder()
-            ->select($concatString)
-            ->from($this->getTableName())
-            ->where($concatString . ' IN (:endpoints)')
-            ->setParameter('endpoints', $endpoints)
-            ->execute();
+        $platform = $this->getConnection()->getDatabasePlatform();
+        $columns = array_diff($this->getTableColumns(), [self::HOST_ID]);
+        $concatArray = [];
+        foreach($columns as $column)
+        {
+            $concatArray[] = $column;
+            if($column !== end($columns)){
+                $concatArray[] = $this->getConnection()->quote(self::$endpointDelimiter);
+            }
+        }
 
-        return array_values($endpoints, $stmt->fetchAll(\PDO::FETCH_COLUMN));
+        $concatExpression = call_user_func_array([$platform, 'getConcatExpression'], $concatArray);
+        $qb = $this->createQueryBuilder()
+            ->select($concatExpression)
+            ->from($this->getTableName())
+            ->where($concatExpression . ' IN (:endpoints)')
+            ->setParameter('endpoints', $endpoints, Connection::PARAM_STR_ARRAY);
+
+        $fetchedEndpoints = $qb->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        if(is_array($fetchedEndpoints)){
+            return array_diff($endpoints, $fetchedEndpoints);
+        }
+        return $endpoints;
     }
 
     /**

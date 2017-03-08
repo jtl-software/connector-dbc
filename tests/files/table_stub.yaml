@@ -1,4 +1,4 @@
-pre_test_table:
+pre_table:
   -
     id: "1"
     a: "1"

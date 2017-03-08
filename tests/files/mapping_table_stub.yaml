@@ -1,0 +1,13 @@
+pre_mapping_table:
+  -
+    id1: "1"
+    id2: "1"
+    host_id: 3
+  -
+    id1: "1"
+    id2: "2"
+    host_id: 2
+  -
+    id1: "4"
+    id2: "2"
+    host_id: 5

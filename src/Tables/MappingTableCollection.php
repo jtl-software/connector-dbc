@@ -3,7 +3,9 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2016 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Tables\Mappings;
+namespace jtl\Connector\CDBC\Tables;
+
+use jtl\Connector\CDBC\Tables\MappingTableInterface;
 
 class MappingTableCollection
 {

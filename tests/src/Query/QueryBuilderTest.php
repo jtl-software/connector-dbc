@@ -6,6 +6,7 @@
 namespace jtl\Connector\CDBC\Query;
 
 use jtl\Connector\CDBC\Tables\CoordinatesStub;
+use PHPUnit\DbUnit\DataSet\IDataSet;
 
 class QueryBuilderTest extends \DBTestCase
 {
@@ -15,14 +16,21 @@ class QueryBuilderTest extends \DBTestCase
     protected $qb;
 
     /**
+     * @var CoordinatesStub
+     */
+    protected $coordsTable;
+
+    /**
      * @var string[]
      */
     protected $globalIdentifiers = ['foo' => 'bar'];
 
     protected function setUp()
     {
+        $this->getYamlDataSet()->addYamlFile(TESTROOT . '/files/coordinates_stub.yaml');
+        $this->coordsTable = new CoordinatesStub($this->getDBManager());
+        $this->qb = new QueryBuilder($this->getDBManager()->getConnection(), $this->globalIdentifiers);
         parent::setUp();
-        $this->qb = new QueryBuilder($this->dbManager->getConnection(), $this->globalIdentifiers);
     }
 
     public function testGlobalIdentifierWithSelect()
@@ -93,24 +101,21 @@ class QueryBuilderTest extends \DBTestCase
 
     public function testGlobalParameters()
     {
-        $coords = new CoordinatesStub($this->dbManager);
-        if($this->dbManager->hasSchemaUpdate()) {
-            $this->dbManager->updateDatabaseSchema();
-        }
-        $coords->addCoordinate(2., 4., 5.);
-        $coords->addCoordinate(2., 3., 7.);
-        $coords->addCoordinate(4., 4., 2.);
-        $coords->addCoordinate(1., 3., 23.);
+        $this->getDBManager()->getConnection()->setGlobalIdentifier('x', 1.);
+        $this->assertTableRowCount($this->coordsTable->getTableName(), 4);
+        $datasets = $this->coordsTable->findAll();
+        $this->assertEquals(3, $datasets[0]['z']);
+        $this->assertEquals(5., $datasets[1]['z']);
 
-        $qb = new QueryBuilder($this->dbManager->getConnection(), ['x' => 2.]);
-        $qb->update($coords->getTableName())->set('z', ':z')->setParameter('z', 9.2)->execute();
+        $qb = $this->getDBManager()->getConnection()->createQueryBuilder();
+        $qb->update($this->coordsTable->getTableName())
+           ->set('z', ':z')
+           ->setParameter('z', 10.5)
+           ->execute();
 
-        $datasets = $coords->findAll();
-        $this->assertCount(4, $datasets);
-        $this->assertEquals(9.2, $datasets[0]['z']);
-        $this->assertEquals(9.2, $datasets[1]['z']);
-        $this->assertEquals(2., $datasets[2]['z']);
-        $this->assertEquals(23., $datasets[3]['z']);
+        $datasets = $this->coordsTable->findAll();
+        $this->assertEquals(10.5, $datasets[0]['z']);
+        $this->assertEquals(10.5, $datasets[1]['z']);
     }
 
     public function myTrim($str)

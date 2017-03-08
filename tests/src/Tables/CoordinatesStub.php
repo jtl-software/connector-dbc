@@ -9,17 +9,23 @@ use Doctrine\DBAL\Types\Type;
 
 class CoordinatesStub extends AbstractTable
 {
+    const COL_X = 'x';
+    const COL_Y = 'y';
+    const COL_Z = 'z';
+
+    const TABLE_NAME = 'coordinates';
+
     public function getName()
     {
-        return 'coordinates';
+        return self::TABLE_NAME;
     }
 
     protected function createTableSchema(Table $tableSchema)
     {
-        $tableSchema->addColumn('x', Type::FLOAT, ['default' => 0.0]);
-        $tableSchema->addColumn('y', Type::FLOAT, ['default' => 0.0]);
-        $tableSchema->addColumn('z', Type::FLOAT, ['default' => 0.0]);
-        $tableSchema->setPrimaryKey(['x', 'y', 'z']);
+        $tableSchema->addColumn(self::COL_X, Type::FLOAT, ['default' => 0.0]);
+        $tableSchema->addColumn(self::COL_Y, Type::FLOAT, ['default' => 0.0]);
+        $tableSchema->addColumn(self::COL_Z, Type::FLOAT, ['default' => 0.0]);
+        $tableSchema->setPrimaryKey([self::COL_X, self::COL_Y, self::COL_Z]);
     }
 
     /**
@@ -30,8 +36,11 @@ class CoordinatesStub extends AbstractTable
      */
     public function addCoordinate($x, $y, $z)
     {
+        $data = [self::COL_X => $x, self::COL_Y => $y, self::COL_Z => $z];
+        $types = [self::COL_X => Type::FLOAT, self::COL_Y => Type::FLOAT, self::COL_Z => Type::FLOAT];
+
         return $this->getConnection()
-             ->insert($this->getTableName(), ['x' => $x, 'y' => $y, 'z' => $z], ['x' => Type::FLOAT, 'y' => Type::FLOAT, 'z' => Type::FLOAT]) > 0;
+             ->insert($this->getTableName(), $data, $types) > 0;
     }
 
     /**
@@ -48,7 +57,7 @@ class CoordinatesStub extends AbstractTable
      */
     public function findByX($x)
     {
-        return $this->findBy(['x' => $x]);
+        return $this->findBy([self::COL_X => $x]);
     }
 
     /**
@@ -57,7 +66,7 @@ class CoordinatesStub extends AbstractTable
      */
     public function findByY($y)
     {
-        return $this->findBy(['y' => $y]);
+        return $this->findBy([self::COL_Y => $y]);
     }
 
     /**
@@ -66,7 +75,7 @@ class CoordinatesStub extends AbstractTable
      */
     public function findByZ($z)
     {
-        return $this->findBy(['z' => $z]);
+        return $this->findBy([self::COL_Z => $z]);
     }
 
     /**
@@ -76,7 +85,7 @@ class CoordinatesStub extends AbstractTable
     protected function findBy(array $parameters = [])
     {
         $qb = $this->createQueryBuilder();
-        $qb->select('x', 'y', 'z')
+        $qb->select(self::COL_X, self::COL_Y, self::COL_Z)
             ->from($this->getTableName());
 
         foreach($parameters as $column => $value) {
