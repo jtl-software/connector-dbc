@@ -58,7 +58,7 @@ interface MappingTableInterface
     public function count();
 
     /**
-     * @return mixed[]
+     * @return string[]
      */
     public function findAllEndpoints();
 
