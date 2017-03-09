@@ -28,8 +28,8 @@ class AbstractMappingTableTest extends \DBTestCase
     {
         $tableSchema = $this->mappingTable->getTableSchema();
         $this->assertTrue($tableSchema->hasColumn(AbstractMappingTable::HOST_ID));
-        $this->assertTrue($tableSchema->hasIndex(AbstractMappingTable::HOST_UNIQUE_KEY_NAME));
-        $uniqueIndex = $tableSchema->getIndex(AbstractMappingTable::HOST_UNIQUE_KEY_NAME);
+        $this->assertTrue($tableSchema->hasIndex(AbstractMappingTable::HOST_INDEX_NAME));
+        $uniqueIndex = $tableSchema->getIndex(AbstractMappingTable::HOST_INDEX_NAME);
         $uniqueColumns = $uniqueIndex->getColumns();
         $this->assertCount(1, $uniqueColumns);
         /** @var Column $hostColumn */
@@ -81,7 +81,12 @@ class AbstractMappingTableTest extends \DBTestCase
 
     public function testCount()
     {
+        $this->assertTableRowCount($this->mappingTable->getTableName(), 3);
         $this->assertEquals(3, $this->mappingTable->count());
+        $this->mappingTable->remove('1||1');
+        $this->assertTableRowCount($this->mappingTable->getTableName(), 2);
+        $this->assertEquals(2, $this->mappingTable->count());
+
     }
 
     public function testFindAllEndpoints()

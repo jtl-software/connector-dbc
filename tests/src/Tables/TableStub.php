@@ -9,6 +9,11 @@ use Doctrine\DBAL\Types\Type;
 
 class TableStub extends AbstractTable
 {
+    const ID = 'id';
+    const A = 'a';
+    const B = 'b';
+    const C = 'c';
+
     /**
      * @return string
      */
@@ -23,10 +28,24 @@ class TableStub extends AbstractTable
      */
     protected function createTableSchema(Table $tableSchema)
     {
-        $tableSchema->addColumn('id', Type::INTEGER, ['autoincrement' => true]);
-        $tableSchema->addColumn('a', Type::INTEGER, ['notnull' => false]);
-        $tableSchema->addColumn('b', Type::STRING, ['length' => 64]);
-        $tableSchema->addColumn('c', Type::DATETIME);
-        $tableSchema->setPrimaryKey(['id']);
+        $tableSchema->addColumn(self::ID, Type::INTEGER, ['autoincrement' => true]);
+        $tableSchema->addColumn(self::A, Type::INTEGER, ['notnull' => false]);
+        $tableSchema->addColumn(self::B, Type::STRING, ['length' => 64]);
+        $tableSchema->addColumn(self::C, Type::DATETIME);
+        $tableSchema->setPrimaryKey([self::ID]);
+    }
+
+    /**
+     * @param integer $fetchType
+     * @param string[] $columns
+     * @return \mixed[]
+     */
+    public function findAll($fetchType = \PDO::FETCH_ASSOC, array $columns = [])
+    {
+        $stmt = $this->createQueryBuilder()->select(array_keys($this->getColumnTypes()))
+                                           ->from($this->getTableName())
+                                           ->execute();
+
+        return $this->mapRows($stmt->fetchAll($fetchType), $columns);
     }
 }
