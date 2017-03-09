@@ -4,6 +4,7 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace jtl\Connector\CDBC\Tables;
+use Doctrine\DBAL\Types\Type;
 use jtl\Connector\CDBC\DBManager;
 use Doctrine\DBAL\Schema\Table;
 
@@ -77,13 +78,21 @@ abstract class AbstractTable
     /**
      * @return string[]
      */
-    public function getTableColumns()
+    public function getColumnTypes()
     {
         $columns = [];
         foreach($this->getTableSchema()->getColumns() as $column) {
-            $columns[] = $column->getName();
+            $columns[$column->getName()] = $column->getType()->getName();
         }
         return $columns;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getColumnNames()
+    {
+        return array_keys($this->getColumnTypes());
     }
 
     /**
@@ -96,4 +105,53 @@ abstract class AbstractTable
      * @return void
      */
     abstract protected function createTableSchema(Table $tableSchema);
+
+    /**
+     * @param mixed[] $rows
+     * @param string[] $columns
+     * @return mixed[]
+     */
+    protected function mapRows(array $rows, array $columns = [])
+    {
+        return array_map(function(array $row) use ($columns){
+            return $this->mapRow($row, $columns);
+        }, $rows);
+    }
+
+    /**
+     * @param mixed[] $row
+     * @param string[] $columns
+     * @return mixed[]
+     */
+    protected function mapRow(array $row, array $columns = [])
+    {
+        $types = $this->getColumnTypes();
+        $numericIndices = is_int(key($row));
+
+        if($numericIndices){
+            $types = array_values($types);
+        }
+
+        if(count($columns) > 0) {
+            $types = array_intersect_key($types, array_fill_keys($columns, $columns));
+        }
+
+        if(count($types) === 0) {
+            return $row;
+        }
+
+        $result = [];
+        foreach($row as $i => $value){
+            if(!isset($types[$i])){
+                continue;
+            }
+
+            $result[$i] = $value;
+            if(Type::hasType($types[$i])) {
+                $result[$i] = Type::getType($types[$i])->convertToPHPValue($value, $this->dbManager->getConnection()->getDatabasePlatform());
+            }
+        }
+
+        return $numericIndices ? array_values($result) : $result;
+    }
 }

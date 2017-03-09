@@ -10,7 +10,7 @@ use Doctrine\DBAL\Types\Type;
 
 abstract class AbstractMappingTable extends AbstractTable implements MappingTableInterface
 {
-    const HOST_UNIQUE_KEY_NAME = 'unique_host';
+    const HOST_INDEX_NAME = 'unique_host';
     const HOST_ID = 'host_id';
 
     /**
@@ -31,7 +31,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         if(!$this->tableSchema instanceof Table) {
             $tableSchema = parent::getTableSchema();
             $tableSchema->addColumn(self::HOST_ID, Type::INTEGER, ['notnull' => false]);
-            $tableSchema->addUniqueIndex([self::HOST_ID], self::HOST_UNIQUE_KEY_NAME);
+            $tableSchema->addUniqueIndex([self::HOST_ID], self::HOST_INDEX_NAME);
             $this->tableSchema = $tableSchema;
         }
         return $this->tableSchema;
@@ -65,7 +65,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function getEndpointId($hostId)
     {
-        $columns = array_diff($this->getTableColumns(), [self::HOST_ID]);
+        $columns = array_diff($this->getColumnNames(), [self::HOST_ID]);
         $endpointData = $this->createQueryBuilder()
             ->select($columns)
             ->from($this->getTableName())
@@ -144,7 +144,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function findAllEndpoints()
     {
-        $columns = array_diff($this->getTableColumns(), [self::HOST_ID]);
+        $columns = array_diff($this->getColumnNames(), [self::HOST_ID]);
 
         $qb = $this->createQueryBuilder();
         $stmt = $qb->select($columns)
@@ -166,7 +166,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     public function findNotFetchedEndpoints(array $endpoints)
     {
         $platform = $this->getConnection()->getDatabasePlatform();
-        $columns = array_diff($this->getTableColumns(), [self::HOST_ID]);
+        $columns = array_diff($this->getColumnNames(), [self::HOST_ID]);
         $concatArray = [];
         foreach($columns as $column)
         {
@@ -180,7 +180,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         $qb = $this->createQueryBuilder()
             ->select($concatExpression)
             ->from($this->getTableName())
-            ->where($concatExpression . ' IN (:endpoints)')
+            ->where($this->getConnection()->getExpressionBuilder()->in($concatExpression, ':endpoints'))
             ->setParameter('endpoints', $endpoints, Connection::PARAM_STR_ARRAY);
 
         $fetchedEndpoints = $qb->execute()->fetchAll(\PDO::FETCH_COLUMN);
