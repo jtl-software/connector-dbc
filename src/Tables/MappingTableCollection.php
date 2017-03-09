@@ -5,8 +5,6 @@
  */
 namespace jtl\Connector\CDBC\Tables;
 
-use jtl\Connector\CDBC\Tables\MappingTableInterface;
-
 class MappingTableCollection
 {
     /**
@@ -18,7 +16,7 @@ class MappingTableCollection
      * MappingTableCollection constructor.
      * @param MappingTableInterface[] $tables
      */
-    public function __construct(array $tables)
+    public function __construct(array $tables = [])
     {
         foreach($tables as $table){
             $this->set($table);
@@ -28,36 +26,39 @@ class MappingTableCollection
 
     /**
      * @param MappingTableInterface $table
+     * @return MappingTableCollection
      */
     public function set(MappingTableInterface $table)
     {
         $this->tables[$table->getType()] = $table;
+        return $this;
     }
 
     /**
      * @param MappingTableInterface $table
-     * @throws \Exception
+     * @return boolean
      */
     public function removeByInstance(MappingTableInterface $table)
     {
         $index = $table->getType();
-        if(!isset($this->tables[$index]) || !($this->tables[$index] === $table)) {
-            throw new \Exception("This instance is not part of the collection and can't get removed!");
+        if(isset($this->tables[$index]) && ($this->tables[$index] === $table)) {
+            unset($this->tables[$index]);
+            return true;
         }
-        unset($this->tables[$index]);
-
+        return false;
     }
 
     /**
      * @param integer $type
-     * @throws \Exception
+     * @return boolean
      */
     public function removeByType($type)
     {
-        if(!$this->has($type)) {
-            throw new \Exception("The type " . $type . " is not part of the collection!");
+        if($this->has($type)) {
+            unset($this->tables[$type]);
+            return true;
         }
-        unset($this->tables[$type]);
+        return false;
     }
 
     /**
@@ -77,7 +78,7 @@ class MappingTableCollection
     public function get($type)
     {
         if(!$this->has($type)) {
-            throw new \Exception("No MappingTable from type " . $type . " found!");
+            throw new MappingTableNotFoundException();
         }
         return $this->tables[$type];
     }
