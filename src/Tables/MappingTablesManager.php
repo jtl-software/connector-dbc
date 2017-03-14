@@ -9,7 +9,7 @@ use jtl\Connector\Mapper\IPrimaryKeyMapper;
 class MappingTablesManager implements IPrimaryKeyMapper
 {
     /**
-     * @var MappingTableCollection
+     * @var MappingTablesCollection
      */
     protected $collection;
 
@@ -19,7 +19,7 @@ class MappingTablesManager implements IPrimaryKeyMapper
      */
     public function __construct(array $mappingTables)
     {
-        $this->collection = new MappingTableCollection($mappingTables);
+        $this->collection = new MappingTablesCollection($mappingTables);
     }
 
     /**

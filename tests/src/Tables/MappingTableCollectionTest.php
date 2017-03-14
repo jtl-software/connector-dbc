@@ -15,7 +15,7 @@ class MappingTableCollectionTest extends \DBTestCase
     protected $table;
 
     /**
-     * @var MappingTableCollection
+     * @var MappingTablesCollection
      */
     protected $collection;
 
@@ -23,13 +23,13 @@ class MappingTableCollectionTest extends \DBTestCase
     {
         $this->getDataSet()->addYamlFile(TESTROOT . '/files/mapping_table_stub.yaml');
         $this->table = new MappingTableStub($this->getDBManager());
-        $this->collection = new MappingTableCollection([$this->table]);
+        $this->collection = new MappingTablesCollection([$this->table]);
         parent::setUp();
     }
 
     public function toArray()
     {
-        $collection = new MappingTableCollection([$this->table]);
+        $collection = new MappingTablesCollection([$this->table]);
         $tables = $collection->toArray();
         $this->assertCount(1, $tables);
         $this->assertEquals($this->table, $tables[0]);
@@ -37,7 +37,7 @@ class MappingTableCollectionTest extends \DBTestCase
 
     public function testSetAndGet()
     {
-        $collection = new MappingTableCollection();
+        $collection = new MappingTablesCollection();
         $this->assertCount(0, $collection->toArray());
         $collection->set($this->table);
         $table = $collection->get($this->table->getType());
@@ -47,20 +47,20 @@ class MappingTableCollectionTest extends \DBTestCase
 
     public function testHas()
     {
-        $collection = new MappingTableCollection([$this->table]);
+        $collection = new MappingTablesCollection([$this->table]);
         $this->assertTrue($collection->has($this->table->getType()));
     }
 
     public function testHasNot()
     {
-        $collection = new MappingTableCollection([$this->table]);
+        $collection = new MappingTablesCollection([$this->table]);
         $this->assertFalse($collection->has('whatever'));
     }
 
     public function testGetNotFound()
     {
         try {
-            $table = new MappingTableCollection([$this->table]);
+            $table = new MappingTablesCollection([$this->table]);
             $table->get('yeeeha');
         } catch(MappingTableNotFoundException $ex){
             $this->assertInstanceOf(MappingTableNotFoundException::class, $ex);
@@ -71,7 +71,7 @@ class MappingTableCollectionTest extends \DBTestCase
 
     public function testRemoveByType()
     {
-        $collection = new MappingTableCollection([$this->table]);
+        $collection = new MappingTablesCollection([$this->table]);
         $this->assertEquals($this->table, $collection->get($this->table->getType()));
         $collection->removeByType($this->table->getType());
         $this->assertCount(0, $collection->toArray());
@@ -79,7 +79,7 @@ class MappingTableCollectionTest extends \DBTestCase
 
     public function testRemoveByInstance()
     {
-        $collection = new MappingTableCollection([$this->table]);
+        $collection = new MappingTablesCollection([$this->table]);
         $this->assertEquals($this->table, $collection->get($this->table->getType()));
         $collection->removeByInstance($this->table);
         $this->assertCount(0, $collection->toArray());
