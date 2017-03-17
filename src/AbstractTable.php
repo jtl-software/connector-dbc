@@ -6,7 +6,7 @@
 namespace jtl\Connector\CDBC;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
-use jtl\Connector\CDBC\Tables\TableRestriction;
+use jtl\Connector\CDBC\Schema\TableRestriction;
 
 
 abstract class AbstractTable
@@ -47,7 +47,7 @@ abstract class AbstractTable
      */
     protected function restrict($column, $value)
     {
-        $this->getConnection()->restrictTable(new TableRestriction($this, $column, $value));
+        $this->getConnection()->restrictTable(new TableRestriction($this->getTableSchema(), $column, $value));
         return $this;
     }
 

@@ -32,6 +32,17 @@ class AbstractTableTest extends \DBTestCase
         $this->assertEquals(self::TABLES_PREFIX . '_' . $this->coords->getName(), $this->coords->getTableName());
     }
 
+    public function testRestrict()
+    {
+        $this->stubTable->restrict(TableStub::B, 'a string');
+        $data = $this->stubTable->findAll();
+        $this->assertCount(1, $data);
+        $row = reset($data);
+        $this->assertEquals(1, $row[TableStub::A]);
+        $this->assertEquals('a string', $row[TableStub::B]);
+        $this->assertEquals(new \DateTime('@' . strtotime("2017-03-29 00:00:00")), $row[TableStub::C]);
+    }
+
     public function testGetTableSchema()
     {
         $table = $this->coords->getTableSchema();

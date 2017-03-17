@@ -6,7 +6,7 @@
 namespace jtl\Connector\CDBC;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
-use jtl\Connector\CDBC\AbstractTable;
+
 
 class TableStub extends AbstractTable
 {
@@ -22,6 +22,17 @@ class TableStub extends AbstractTable
     {
         return 'table';
     }
+
+    /**
+     * @param string $column
+     * @param mixed $value
+     * @return AbstractTable
+     */
+    public function restrict($column, $value)
+    {
+        return parent::restrict($column, $value);
+    }
+
 
     /**
      * @param Table $tableSchema
