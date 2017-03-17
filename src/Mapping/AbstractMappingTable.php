@@ -3,10 +3,11 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Tables;
+namespace jtl\Connector\CDBC\Mapping;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use jtl\Connector\CDBC\AbstractTable;
 
 abstract class AbstractMappingTable extends AbstractTable implements MappingTableInterface
 {
@@ -19,12 +20,12 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     static protected $endpointDelimiter = '||';
 
     /**
-     * @var Table
+     * @var AbstractTable
      */
     protected $tableSchema;
 
     /**
-     * @return Table
+     * @return AbstractTable
      */
     public function getTableSchema()
     {

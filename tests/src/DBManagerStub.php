@@ -4,7 +4,6 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace jtl\Connector\CDBC;
-use jtl\Connector\CDBC\Tables\AbstractTable;
 
 class DBManagerStub extends DBManager
 {

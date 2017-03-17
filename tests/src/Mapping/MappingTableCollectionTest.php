@@ -3,8 +3,7 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-
-namespace jtl\Connector\CDBC\Tables;
+namespace jtl\Connector\CDBC\Mapping;
 
 
 class MappingTableCollectionTest extends \DBTestCase
@@ -57,16 +56,13 @@ class MappingTableCollectionTest extends \DBTestCase
         $this->assertFalse($collection->has('whatever'));
     }
 
+    /**
+     * @expectedException \jtl\Connector\CDBC\Mapping\MappingTableException
+     * @expectedExceptionCode \jtl\Connector\CDBC\Mapping\MappingTableException::TABLE_TYPE_NOT_FOUND
+     */
     public function testGetNotFound()
     {
-        try {
-            $table = new MappingTablesCollection([$this->table]);
-            $table->get('yeeeha');
-        } catch(MappingTableNotFoundException $ex){
-            $this->assertInstanceOf(MappingTableNotFoundException::class, $ex);
-            return;
-        }
-        self::fail();
+        (new MappingTablesCollection([$this->table]))->get('yeeeha');
     }
 
     public function testRemoveByType()

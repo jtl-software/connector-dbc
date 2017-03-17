@@ -5,8 +5,9 @@
  */
 namespace jtl\Connector\CDBC\Query;
 
-use jtl\Connector\CDBC\Tables\CoordinatesStub;
-use PHPUnit\DbUnit\DataSet\IDataSet;
+use jtl\Connector\CDBC\CoordinatesStub;
+use jtl\Connector\CDBC\Schema\TableRestriction;
+
 
 class QueryBuilderTest extends \DBTestCase
 {
@@ -21,6 +22,11 @@ class QueryBuilderTest extends \DBTestCase
     protected $coordsTable;
 
     /**
+     * @var string
+     */
+    protected $tableExpression = 'yolo';
+
+    /**
      * @var string[]
      */
     protected $globalIdentifiers = ['foo' => 'bar'];
@@ -29,15 +35,15 @@ class QueryBuilderTest extends \DBTestCase
     {
         $this->getYamlDataSet()->addYamlFile(TESTROOT . '/files/coordinates_stub.yaml');
         $this->coordsTable = new CoordinatesStub($this->getDBManager());
-        $this->qb = new QueryBuilder($this->getDBManager()->getConnection(), $this->globalIdentifiers);
+        $this->qb = new QueryBuilder($this->getDBManager()->getConnection(), [$this->tableExpression => $this->globalIdentifiers]);
         parent::setUp();
     }
 
-    public function testGlobalIdentifierWithSelect()
+    public function testTableRestrictionWithSelect()
     {
         $this->qb
                  ->select('something')
-                 ->from('yolo')
+                 ->from($this->tableExpression)
                  ->where('yo = :yo')
                  ->orWhere('hanni = nanni')
         ;
@@ -48,10 +54,10 @@ class QueryBuilderTest extends \DBTestCase
         $this->assertTrue(in_array('foo = :glob_id_foo', $andSplit));
     }
 
-    public function testGlobalIdentifierWithInsert()
+    public function testTableRestrictionWithInsert()
     {
         $this->qb
-            ->insert('yolotable')
+            ->insert($this->tableExpression)
             ->values(['a' => ':a', 'b' => ':b'])
         ;
 
@@ -64,7 +70,7 @@ class QueryBuilderTest extends \DBTestCase
 
     public function testGlobalIdentifierWithUpdate()
     {
-        $this->qb->update('table')->set('key', 'value');
+        $this->qb->update($this->tableExpression)->set('key', 'value');
         $sql = $this->qb->getSQL();
 
         $setSplit = explode('SET', $sql);
@@ -92,16 +98,17 @@ class QueryBuilderTest extends \DBTestCase
 
     public function testGlobalIdentifierWithDelete()
     {
-        $this->qb->delete('tablename')->where('a = b');
+        $this->qb->delete($this->tableExpression)->where('a = b');
         $sql = $this->qb->getSQL();
         $whereSplit = explode('WHERE', $sql);
         $andSplit = array_map([$this, 'myTrim'], explode('AND', $whereSplit[1]));
         $this->assertTrue(in_array('foo = :glob_id_foo', $andSplit));
     }
 
-    public function testGlobalParameters()
+    public function testTableRestriction()
     {
-        $this->getDBManager()->getConnection()->setGlobalIdentifier('x', 1.);
+        $this->getDBManager()->getConnection()->restrictTable(new TableRestriction($this->coordsTable->getTableSchema(), CoordinatesStub::COL_X, 1.));
+        //$this->getDBManager()->getConnection()->setGlobalIdentifier('x', 1.);
         $this->assertTableRowCount($this->coordsTable->getTableName(), 4);
         $datasets = $this->coordsTable->findAll();
         $this->assertEquals(3, $datasets[0]['z']);

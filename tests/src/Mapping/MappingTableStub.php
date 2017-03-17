@@ -3,12 +3,13 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Tables;
+namespace jtl\Connector\CDBC\Mapping;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
-class MappingTableStub  extends AbstractMappingTable
+
+class MappingTableStub extends AbstractMappingTable
 {
     const COL_ID1 = 'id1';
     const COL_ID2 = 'id2';

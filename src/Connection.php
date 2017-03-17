@@ -5,48 +5,49 @@
  */
 namespace jtl\Connector\CDBC;
 use jtl\Connector\CDBC\Query\QueryBuilder;
+use jtl\Connector\CDBC\Schema\TableRestriction;
 
 class Connection extends \Doctrine\DBAL\Connection
 {
     /**
      * @var mixed[]
      */
-    protected $globalIdentifiers = [];
+    protected $tableRestrictions = [];
 
     /**
-     * @param string $column
-     * @param mixed $value
+     * @param TableRestriction $restriction
      * @return Connection
      */
-    public function setGlobalIdentifier($column, $value)
+    public function restrictTable(TableRestriction $restriction)
     {
-        $this->globalIdentifiers[$column] = $value;
+        $this->tableRestrictions[$restriction->getTable()->getName()][$restriction->getColumnName()] = $restriction->getColumnValue();
         return $this;
     }
 
     /**
+     * @param string $tableExpression
      * @param string $column
      * @return boolean
      */
-    public function hasGlobalIdentifier($column)
+    public function hasTableRestriction($tableExpression, $column)
     {
-        return isset($this->globalIdentifiers[$column]);
+        return isset($this->tableRestrictions[$tableExpression][$column]);
     }
 
     /**
+     * @param string|null $tableExpression
      * @return mixed[]
      */
-    public function getGlobalIdentifiers()
+    public function getTableRestrictions($tableExpression = null)
     {
-        return $this->globalIdentifiers;
-    }
+        if($tableExpression === null) {
+            return $this->tableRestrictions;
+        }
 
-    /**
-     * @return boolean
-     */
-    public function hasGlobalIdentifiers()
-    {
-        return is_array($this->globalIdentifiers) && !empty($this->globalIdentifiers);
+        if(!isset($this->tableRestrictions[$tableExpression])) {
+            $this->tableRestrictions[$tableExpression] = [];
+        }
+        return $this->tableRestrictions[$tableExpression];
     }
 
     /**
@@ -54,7 +55,7 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function createQueryBuilder()
     {
-        return new QueryBuilder($this, $this->getGlobalIdentifiers());
+        return new QueryBuilder($this, $this->getTableRestrictions());
     }
 
     /**
@@ -65,7 +66,7 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function insert($tableExpression, array $data, array $types = [])
     {
-        return parent::insert($tableExpression, array_merge($data, $this->getGlobalIdentifiers()), $types);
+        return parent::insert($tableExpression, array_merge($data, $this->getTableRestrictions($tableExpression)), $types);
     }
 
     /**
@@ -100,7 +101,7 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function update($tableExpression, array $data, array $identifier, array $types = [])
     {
-        return parent::update($tableExpression, $data, array_merge($identifier, $this->getGlobalIdentifiers()), $types);
+        return parent::update($tableExpression, $data, array_merge($identifier, $this->getTableRestrictions($tableExpression)), $types);
     }
 
     /**
@@ -111,7 +112,7 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function delete($tableExpression, array $identifier, array $types = [])
     {
-        return parent::delete($tableExpression, array_merge($identifier, $this->getGlobalIdentifiers()), $types);
+        return parent::delete($tableExpression, array_merge($identifier, $this->getTableRestrictions($tableExpression)), $types);
     }
 
 }

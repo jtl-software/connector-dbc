@@ -8,7 +8,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
-use jtl\Connector\CDBC\Tables\AbstractTable;
+use jtl\Connector\CDBC\AbstractTable;
 
 class DBManager
 {

@@ -6,7 +6,7 @@
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\Database\DefaultConnection;
 use jtl\Connector\CDBC\DBManagerStub;
-use jtl\Connector\CDBC\Tables\TableStub;
+use jtl\Connector\CDBC\TableStub;
 
 abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
 {
@@ -23,7 +23,7 @@ abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
     protected $dbManager;
 
     /**
-     * @var \jtl\Connector\CDBC\Tables\TableStub
+     * @var \jtl\Connector\CDBC\TableStub
      */
     protected $stubTable;
 

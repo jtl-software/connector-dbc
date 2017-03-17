@@ -3,10 +3,11 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Tables;
-use Doctrine\DBAL\Types\Type;
-use jtl\Connector\CDBC\DBManager;
+namespace jtl\Connector\CDBC;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
+use jtl\Connector\CDBC\Tables\TableRestriction;
+
 
 abstract class AbstractTable
 {
@@ -14,6 +15,11 @@ abstract class AbstractTable
      * @var DBManager
      */
     protected $dbManager;
+
+    /**
+     * @var TableRestriction[]
+     */
+    protected $restrictions;
 
     /**
      * Table constructor.
@@ -32,6 +38,17 @@ abstract class AbstractTable
     public function getDbManager()
     {
         return $this->dbManager;
+    }
+
+    /**
+     * @param string $column
+     * @param mixed $value
+     * @return AbstractTable
+     */
+    protected function restrict($column, $value)
+    {
+        $this->getConnection()->restrictTable(new TableRestriction($this, $column, $value));
+        return $this;
     }
 
     /**
@@ -59,7 +76,7 @@ abstract class AbstractTable
         $tableSchema = new Table($this->getTableName());
         $this->createTableSchema($tableSchema);
         if(count($tableSchema->getColumns()) === 0) {
-            throw new TableSchemaException("The table schema needs at least one column!");
+            throw TableException::tableEmpty($tableSchema->getName());
         }
         return $tableSchema;
     }

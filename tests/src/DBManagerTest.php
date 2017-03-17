@@ -5,7 +5,6 @@
  */
 namespace jtl\Connector\CDBC;
 use Doctrine\DBAL\Schema\Table;
-use jtl\Connector\CDBC\Tables\CoordinatesStub;
 
 
 class DBManagerTest extends \DBTestCase

@@ -3,7 +3,7 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Tables;
+namespace jtl\Connector\CDBC;
 
 class TablesCollection
 {
@@ -25,7 +25,7 @@ class TablesCollection
 
     /**
      * @param AbstractTable $table
-     * @return MappingTablesCollection
+     * @return TablesCollection
      */
     public function set(AbstractTable $table)
     {
@@ -77,7 +77,7 @@ class TablesCollection
     public function get($name)
     {
         if(!$this->has($name)) {
-            throw new TableNotFoundException();
+            throw TableException::tableNotFound($name);
         }
         return $this->tables[$name];
     }

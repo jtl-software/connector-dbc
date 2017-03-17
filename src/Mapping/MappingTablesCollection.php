@@ -3,7 +3,7 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2016 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Tables;
+namespace jtl\Connector\CDBC\Mapping;
 
 class MappingTablesCollection
 {
@@ -78,7 +78,7 @@ class MappingTablesCollection
     public function get($type)
     {
         if(!$this->has($type)) {
-            throw new MappingTableNotFoundException();
+            throw MappingTableException::tableTypeNotFound($type);
         }
         return $this->tables[$type];
     }

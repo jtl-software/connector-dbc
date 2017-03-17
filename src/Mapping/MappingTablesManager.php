@@ -3,7 +3,7 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Tables;
+namespace jtl\Connector\CDBC\Mapping;
 use jtl\Connector\Mapper\IPrimaryKeyMapper;
 
 class MappingTablesManager implements IPrimaryKeyMapper
