@@ -38,6 +38,14 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         return $this->tableSchema;
     }
 
+    protected function createTableSchema(Table $tableSchema)
+    {
+        foreach($this->getEndpointColumns() as $columName => $columnType){
+            $tableSchema->addColumn($columName, $columnType);
+        }
+        $tableSchema->setPrimaryKey(array_keys($this->getEndpointColumns()));
+    }
+
     /**
      * @param string $endpointId
      * @return null|integer
@@ -66,7 +74,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function getEndpointId($hostId)
     {
-        $columns = array_diff($this->getColumnNames(), [self::HOST_ID]);
+        $columns = array_keys($this->getEndpointColumns());
         $endpointData = $this->createQueryBuilder()
             ->select($columns)
             ->from($this->getTableName())
@@ -145,7 +153,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function findAllEndpoints()
     {
-        $columns = array_diff($this->getColumnNames(), [self::HOST_ID]);
+        $columns = array_keys($this->getEndpointColumns());
 
         $qb = $this->createQueryBuilder();
         $stmt = $qb->select($columns)
@@ -167,7 +175,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     public function findNotFetchedEndpoints(array $endpoints)
     {
         $platform = $this->getConnection()->getDatabasePlatform();
-        $columns = array_diff($this->getColumnNames(), [self::HOST_ID]);
+        $columns = array_keys($this->getEndpointColumns());
         $concatArray = [];
         foreach($columns as $column)
         {
@@ -249,4 +257,12 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      * @return mixed[]
      */
     abstract protected static function createEndpointData(array $data);
+
+    /**
+     * Array with endpoint columns.
+     * Every entry has to be in the format $columns['columName'] = 'columnType'
+     *
+     * @return string[]
+     */
+    abstract protected function getEndpointColumns();
 }

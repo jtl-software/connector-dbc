@@ -35,12 +35,11 @@ class MappingTableStub extends AbstractMappingTable
         return self::TABLE_NAME;
     }
 
-    protected function createTableSchema(Table $tableSchema)
+    protected function getEndpointColumns()
     {
-        $tableSchema->addColumn(self::COL_ID1, Type::INTEGER);
-        $tableSchema->addColumn(self::COL_ID2, Type::INTEGER);
-        $tableSchema->setPrimaryKey([self::COL_ID1, self::COL_ID2]);
+        return [self::COL_ID1 => Type::INTEGER, self::COL_ID2 => Type::INTEGER];
     }
+
 
     /**
      * @return string
