@@ -158,14 +158,14 @@ abstract class AbstractTable
         }
 
         $result = [];
-        foreach($row as $i => $value){
-            if(!isset($types[$i])){
+        foreach($row as $index => $value){
+            if(!isset($types[$index])){
                 continue;
             }
 
-            $result[$i] = $value;
-            if(Type::hasType($types[$i])) {
-                $result[$i] = Type::getType($types[$i])->convertToPHPValue($value, $this->dbManager->getConnection()->getDatabasePlatform());
+            $result[$index] = $value;
+            if(Type::hasType($types[$index])) {
+                $result[$index] = Type::getType($types[$index])->convertToPHPValue($value, $this->dbManager->getConnection()->getDatabasePlatform());
             }
         }
 
