@@ -101,7 +101,10 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function update($tableExpression, array $data, array $identifier, array $types = [])
     {
-        return parent::update($tableExpression, $data, array_merge($identifier, $this->getTableRestrictions($tableExpression)), $types);
+        $restrictions = $this->getTableRestrictions($tableExpression);
+        $data = array_merge($data, $restrictions);
+        $identifier = array_merge($identifier, $restrictions);
+        return parent::update($tableExpression, $data, $identifier, $types);
     }
 
     /**
@@ -112,7 +115,9 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function delete($tableExpression, array $identifier, array $types = [])
     {
-        return parent::delete($tableExpression, array_merge($identifier, $this->getTableRestrictions($tableExpression)), $types);
+        $restrictions = $this->getTableRestrictions($tableExpression);
+        $identifier = array_merge($identifier, $restrictions);
+        return parent::delete($tableExpression, $identifier, $types);
     }
 
 }

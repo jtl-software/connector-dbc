@@ -78,7 +78,7 @@ class MappingTablesManager implements IPrimaryKeyMapper
      * @param integer $type
      * @return string[]
      */
-    public function findEndpointsByType($type)
+    public function findAllEndpoints($type)
     {
         return $this->collection->get($type)->findAllEndpoints();
     }
@@ -97,7 +97,7 @@ class MappingTablesManager implements IPrimaryKeyMapper
      * @param integer $type
      * @return integer
      */
-    public function countByType($type)
+    public function count($type)
     {
         return $this->collection->get($type)->count();
     }

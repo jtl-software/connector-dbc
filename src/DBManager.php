@@ -121,17 +121,6 @@ class DBManager
     }
 
     /**
-     * @param string $column
-     * @param mixed $value
-     * @return DBManager
-     */
-    public function setGlobalIdentifier($column, $value)
-    {
-        $this->getConnection()->setGlobalIdentifier($column, $value);
-        return $this;
-    }
-
-    /**
      * @return Table[]
      */
     protected function getSchemaTables()

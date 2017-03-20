@@ -48,4 +48,17 @@ class DBManagerTest extends \DBTestCase
         $this->dbManager->updateDatabaseSchema();
         $this->assertFalse($this->dbManager->hasSchemaUpdate());
     }
+
+    public function testCreateFromPDO()
+    {
+        $dbm = DBManager::createFromPDO($this->getPDO());
+        $this->assertInstanceOf(DBManager::class, $dbm);
+    }
+
+    public function testCreateFromParams()
+    {
+
+        $dbm = DBManager::createFromParams(['url' => 'sqlite:///:memory:']);
+        $this->assertInstanceOf(DBManager::class, $dbm);
+    }
 }

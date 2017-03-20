@@ -43,6 +43,17 @@ abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
     }
 
     /**
+     * @return PDO
+     */
+    protected function getPDO()
+    {
+        if(!$this->pdo instanceof \PDO){
+            $this->pdo = new \PDO('sqlite:' . self::SCHEMA);
+        }
+        return $this->pdo;
+    }
+
+    /**
      * @return DBManagerStub
      */
     protected function getDBManager()
@@ -58,10 +69,7 @@ abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
      */
     protected function getConnection()
     {
-        if (!$this->pdo instanceof \PDO) {
-                $this->pdo = new \PDO('sqlite:' . self::SCHEMA);
-        }
-        return $this->createDefaultDBConnection($this->pdo, self::SCHEMA);
+        return $this->createDefaultDBConnection($this->getPDO(), self::SCHEMA);
     }
 
     /**
