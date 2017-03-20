@@ -69,7 +69,7 @@ abstract class AbstractTable
 
     /**
      * @return Table
-     * @throws \Exception
+     * @throws TableException
      */
     public function getTableSchema()
     {

@@ -20,22 +20,14 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     static protected $endpointDelimiter = '||';
 
     /**
-     * @var AbstractTable
-     */
-    protected $tableSchema;
-
-    /**
      * @return AbstractTable
      */
     public function getTableSchema()
     {
-        if(!$this->tableSchema instanceof Table) {
-            $tableSchema = parent::getTableSchema();
-            $tableSchema->addColumn(self::HOST_ID, Type::INTEGER, ['notnull' => false]);
-            $tableSchema->addUniqueIndex([self::HOST_ID], self::HOST_INDEX_NAME);
-            $this->tableSchema = $tableSchema;
-        }
-        return $this->tableSchema;
+        $tableSchema = parent::getTableSchema();
+        $tableSchema->addColumn(self::HOST_ID, Type::INTEGER, ['notnull' => false]);
+        $tableSchema->addUniqueIndex([self::HOST_ID], self::HOST_INDEX_NAME);
+        $this->tableSchema = $tableSchema;
     }
 
     protected function createTableSchema(Table $tableSchema)
