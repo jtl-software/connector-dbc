@@ -70,8 +70,15 @@ class DBManager
      */
     public function getSchemaUpdate()
     {
+        $tables = $this->getSchemaTables();
+        $schemaTableNames = array_map(function(Table $table){ return $table->getName(); }, $tables);
         $fromSchema = $this->connection->getSchemaManager()->createSchema();
-        $toSchema = new Schema($this->getSchemaTables());
+        foreach($fromSchema->getTables() as $table){
+            if(!in_array($table->getName(), $schemaTableNames)){
+                $tables[] = clone $table;
+            }
+        }
+        $toSchema = new Schema($tables);
         return $fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform());
     }
 

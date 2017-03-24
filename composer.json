@@ -27,10 +27,7 @@
   "autoload-dev": {
     "psr-4": {
       "jtl\\Connector\\CDBC\\": "tests/src/"
-    },
-    "files": [
-      "tests/DBTestCase.php"
-    ]
+    }
   },
   "require-dev": {
     "phpunit/phpunit": "^6.0",

@@ -6,10 +6,10 @@
 namespace jtl\Connector\CDBC\Mapping;
 
 use Doctrine\DBAL\Schema\Column;
+use jtl\Connector\CDBC\DBTestCase;
 
 
-
-class AbstractMappingTableTest extends \DBTestCase
+class AbstractMappingTableTest extends DBTestCase
 {
     /**
      * @var MappingTableStub

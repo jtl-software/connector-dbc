@@ -6,10 +6,11 @@
 namespace jtl\Connector\CDBC\Query;
 
 use jtl\Connector\CDBC\CoordinatesStub;
+use jtl\Connector\CDBC\DBTestCase;
 use jtl\Connector\CDBC\Schema\TableRestriction;
 
 
-class QueryBuilderTest extends \DBTestCase
+class QueryBuilderTest extends DBTestCase
 {
     /**
      * @var QueryBuilder

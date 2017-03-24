@@ -3,10 +3,9 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2016 JTL-Software GmbH
  */
+namespace jtl\Connector\CDBC;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\Database\DefaultConnection;
-use jtl\Connector\CDBC\DBManagerStub;
-use jtl\Connector\CDBC\TableStub;
 
 abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
 {
@@ -48,6 +47,9 @@ abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
     protected function getPDO()
     {
         if(!$this->pdo instanceof \PDO){
+            if(file_exists(self::SCHEMA)){
+                unlink(self::SCHEMA);
+            }
             $this->pdo = new \PDO('sqlite:' . self::SCHEMA);
         }
         return $this->pdo;

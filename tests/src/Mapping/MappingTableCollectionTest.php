@@ -4,9 +4,9 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace jtl\Connector\CDBC\Mapping;
+use jtl\Connector\CDBC\DBTestCase;
 
-
-class MappingTableCollectionTest extends \DBTestCase
+class MappingTableCollectionTest extends DBTestCase
 {
     /**
      * @var MappingTableStub

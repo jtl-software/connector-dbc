@@ -9,7 +9,7 @@ use Doctrine\DBAL\DriverManager;
 use jtl\Connector\CDBC\Query\QueryBuilder;
 use jtl\Connector\CDBC\Schema\TableRestriction;
 
-class ConnectionTest extends \DBTestCase
+class ConnectionTest extends DBTestCase
 {
     /**
      * @var Connection

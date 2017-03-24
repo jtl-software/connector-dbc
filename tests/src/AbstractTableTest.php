@@ -6,9 +6,10 @@
 namespace jtl\Connector\CDBC\Mapping;
 use Doctrine\DBAL\Types\Type;
 use jtl\Connector\CDBC\CoordinatesStub;
+use jtl\Connector\CDBC\DBTestCase;
 use jtl\Connector\CDBC\TableStub;
 
-class AbstractTableTest extends \DBTestCase
+class AbstractTableTest extends DBTestCase
 {
     /**
      * @var CoordinatesStub

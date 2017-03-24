@@ -7,7 +7,7 @@ namespace jtl\Connector\CDBC;
 use Doctrine\DBAL\Schema\Table;
 
 
-class DBManagerTest extends \DBTestCase
+class DBManagerTest extends DBTestCase
 {
     public function testRegisterTable()
     {
@@ -57,7 +57,6 @@ class DBManagerTest extends \DBTestCase
 
     public function testCreateFromParams()
     {
-
         $dbm = DBManager::createFromParams(['url' => 'sqlite:///:memory:']);
         $this->assertInstanceOf(DBManager::class, $dbm);
     }
