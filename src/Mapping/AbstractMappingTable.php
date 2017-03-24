@@ -137,7 +137,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         $stmt = $qb->select($this->getDbManager()->getConnection()->getDatabasePlatform()->getCountExpression('*'))
             ->from($this->getTableName())
             ->execute();
-        return $stmt->fetchColumn(0);
+        return (int)$stmt->fetchColumn(0);
     }
 
     /**
