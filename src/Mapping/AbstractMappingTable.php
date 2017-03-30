@@ -119,13 +119,15 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     }
 
     /**
-     * @return integer
+     * @return boolean
      */
     public function clear()
     {
-       return $this->createQueryBuilder()
+       $rows = $this->createQueryBuilder()
            ->delete($this->getTableName())
            ->execute();
+
+       return is_int($rows) && $rows >= 0;
     }
 
     /**
