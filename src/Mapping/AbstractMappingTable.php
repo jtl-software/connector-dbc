@@ -249,8 +249,18 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     /**
      * @param mixed[] $data
      * @return mixed[]
+     * @throws \Exception
      */
-    abstract protected static function createEndpointData(array $data);
+    protected static function createEndpointData(array $data)
+    {
+        $columns = static::getEndpointColumns();
+        $dataCount = count($data);
+        $columnNames = array_keys($columns);
+        if($dataCount < count($columns)){
+            throw MappingTableException::columnDataMissing($columnNames[$dataCount]);
+        }
+        return array_combine($columnNames, $data);
+    }
 
     /**
      * Array with endpoint columns.
