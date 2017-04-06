@@ -13,19 +13,19 @@ class TableException extends \Exception
 
     /**
      * @param string $tableName
-     * @throws TableException
+     * @return TableException
      */
     public static function tableNotFound($tableName)
     {
-        throw new self('Table with name ' . $tableName . ' not found!', self::TABLE_NOT_FOUND);
+        return new self('Table with name ' . $tableName . ' not found!', self::TABLE_NOT_FOUND);
     }
 
     /**
      * @param string $tableName
-     * @throws TableException
+     * @return TableException
      */
     public static function tableEmpty($tableName)
     {
-        throw new self('Table ' . $tableName . ' is empty. It needs at least one column!', self::TABLE_EMPTY);
+        return new self('Table ' . $tableName . ' is empty. It needs at least one column!', self::TABLE_EMPTY);
     }
 }
