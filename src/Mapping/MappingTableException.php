@@ -8,7 +8,7 @@ namespace jtl\Connector\CDBC\Mapping;
 use jtl\Connector\CDBC\TableException;
 
 class MappingTableException extends TableException {
-    const TABLE_TYPE_NOT_FOUND = 101;
+    const TABLE_TYPE_NOT_FOUND = 100;
     const COLUMN_DATA_MISSING = 110;
 
     /**

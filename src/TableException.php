@@ -10,6 +10,7 @@ class TableException extends \Exception
 {
     const TABLE_NOT_FOUND = 10;
     const TABLE_EMPTY = 20;
+    const COLUMN_NOT_FOUND = 30;
 
     /**
      * @param string $tableName
@@ -27,5 +28,14 @@ class TableException extends \Exception
     public static function tableEmpty($tableName)
     {
         return new self('Table ' . $tableName . ' is empty. It needs at least one column!', self::TABLE_EMPTY);
+    }
+
+    /**
+     * @param string $columnName
+     * @return TableException
+     */
+    public static function columnNotFound($columnName)
+    {
+        return new self('Column with name ' . $columnName . ' not found!', self::COLUMN_NOT_FOUND);
     }
 }
