@@ -31,7 +31,6 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         $this->defineEndpoint();
     }
 
-
     /**
      * @return AbstractTable
      */
@@ -42,6 +41,11 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         $tableSchema->addUniqueIndex([self::HOST_ID], self::HOST_INDEX_NAME);
         return $tableSchema;
     }
+
+    /**
+     * @return void
+     */
+    abstract protected function defineEndpoint();
 
     /**
      * @param Table $tableSchema
