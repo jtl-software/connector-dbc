@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use jtl\Connector\CDBC\AbstractTable;
+use jtl\Connector\CDBC\DBManager;
 
 abstract class AbstractMappingTable extends AbstractTable implements MappingTableInterface
 {
@@ -17,7 +18,19 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     /**
      * @var string
      */
-    static protected $endpointDelimiter = '||';
+    protected $endpointDelimiter = '||';
+
+    /**
+     * @var string[]
+     */
+    protected $endpointColumns = [];
+
+    public function __construct(DBManager $dbManager)
+    {
+        parent::__construct($dbManager);
+        $this->defineEndpoint();
+    }
+
 
     /**
      * @return AbstractTable
@@ -30,9 +43,19 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         return $tableSchema;
     }
 
+    /**
+     * @param Table $tableSchema
+     * @throws MappingTableException
+     * @return void
+     */
     protected function createTableSchema(Table $tableSchema)
     {
-        foreach($this->getEndpointColumns() as $columName => $columnType){
+        $endpointColumns = $this->getEndpointColumns();
+        if(count($endpointColumns) === 0){
+            throw MappingTableException::endpointColumnsNotDefined();
+        }
+
+        foreach($endpointColumns as $columName => $columnType){
             $tableSchema->addColumn($columName, $columnType);
         }
         $tableSchema->setPrimaryKey(array_keys($this->getEndpointColumns()));
@@ -48,7 +71,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
             ->select(self::HOST_ID)
             ->from($this->getTableName());
 
-        foreach(self::extractEndpoint($endpointId) as $column => $value) {
+        foreach($this->extractEndpoint($endpointId) as $column => $value) {
             $qb->andWhere($column . ' = :' . $column)
                ->setParameter($column, $value);
         }
@@ -76,7 +99,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
             ->fetch();
 
         if(is_array($endpointData)){
-            return self::buildEndpoint($endpointData);
+            return $this->buildEndpoint($endpointData);
         }
         return null;
     }
@@ -88,7 +111,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function save($endpointId, $hostId)
     {
-        $data = self::extractEndpoint($endpointId);
+        $data = $this->extractEndpoint($endpointId);
         $data[self::HOST_ID] = $hostId;
         return $this->getConnection()->insert($this->getTableName(), $data);
     }
@@ -104,7 +127,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         $qb->delete($this->getTableName());
 
         if($endpointId !== null){
-            foreach(self::extractEndpoint($endpointId) as $column => $value){
+            foreach($this->extractEndpoint($endpointId) as $column => $value){
                 $qb->andWhere($column . ' = :' . $column)
                    ->setParameter($column, $value);
             }
@@ -131,15 +154,29 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     }
 
     /**
+     * @param array $where
      * @return integer
+     * @throws \jtl\Connector\CDBC\TableException
      */
-    public function count()
+    public function count(array $where = [])
     {
         $qb = $this->createQueryBuilder();
-        $stmt = $qb->select($this->getDbManager()->getConnection()->getDatabasePlatform()->getCountExpression('*'))
+        $qb
+            ->select($this->getDbManager()->getConnection()->getDatabasePlatform()->getCountExpression('*'))
             ->from($this->getTableName())
-            ->execute();
-        return (int)$stmt->fetchColumn(0);
+        ;
+
+        foreach($where as $column => $value){
+            if(!$this->hasEndpointColumn($column)){
+                throw MappingTableException::endpointColumnNotFound($column);
+            }
+
+            $qb
+                ->where($column . ' = :' . $column)
+                ->setParameter($column, $value)
+            ;
+        }
+        return (int)$qb->execute()->fetchColumn(0);
     }
 
     /**
@@ -157,7 +194,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         $result = [];
         foreach($stmt->fetchAll() as $endpointData)
         {
-            $result[] = self::buildEndpoint($endpointData);
+            $result[] = $this->buildEndpoint($endpointData);
         }
         return $result;
     }
@@ -175,7 +212,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         {
             $concatArray[] = $column;
             if($column !== end($columns)){
-                $concatArray[] = $this->getConnection()->quote(self::$endpointDelimiter);
+                $concatArray[] = $this->getConnection()->quote($this->endpointDelimiter);
             }
         }
 
@@ -196,54 +233,54 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     /**
      * @return string
      */
-    public static function getEndpointDelimiter()
+    public function getEndpointDelimiter()
     {
-        return self::$endpointDelimiter;
+        return $this->endpointDelimiter;
     }
 
     /**
      * @param string $endpointDelimiter
      */
-    public static function setEndpointDelimiter($endpointDelimiter)
+    public function setEndpointDelimiter($endpointDelimiter)
     {
-        self::$endpointDelimiter = $endpointDelimiter;
+        $this->endpointDelimiter = $endpointDelimiter;
     }
 
     /**
      * @param mixed[] $data
      * @return string
      */
-    public static function buildEndpoint(array $data)
+    public function buildEndpoint(array $data)
     {
-        return self::implodeEndpoint($data);
+        return $this->implodeEndpoint($data);
     }
 
     /**
      * @param string $endpointId
      * @return mixed[]
      */
-    public static function extractEndpoint($endpointId)
+    public function extractEndpoint($endpointId)
     {
-        $data = self::explodeEndpoint($endpointId);
-        return static::createEndpointData($data);
+        $data = $this->explodeEndpoint($endpointId);
+        return $this->createEndpointData($data);
     }
 
     /**
      * @param string $endpointId
      * @return mixed[]
      */
-    protected static function explodeEndpoint($endpointId)
+    protected function explodeEndpoint($endpointId)
     {
-        return explode(self::$endpointDelimiter, $endpointId);
+        return explode($this->endpointDelimiter, $endpointId);
     }
 
     /**
      * @param mixed[] $data
      * @return string
      */
-    protected static function implodeEndpoint(array $data)
+    protected function implodeEndpoint(array $data)
     {
-        return implode(self::$endpointDelimiter, $data);
+        return implode($this->endpointDelimiter, $data);
     }
 
     /**
@@ -251,9 +288,9 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      * @return mixed[]
      * @throws \Exception
      */
-    protected static function createEndpointData(array $data)
+    protected function createEndpointData(array $data)
     {
-        $columns = static::getEndpointColumns();
+        $columns = $this->getEndpointColumns();
         $dataCount = count($data);
         $columnNames = array_keys($columns);
         if($dataCount < count($columns)){
@@ -263,10 +300,34 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     }
 
     /**
-     * Array with endpoint columns.
-     * Every entry has to be in the format $columns['columName'] = 'columnType'
-     *
+     * @param string $name
+     * @param string $type
+     * @return AbstractMappingTable
+     * @throws MappingTableException
+     */
+    protected function addEndpointColumn($name, $type)
+    {
+        if($this->hasEndpointColumn($name)){
+            throw MappingTableException::endpointColumnExists($name);
+        }
+        $this->endpointColumns[$name] = $type;
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return boolean
+     */
+    protected function hasEndpointColumn($name)
+    {
+        return isset($this->endpointColumns[$name]);
+    }
+
+    /**
      * @return string[]
      */
-    abstract protected function getEndpointColumns();
+    protected function getEndpointColumns()
+    {
+        return $this->endpointColumns;
+    }
 }
