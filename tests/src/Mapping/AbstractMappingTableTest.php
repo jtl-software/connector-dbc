@@ -88,6 +88,13 @@ class AbstractMappingTableTest extends DBTestCase
 
     }
 
+    public function testCountWithWhereCondition()
+    {
+        $this->assertEquals(0, $this->mappingTable->count([MappingTableStub::COL_ID2 => 63]));
+        $this->assertEquals(1, $this->mappingTable->count([MappingTableStub::COL_ID2 => 1]));
+        $this->assertEquals(2, $this->mappingTable->count([MappingTableStub::COL_ID2 => 2]));
+    }
+
     public function testFindAllEndpoints()
     {
         $endpoints = $this->mappingTable->findAllEndpoints();
@@ -118,8 +125,8 @@ class AbstractMappingTableTest extends DBTestCase
     public function testBuildEndpoint()
     {
         $data = ['f','u','c','k'];
-        $expected = implode(AbstractMappingTable::getEndpointDelimiter(), $data);
-        $endpoint = AbstractMappingTable::buildEndpoint($data);
+        $expected = implode($this->mappingTable->getEndpointDelimiter(), $data);
+        $endpoint = $this->mappingTable->buildEndpoint($data);
         $this->assertEquals($expected, $endpoint);
     }
 
@@ -127,7 +134,7 @@ class AbstractMappingTableTest extends DBTestCase
     {
         $endpoint = '1||2';
         $expected = [MappingTableStub::COL_ID1 => 1, MappingTableStub::COL_ID2 => 2];
-        $data = MappingTableStub::extractEndpoint($endpoint);
+        $data = $this->mappingTable->extractEndpoint($endpoint);
         $this->assertEquals($expected, $data);
     }
 }

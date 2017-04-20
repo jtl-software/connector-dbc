@@ -18,16 +18,6 @@ class MappingTableStub extends AbstractMappingTable
     const TABLE_NAME = 'mapping_table';
 
     /**
-     * @param mixed[] $data
-     * @return mixed[]
-     */
-    protected static function createEndpointData(array $data)
-    {
-        $values = array_values($data);
-        return [self::COL_ID1 => $values[0], self::COL_ID2 => $values[1]];
-    }
-
-    /**
      * @return string
      */
     protected function getName()
@@ -35,11 +25,13 @@ class MappingTableStub extends AbstractMappingTable
         return self::TABLE_NAME;
     }
 
-    protected function getEndpointColumns()
+    protected function defineEndpoint()
     {
-        return [self::COL_ID1 => Type::INTEGER, self::COL_ID2 => Type::INTEGER];
+        $this
+            ->addEndpointColumn(self::COL_ID1, Type::INTEGER)
+            ->addEndpointColumn(self::COL_ID2, Type::INTEGER)
+        ;
     }
-
 
     /**
      * @return string
