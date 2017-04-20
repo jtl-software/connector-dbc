@@ -18,7 +18,7 @@ class TableException extends \Exception
      */
     public static function tableNotFound($tableName)
     {
-        return new self('Table with name ' . $tableName . ' not found!', self::TABLE_NOT_FOUND);
+        return new static('Table with name ' . $tableName . ' not found!', self::TABLE_NOT_FOUND);
     }
 
     /**
@@ -27,7 +27,7 @@ class TableException extends \Exception
      */
     public static function tableEmpty($tableName)
     {
-        return new self('Table ' . $tableName . ' is empty. It needs at least one column!', self::TABLE_EMPTY);
+        return new static('Table ' . $tableName . ' is empty. It needs at least one column!', self::TABLE_EMPTY);
     }
 
     /**
@@ -36,6 +36,6 @@ class TableException extends \Exception
      */
     public static function columnNotFound($columnName)
     {
-        return new self('Column with name ' . $columnName . ' not found!', self::COLUMN_NOT_FOUND);
+        return new static('Column with name ' . $columnName . ' not found!', self::COLUMN_NOT_FOUND);
     }
 }
