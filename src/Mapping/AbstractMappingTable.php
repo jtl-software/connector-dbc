@@ -25,6 +25,10 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     protected $endpointColumns = [];
 
+    /**
+     * AbstractMappingTable constructor.
+     * @param DBManager $dbManager
+     */
     public function __construct(DBManager $dbManager)
     {
         parent::__construct($dbManager);
@@ -32,7 +36,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     }
 
     /**
-     * @return AbstractTable
+     * @return Table
      */
     public function getTableSchema()
     {
@@ -290,7 +294,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     /**
      * @param mixed[] $data
      * @return mixed[]
-     * @throws \Exception
+     * @throws MappingTableException
      */
     protected function createEndpointData(array $data)
     {
