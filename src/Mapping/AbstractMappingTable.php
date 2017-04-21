@@ -12,7 +12,7 @@ use jtl\Connector\CDBC\DBManager;
 
 abstract class AbstractMappingTable extends AbstractTable implements MappingTableInterface
 {
-    const HOST_INDEX_NAME = 'unique_host';
+    const HOST_INDEX_NAME = 'UNIQUE_HOST_IDX';
     const HOST_ID = 'host_id';
 
     /**
