@@ -26,7 +26,7 @@ class MappingTablesManager implements IPrimaryKeyMapper
      * @param mixed $type
      * @return MappingTableInterface
      */
-    public function getMappingTable($type)
+    public function getTable($type)
     {
         return $this->collection->get($type);
     }

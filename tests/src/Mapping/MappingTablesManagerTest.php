@@ -29,7 +29,7 @@ class MappingTablesManagerTest extends DBTestCase
 
     public function testGetMappingTable()
     {
-        $this->assertInstanceOf(MappingTableStub::class, $this->mtm->getMappingTable($this->table->getType()));
+        $this->assertInstanceOf(MappingTableStub::class, $this->mtm->getTable($this->table->getType()));
     }
 
     public function testGetHostId()
