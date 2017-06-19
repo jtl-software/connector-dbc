@@ -42,7 +42,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     {
         $tableSchema = parent::getTableSchema();
         $tableSchema->addColumn(self::HOST_ID, Type::INTEGER, ['notnull' => false]);
-        $tableSchema->addUniqueIndex([self::HOST_ID], self::HOST_INDEX_NAME);
+        $tableSchema->addIndex([self::HOST_ID], self::HOST_INDEX_NAME);
         return $tableSchema;
     }
 
