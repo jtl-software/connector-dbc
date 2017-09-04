@@ -17,11 +17,6 @@ abstract class AbstractTable
     protected $dbManager;
 
     /**
-     * @var TableRestriction[]
-     */
-    protected $restrictions;
-
-    /**
      * Table constructor.
      * @param DBManager $dbManager
      * @throws \Exception
