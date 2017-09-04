@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use jtl\Connector\CDBC\AbstractTable;
 use jtl\Connector\CDBC\DBManager;
+use jtl\Connector\CDBC\TableException;
 
 abstract class AbstractMappingTable extends AbstractTable implements MappingTableInterface
 {
@@ -63,10 +64,10 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
             throw MappingTableException::endpointColumnsNotDefined();
         }
 
-        foreach($endpointColumns as $columName => $columnType){
-            $tableSchema->addColumn($columName, $columnType);
+        foreach($endpointColumns as $columnName => $columnData){
+            $tableSchema->addColumn($columnName, $columnData['type'], $columnData['options']);
         }
-        $tableSchema->setPrimaryKey(array_keys($this->getEndpointColumns()));
+        $tableSchema->setPrimaryKey(array_keys($endpointColumns));
     }
 
     /**
@@ -164,7 +165,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     /**
      * @param array $where
      * @return integer
-     * @throws \jtl\Connector\CDBC\TableException
+     * @throws TableException
      */
     public function count(array $where = [])
     {
@@ -310,15 +311,17 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     /**
      * @param string $name
      * @param string $type
+     * @param mixed $options
      * @return AbstractMappingTable
      * @throws MappingTableException
      */
-    protected function addEndpointColumn($name, $type)
+    protected function addEndpointColumn($name, $type, array $options = [])
     {
         if($this->hasEndpointColumn($name)){
             throw MappingTableException::endpointColumnExists($name);
         }
-        $this->endpointColumns[$name] = $type;
+        $this->endpointColumns[$name]['type'] = $type;
+        $this->endpointColumns[$name]['options'] = $options;
         return $this;
     }
 
