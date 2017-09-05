@@ -34,17 +34,17 @@ class MappingTablesManagerTest extends DBTestCase
 
     public function testGetHostId()
     {
-        $this->assertEquals(5, $this->mtm->getHostId("4||2", $this->table->getType()));
+        $this->assertEquals(5, $this->mtm->getHostId("4||2||foobar", $this->table->getType()));
     }
 
     public function testGetEndpointId()
     {
-        $this->assertEquals("1||2", $this->mtm->getEndpointId(2, $this->table->getType()));
+        $this->assertEquals("1||2||bar", $this->mtm->getEndpointId(2, $this->table->getType()));
     }
 
     public function testSave()
     {
-        $ep = '1||8';
+        $ep = '1||8||asdf';
         $host = 9;
         $this->mtm->save($ep, $host, $this->table->getType());
         $this->assertEquals($host, $this->mtm->getHostId($ep, $this->table->getType()));
@@ -52,8 +52,8 @@ class MappingTablesManagerTest extends DBTestCase
 
     public function testDeleteByEndpointId()
     {
-        $this->mtm->delete("1||2", null, $this->table->getType());
-        $this->assertNull($this->mtm->getHostId("1||2", $this->table->getType()));
+        $this->mtm->delete("1||2||bar", null, $this->table->getType());
+        $this->assertNull($this->mtm->getHostId("1||2||bar", $this->table->getType()));
     }
 
     public function testDeleteByHostId()
@@ -69,12 +69,12 @@ class MappingTablesManagerTest extends DBTestCase
 
     public function testFindNotFetchedEndpoints()
     {
-        $endpoints = ['1||1', '1||2', '2||1', '2||2', '2||3'];
+        $endpoints = ['1||1||foo', '1||2||bar', '2||1||yo', '2||2||lo', '2||3||so'];
         $notFetched = $this->mtm->findNotFetchedEndpoints($endpoints, $this->table->getType());
         $this->assertCount(3, $notFetched);
-        $this->assertTrue(in_array('2||1', $notFetched));
-        $this->assertTrue(in_array('2||2', $notFetched));
-        $this->assertTrue(in_array('2||3', $notFetched));
+        $this->assertTrue(in_array('2||1||yo', $notFetched));
+        $this->assertTrue(in_array('2||2||lo', $notFetched));
+        $this->assertTrue(in_array('2||3||so', $notFetched));
     }
 
     public function testClear()

@@ -13,6 +13,7 @@ use jtl\Connector\CDBC\TableException;
 
 abstract class AbstractMappingTable extends AbstractTable implements MappingTableInterface
 {
+    const ENDPOINT_INDEX_NAME = 'ENDPOINT_IDX';
     const HOST_INDEX_NAME = 'HOST_ID_IDX';
     const HOST_ID = 'host_id';
 
@@ -24,7 +25,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     /**
      * @var string[]
      */
-    protected $endpointColumns = [];
+    protected $columns = [];
 
     /**
      * AbstractMappingTable constructor.
@@ -59,7 +60,8 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     protected function createTableSchema(Table $tableSchema)
     {
-        $endpointColumns = $this->getEndpointColumns();
+        $endpointColumns = $this->getColumns();
+        $primaryColumns = $this->getPrimaryColumns();
         if(count($endpointColumns) === 0){
             throw MappingTableException::endpointColumnsNotDefined();
         }
@@ -67,7 +69,10 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         foreach($endpointColumns as $columnName => $columnData){
             $tableSchema->addColumn($columnName, $columnData['type'], $columnData['options']);
         }
-        $tableSchema->setPrimaryKey(array_keys($endpointColumns));
+        $tableSchema->setPrimaryKey(array_keys($primaryColumns));
+        if(count($primaryColumns) < count($endpointColumns)) {
+            $tableSchema->addIndex(array_keys($endpointColumns), self::ENDPOINT_INDEX_NAME);
+        }
     }
 
     /**
@@ -98,7 +103,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function getEndpointId($hostId)
     {
-        $columns = array_keys($this->getEndpointColumns());
+        $columns = array_keys($this->getColumns());
         $endpointData = $this->createQueryBuilder()
             ->select($columns)
             ->from($this->getTableName())
@@ -176,8 +181,8 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         ;
 
         foreach($where as $column => $value){
-            if(!$this->hasEndpointColumn($column)){
-                throw MappingTableException::endpointColumnNotFound($column);
+            if(!$this->hasColumn($column)){
+                throw MappingTableException::columnNotFound($column);
             }
 
             $qb
@@ -193,7 +198,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function findAllEndpoints()
     {
-        $columns = array_keys($this->getEndpointColumns());
+        $columns = array_keys($this->getColumns());
 
         $qb = $this->createQueryBuilder();
         $stmt = $qb->select($columns)
@@ -215,7 +220,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     public function findNotFetchedEndpoints(array $endpoints)
     {
         $platform = $this->getConnection()->getDatabasePlatform();
-        $columns = array_keys($this->getEndpointColumns());
+        $columns = array_keys($this->getColumns());
         $concatArray = [];
         foreach($columns as $column)
         {
@@ -299,7 +304,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     protected function createEndpointData(array $data)
     {
-        $columns = $this->getEndpointColumns();
+        $columns = $this->getColumns();
         $dataCount = count($data);
         $columnNames = array_keys($columns);
         if($dataCount < count($columns)){
@@ -312,16 +317,18 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      * @param string $name
      * @param string $type
      * @param mixed $options
+     * @param boolean $primary
      * @return AbstractMappingTable
      * @throws MappingTableException
      */
-    protected function addEndpointColumn($name, $type, array $options = [])
+    protected function addColumn($name, $type, array $options = [], $primary = true)
     {
-        if($this->hasEndpointColumn($name)){
-            throw MappingTableException::endpointColumnExists($name);
+        if($this->hasColumn($name)){
+            throw MappingTableException::columnExists($name);
         }
-        $this->endpointColumns[$name]['type'] = $type;
-        $this->endpointColumns[$name]['options'] = $options;
+        $this->columns[$name]['type'] = $type;
+        $this->columns[$name]['options'] = $options;
+        $this->columns[$name]['primary'] = $primary;
         return $this;
     }
 
@@ -329,16 +336,26 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      * @param string $name
      * @return boolean
      */
-    protected function hasEndpointColumn($name)
+    protected function hasColumn($name)
     {
-        return isset($this->endpointColumns[$name]);
+        return isset($this->columns[$name]);
     }
 
     /**
-     * @return string[]
+     * @return mixed[]
      */
-    protected function getEndpointColumns()
+    protected function getColumns()
     {
-        return $this->endpointColumns;
+        return $this->columns;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    protected function getPrimaryColumns()
+    {
+        return array_filter($this->columns, function(array $column) {
+            return isset($column['primary']) && $column['primary'] === true;
+        });
     }
 }

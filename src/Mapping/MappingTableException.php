@@ -36,7 +36,7 @@ class MappingTableException extends TableException {
      * @param string $columnName
      * @return MappingTableException
      */
-    public static function endpointColumnExists($columnName)
+    public static function columnExists($columnName)
     {
         return new static('Endpoint column with name ' . $columnName . ' exists!', self::ENDPOINT_COLUMN_EXISTS);
     }
@@ -45,7 +45,7 @@ class MappingTableException extends TableException {
      * @param string $columnName
      * @return MappingTableException
      */
-    public static function endpointColumnNotFound($columnName)
+    public static function columnNotFound($columnName)
     {
         return new static('Endpoint column with name ' . $columnName . ' is not defined!', self::ENDPOINT_COLUMN_NOT_FOUND);
     }

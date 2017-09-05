@@ -6,6 +6,7 @@
 namespace jtl\Connector\CDBC\Mapping;
 
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Types\Type;
 use jtl\Connector\CDBC\DBTestCase;
 
 
@@ -23,50 +24,82 @@ class AbstractMappingTableTest extends DBTestCase
         parent::setUp();
     }
 
-    public function testGetTableSchema()
+    public function testTableSchema()
     {
         $tableSchema = $this->mappingTable->getTableSchema();
         $this->assertTrue($tableSchema->hasColumn(AbstractMappingTable::HOST_ID));
+        $this->assertTrue($tableSchema->hasColumn(MappingTableStub::COL_ID1));
+        $this->assertTrue($tableSchema->hasColumn(MappingTableStub::COL_ID2));
+        $this->assertTrue($tableSchema->hasColumn(MappingTableStub::COL_VAR));
+    }
+
+    public function testHostIndex()
+    {
+        $tableSchema = $this->mappingTable->getTableSchema();
+
         $this->assertTrue($tableSchema->hasIndex(AbstractMappingTable::HOST_INDEX_NAME));
-        $uniqueIndex = $tableSchema->getIndex(AbstractMappingTable::HOST_INDEX_NAME);
-        $uniqueColumns = $uniqueIndex->getColumns();
-        $this->assertCount(1, $uniqueColumns);
+        $hostIndex = $tableSchema->getIndex(AbstractMappingTable::HOST_INDEX_NAME);
+        $hostColumns = $hostIndex->getColumns();
+        $this->assertCount(1, $hostColumns);
         /** @var Column $hostColumn */
-        $hostColumn = reset($uniqueColumns);
+        $hostColumn = reset($hostColumns);
         $this->assertEquals(AbstractMappingTable::HOST_ID, $hostColumn);
+    }
+
+    public function testPrimaryIndex()
+    {
+        $tableSchema = $this->mappingTable->getTableSchema();
+        $this->assertTrue($tableSchema->hasPrimaryKey());
+        $primaryKey = $tableSchema->getPrimaryKey();
+        $primaryColumns = $primaryKey->getColumns();
+        $this->assertCount(2, $primaryColumns);
+        $this->assertEquals(MappingTableStub::COL_ID1, $primaryColumns[0]);
+        $this->assertEquals(MappingTableStub::COL_ID2, $primaryColumns[1]);
+    }
+
+    public function testEndpointIndex()
+    {
+        $tableSchema = $this->mappingTable->getTableSchema();
+        $this->assertTrue($tableSchema->hasIndex(MappingTableStub::ENDPOINT_INDEX_NAME));
+        $epIndex = $tableSchema->getIndex(MappingTableStub::ENDPOINT_INDEX_NAME);
+        $epColumns = $epIndex->getColumns();
+        $this->assertCount(3, $epColumns);
+        $this->assertEquals(MappingTableStub::COL_ID1, $epColumns[0]);
+        $this->assertEquals(MappingTableStub::COL_ID2, $epColumns[1]);
+        $this->assertEquals(MappingTableStub::COL_VAR, $epColumns[2]);
     }
 
     public function testGetHostId()
     {
-        $this->assertEquals(3, $this->mappingTable->getHostId('1||1'));
-        $this->assertEquals(2, $this->mappingTable->getHostId('1||2'));
-        $this->assertEquals(5, $this->mappingTable->getHostId('4||2'));
+        $this->assertEquals(3, $this->mappingTable->getHostId('1||1||foo'));
+        $this->assertEquals(2, $this->mappingTable->getHostId('1||2||bar'));
+        $this->assertEquals(5, $this->mappingTable->getHostId('4||2||foobar'));
     }
 
     public function testGetEndpointId()
     {
-        $this->assertEquals('1||1', $this->mappingTable->getEndpointId(3));
-        $this->assertEquals('1||2', $this->mappingTable->getEndpointId(2));
-        $this->assertEquals('4||2', $this->mappingTable->getEndpointId(5));
+        $this->assertEquals('1||1||foo', $this->mappingTable->getEndpointId(3));
+        $this->assertEquals('1||2||bar', $this->mappingTable->getEndpointId(2));
+        $this->assertEquals('4||2||foobar', $this->mappingTable->getEndpointId(5));
     }
 
     public function testSave()
     {
-        $this->mappingTable->save('1||45', 4);
+        $this->mappingTable->save('1||45||yolo', 4);
         $this->assertTableRowCount($this->mappingTable->getTableName(), 4);
     }
 
     public function testRemoveByEndpointId()
     {
-        $this->assertEquals('1||1', $this->mappingTable->getEndpointId(3));
-        $this->mappingTable->remove('1||1');
+        $this->assertEquals('1||1||foo', $this->mappingTable->getEndpointId(3));
+        $this->mappingTable->remove('1||1||foo');
         $this->assertTableRowCount($this->mappingTable->getTableName(), 2);
         $this->assertEquals(null, $this->mappingTable->getEndpointId(3));
     }
 
     public function testRemoveByHostId()
     {
-        $this->assertEquals('1||1', $this->mappingTable->getEndpointId(3));
+        $this->assertEquals('1||1||foo', $this->mappingTable->getEndpointId(3));
         $this->mappingTable->remove(null, 3);
         $this->assertTableRowCount($this->mappingTable->getTableName(), 2);
         $this->assertEquals(null, $this->mappingTable->getEndpointId(3));
@@ -82,7 +115,7 @@ class AbstractMappingTableTest extends DBTestCase
     {
         $this->assertTableRowCount($this->mappingTable->getTableName(), 3);
         $this->assertEquals(3, $this->mappingTable->count());
-        $this->mappingTable->remove('1||1');
+        $this->mappingTable->remove('1||1||foo');
         $this->assertTableRowCount($this->mappingTable->getTableName(), 2);
         $this->assertEquals(2, $this->mappingTable->count());
 
@@ -99,9 +132,9 @@ class AbstractMappingTableTest extends DBTestCase
     {
         $endpoints = $this->mappingTable->findAllEndpoints();
         $this->assertCount(3, $endpoints);
-        $this->assertEquals('1||1', $endpoints[0]);
-        $this->assertEquals('1||2', $endpoints[1]);
-        $this->assertEquals('4||2', $endpoints[2]);
+        $this->assertEquals('1||1||foo', $endpoints[0]);
+        $this->assertEquals('1||2||bar', $endpoints[1]);
+        $this->assertEquals('4||2||foobar', $endpoints[2]);
     }
 
     public function testFindAllEndpointsWithNoData()
@@ -114,12 +147,12 @@ class AbstractMappingTableTest extends DBTestCase
 
     public function testFindNotFetchedEndpoints()
     {
-        $endpoints = ['1||1', '1||2', '2||1', '2||2', '2||3'];
+        $endpoints = ['1||1||foo', '1||2||bar', '2||1||yolo', '2||2||dito', '2||3||mito'];
         $notFetched = $this->mappingTable->findNotFetchedEndpoints($endpoints);
         $this->assertCount(3, $notFetched);
-        $this->assertTrue(in_array('2||1', $notFetched));
-        $this->assertTrue(in_array('2||2', $notFetched));
-        $this->assertTrue(in_array('2||3', $notFetched));
+        $this->assertTrue(in_array('2||1||yolo', $notFetched));
+        $this->assertTrue(in_array('2||2||dito', $notFetched));
+        $this->assertTrue(in_array('2||3||mito', $notFetched));
     }
 
     public function testBuildEndpoint()
@@ -132,9 +165,34 @@ class AbstractMappingTableTest extends DBTestCase
 
     public function testExtractEndpoint()
     {
-        $endpoint = '1||2';
-        $expected = [MappingTableStub::COL_ID1 => 1, MappingTableStub::COL_ID2 => 2];
+        $endpoint = '3||5||bar';
+        $expected = [MappingTableStub::COL_ID1 => 3, MappingTableStub::COL_ID2 => 5, MappingTableStub::COL_VAR => 'bar'];
         $data = $this->mappingTable->extractEndpoint($endpoint);
         $this->assertEquals($expected, $data);
+    }
+
+    public function testAddColumnType()
+    {
+        $this->mappingTable->addColumn('test', Type::BINARY);
+        $schema = $this->mappingTable->getTableSchema();
+        $column = $schema->getColumn('test');
+        $this->assertEquals(Type::BINARY, $column->getType()->getName());
+    }
+
+    public function testAddColumn()
+    {
+        $this->mappingTable->addColumn('test', Type::DATETIME);
+        $schema = $this->mappingTable->getTableSchema();
+        $primaryKey = $schema->getPrimaryKey();
+        $this->assertTrue(in_array('test', $primaryKey->getColumns()));
+    }
+
+    public function testAddColumnNotPrimary()
+    {
+        $this->mappingTable->addColumn('test', Type::STRING, [], false);
+        $schema = $this->mappingTable->getTableSchema();
+        $this->assertTrue($schema->hasColumn('test'));
+        $primaryKey = $schema->getPrimaryKey();
+        $this->assertFalse(in_array('test', $primaryKey->getColumns()));
     }
 }
