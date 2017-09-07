@@ -69,6 +69,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         foreach($endpointColumns as $columnName => $columnData){
             $tableSchema->addColumn($columnName, $columnData['type'], $columnData['options']);
         }
+
         $tableSchema->setPrimaryKey(array_keys($primaryColumns));
         if(count($primaryColumns) < count($endpointColumns)) {
             $tableSchema->addIndex(array_keys($endpointColumns), self::ENDPOINT_INDEX_NAME);
@@ -168,11 +169,12 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     }
 
     /**
-     * @param array $where
+     * @param string[] $where
+     * @param mixed[] $parameters
      * @return integer
      * @throws TableException
      */
-    public function count(array $where = [])
+    public function count(array $where = [], array $parameters = [])
     {
         $qb = $this->createQueryBuilder();
         $qb
@@ -180,16 +182,14 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
             ->from($this->getTableName())
         ;
 
-        foreach($where as $column => $value){
-            if(!$this->hasColumn($column)){
-                throw MappingTableException::columnNotFound($column);
-            }
-
-            $qb
-                ->where($column . ' = :' . $column)
-                ->setParameter($column, $value)
-            ;
+        foreach($where as $condition){
+            $qb->andWhere($condition);
         }
+
+        foreach($parameters as $param => $value){
+            $qb->setParameter($param, $value);
+        }
+
         return (int)$qb->execute()->fetchColumn(0);
     }
 

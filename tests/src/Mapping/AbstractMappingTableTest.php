@@ -123,9 +123,10 @@ class AbstractMappingTableTest extends DBTestCase
 
     public function testCountWithWhereCondition()
     {
-        $this->assertEquals(0, $this->mappingTable->count([MappingTableStub::COL_ID2 => 63]));
-        $this->assertEquals(1, $this->mappingTable->count([MappingTableStub::COL_ID2 => 1]));
-        $this->assertEquals(2, $this->mappingTable->count([MappingTableStub::COL_ID2 => 2]));
+        $where = [MappingTableStub::COL_ID2 . ' = :' . MappingTableStub::COL_ID2];
+        $this->assertEquals(0, $this->mappingTable->count($where, [MappingTableStub::COL_ID2 => 63]));
+        $this->assertEquals(1, $this->mappingTable->count($where, [MappingTableStub::COL_ID2 => 1]));
+        $this->assertEquals(2, $this->mappingTable->count($where, [MappingTableStub::COL_ID2 => 2]));
     }
 
     public function testFindAllEndpoints()
