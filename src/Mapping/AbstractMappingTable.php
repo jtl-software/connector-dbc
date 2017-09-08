@@ -310,7 +310,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
         if($dataCount < count($columns)){
             throw MappingTableException::columnDataMissing($columnNames[$dataCount]);
         }
-        return array_combine($columnNames, $data);
+        return $this->mapRow(array_combine($columnNames, $data), $columnNames);
     }
 
     /**
