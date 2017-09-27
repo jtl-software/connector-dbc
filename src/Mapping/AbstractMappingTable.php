@@ -194,16 +194,28 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     }
 
     /**
+     * @param string[] $where
+     * @param mixed[] $parameters
      * @return mixed[]
      */
-    public function findAllEndpoints()
+    public function findAllEndpoints(array $where = [], array $parameters = [])
     {
         $columns = array_keys($this->getColumns());
 
-        $qb = $this->createQueryBuilder();
-        $stmt = $qb->select($columns)
+        $qb = $this->createQueryBuilder()
+            ->select($columns)
             ->from($this->getTableName())
-            ->execute();
+        ;
+
+        foreach($where as $condition){
+            $qb->andWhere($condition);
+        }
+
+        foreach($parameters as $param => $value){
+            $qb->setParameter($param, $value);
+        }
+
+        $stmt = $qb->execute();
 
         $result = [];
         foreach($stmt->fetchAll() as $endpointData)
