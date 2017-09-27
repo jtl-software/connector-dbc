@@ -60,7 +60,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     protected function createTableSchema(Table $tableSchema)
     {
-        $endpointColumns = $this->getColumns();
+        $endpointColumns = $this->getEndpointColumns();
         $primaryColumns = $this->getPrimaryColumns();
         if(count($endpointColumns) === 0){
             throw MappingTableException::endpointColumnsNotDefined();
@@ -104,7 +104,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function getEndpointId($hostId)
     {
-        $columns = array_keys($this->getColumns());
+        $columns = array_keys($this->getEndpointColumns());
         $endpointData = $this->createQueryBuilder()
             ->select($columns)
             ->from($this->getTableName())
@@ -200,7 +200,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     public function findAllEndpoints(array $where = [], array $parameters = [])
     {
-        $columns = array_keys($this->getColumns());
+        $columns = array_keys($this->getEndpointColumns());
 
         $qb = $this->createQueryBuilder()
             ->select($columns)
@@ -232,7 +232,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     public function findNotFetchedEndpoints(array $endpoints)
     {
         $platform = $this->getConnection()->getDatabasePlatform();
-        $columns = array_keys($this->getColumns());
+        $columns = array_keys($this->getEndpointColumns());
         $concatArray = [];
         foreach($columns as $column)
         {
@@ -316,7 +316,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      */
     protected function createEndpointData(array $data)
     {
-        $columns = $this->getColumns();
+        $columns = $this->getEndpointColumns();
         $dataCount = count($data);
         $columnNames = array_keys($columns);
         if($dataCount < count($columns)){
@@ -333,9 +333,9 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      * @return AbstractMappingTable
      * @throws MappingTableException
      */
-    protected function addColumn($name, $type, array $options = [], $primary = true)
+    protected function addEndpointColumn($name, $type, array $options = [], $primary = true)
     {
-        if($this->hasColumn($name)){
+        if($this->hasEndpointColumn($name)){
             throw MappingTableException::columnExists($name);
         }
         $this->columns[$name]['type'] = $type;
@@ -348,7 +348,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
      * @param string $name
      * @return boolean
      */
-    protected function hasColumn($name)
+    protected function hasEndpointColumn($name)
     {
         return isset($this->columns[$name]);
     }
@@ -356,7 +356,7 @@ abstract class AbstractMappingTable extends AbstractTable implements MappingTabl
     /**
      * @return mixed[]
      */
-    protected function getColumns()
+    protected function getEndpointColumns()
     {
         return $this->columns;
     }

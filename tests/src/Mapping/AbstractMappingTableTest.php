@@ -174,7 +174,7 @@ class AbstractMappingTableTest extends DBTestCase
 
     public function testAddColumnType()
     {
-        $this->mappingTable->addColumn('test', Type::BINARY);
+        $this->mappingTable->addEndpointColumn('test', Type::BINARY);
         $schema = $this->mappingTable->getTableSchema();
         $column = $schema->getColumn('test');
         $this->assertEquals(Type::BINARY, $column->getType()->getName());
@@ -182,7 +182,7 @@ class AbstractMappingTableTest extends DBTestCase
 
     public function testAddColumn()
     {
-        $this->mappingTable->addColumn('test', Type::DATETIME);
+        $this->mappingTable->addEndpointColumn('test', Type::DATETIME);
         $schema = $this->mappingTable->getTableSchema();
         $primaryKey = $schema->getPrimaryKey();
         $this->assertTrue(in_array('test', $primaryKey->getColumns()));
@@ -190,7 +190,7 @@ class AbstractMappingTableTest extends DBTestCase
 
     public function testAddColumnNotPrimary()
     {
-        $this->mappingTable->addColumn('test', Type::STRING, [], false);
+        $this->mappingTable->addEndpointColumn('test', Type::STRING, [], false);
         $schema = $this->mappingTable->getTableSchema();
         $this->assertTrue($schema->hasColumn('test'));
         $primaryKey = $schema->getPrimaryKey();
