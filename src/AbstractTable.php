@@ -161,6 +161,11 @@ abstract class AbstractTable
             $result[$index] = $value;
             if(Type::hasType($types[$index])) {
                 $result[$index] = Type::getType($types[$index])->convertToPHPValue($value, $this->dbManager->getConnection()->getDatabasePlatform());
+
+                //Dirty BIGINT to int cast
+                if($types[$index] === Type::BIGINT) {
+                    $result[$index] = (int)$result[$index];
+                }
             }
         }
 
