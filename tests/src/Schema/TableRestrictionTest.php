@@ -11,7 +11,7 @@ class TableRestrictionTest extends DBTestCase
 {
     public function testInitializationSuccessful()
     {
-        $tableSchema = $this->stubTable->getTableSchema();
+        $tableSchema = $this->table->getTableSchema();
         $restriction = new TableRestriction($tableSchema, TableStub::B, 'c');
         $this->assertEquals($tableSchema, $restriction->getTable());
         $this->assertEquals(TableStub::B, $restriction->getColumnName());
@@ -24,7 +24,7 @@ class TableRestrictionTest extends DBTestCase
      */
     public function testInitializationWithNotExistingColumn()
     {
-        $tableSchema = $this->stubTable->getTableSchema();
+        $tableSchema = $this->table->getTableSchema();
         new TableRestriction($tableSchema, 'yolo', 'c');
     }
 }

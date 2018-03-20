@@ -24,7 +24,7 @@ abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
     /**
      * @var \jtl\Connector\CDBC\TableStub
      */
-    protected $stubTable;
+    protected $table;
 
     /**
      * @var YamlDataSet
@@ -34,7 +34,7 @@ abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
 
     protected function setUp()
     {
-        $this->stubTable = new TableStub($this->getDBManager());
+        $this->table = new TableStub($this->getDBManager());
         if($this->getDBManager()->hasSchemaUpdate()){
             $this->getDBManager()->updateDatabaseSchema();
         }

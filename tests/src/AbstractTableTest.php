@@ -35,8 +35,8 @@ class AbstractTableTest extends DBTestCase
 
     public function testRestrict()
     {
-        $this->stubTable->restrict(TableStub::B, 'a string');
-        $data = $this->stubTable->findAll();
+        $this->table->restrict(TableStub::B, 'a string');
+        $data = $this->table->findAll();
         $this->assertCount(1, $data);
         $row = reset($data);
         $this->assertEquals(1, $row[TableStub::A]);
@@ -83,7 +83,7 @@ class AbstractTableTest extends DBTestCase
 
     public function testMapTableRowsAssoc()
     {
-        $rows = $this->stubTable->findAll();
+        $rows = $this->table->findAll();
         $this->assertArrayHasKey(1, $rows);
         $row = $rows[1];
         $this->assertArrayHasKey(TableStub::ID, $row);
@@ -101,7 +101,7 @@ class AbstractTableTest extends DBTestCase
 
     public function testMapTableRowsNumeric()
     {
-        $rows = $this->stubTable->findAll(\PDO::FETCH_NUM);
+        $rows = $this->table->findAll(\PDO::FETCH_NUM);
         $this->assertArrayHasKey(1, $rows);
         $row = $rows[1];
         $this->assertArrayHasKey(0, $row);
@@ -119,7 +119,7 @@ class AbstractTableTest extends DBTestCase
 
     public function testMapTableRowsPartiallyAssoc()
     {
-        $rows = $this->stubTable->findAll(\PDO::FETCH_ASSOC, ['a', 'c']);
+        $rows = $this->table->findAll(\PDO::FETCH_ASSOC, ['a', 'c']);
         $this->assertArrayHasKey(1, $rows);
         $row = $rows[1];
         $this->assertCount(2, $row);
@@ -132,7 +132,7 @@ class AbstractTableTest extends DBTestCase
 
     public function testMapTableRowsPartiallyNumeric()
     {
-        $rows = $this->stubTable->findAll(\PDO::FETCH_NUM, [0, 2]);
+        $rows = $this->table->findAll(\PDO::FETCH_NUM, [0, 2]);
         $this->assertArrayHasKey(1, $rows);
         $row = $rows[1];
         $this->assertCount(2, $row);
