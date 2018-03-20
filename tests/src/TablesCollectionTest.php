@@ -71,8 +71,8 @@ class TablesCollectionTest extends DBTestCase
 
     public function testGetButNotFound()
     {
-        $this->expectException(CDBCException::class);
-        $this->expectExceptionCode(CDBCException::TABLE_NOT_FOUND);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionCode(RuntimeException::TABLE_NOT_FOUND);
         $this->collection->get('foobar');
     }
 
@@ -99,15 +99,15 @@ class TablesCollectionTest extends DBTestCase
 
     public function testFilterByInstanceClassNotFound()
     {
-        $this->expectException(CDBCException::class);
-        $this->expectExceptionCode(CDBCException::CLASS_NOT_FOUND);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionCode(RuntimeException::CLASS_NOT_FOUND);
         $this->collection->filterByInstanceClass('notexistent');
     }
 
     public function testFilterByInstanceClassNotAChildOfAbstractTable()
     {
-        $this->expectException(CDBCException::class);
-        $this->expectExceptionCode(CDBCException::CLASS_NOT_A_TABLE);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionCode(RuntimeException::CLASS_NOT_A_TABLE);
         $this->collection->filterByInstanceClass(\ArrayIterator::class);
     }
 }

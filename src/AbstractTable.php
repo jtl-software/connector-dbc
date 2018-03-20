@@ -39,7 +39,7 @@ abstract class AbstractTable
      * @param string $column
      * @param mixed $value
      * @return AbstractTable
-     * @throws CDBCException
+     * @throws RuntimeException
      * @throws \Doctrine\DBAL\DBALException
      * @throws \Doctrine\DBAL\Schema\SchemaException
      */
@@ -67,7 +67,7 @@ abstract class AbstractTable
 
     /**
      * @return Table
-     * @throws CDBCException
+     * @throws RuntimeException
      * @throws \Doctrine\DBAL\DBALException
      */
     public function getTableSchema()
@@ -75,7 +75,7 @@ abstract class AbstractTable
         $tableSchema = new Table($this->getTableName());
         $this->createTableSchema($tableSchema);
         if(count($tableSchema->getColumns()) === 0) {
-            throw CDBCException::tableEmpty($tableSchema->getName());
+            throw RuntimeException::tableEmpty($tableSchema->getName());
         }
         return $tableSchema;
     }
@@ -93,7 +93,7 @@ abstract class AbstractTable
 
     /**
      * @return string[]
-     * @throws CDBCException
+     * @throws RuntimeException
      * @throws \Doctrine\DBAL\DBALException
      */
     public function getColumnTypes()
@@ -107,7 +107,7 @@ abstract class AbstractTable
 
     /**
      * @return string[]
-     * @throws CDBCException
+     * @throws RuntimeException
      * @throws \Doctrine\DBAL\DBALException
      */
     public function getColumnNames()
@@ -142,7 +142,7 @@ abstract class AbstractTable
      * @param string[] $row
      * @param string[] $columns
      * @return mixed[]
-     * @throws CDBCException
+     * @throws RuntimeException
      * @throws \Doctrine\DBAL\DBALException
      */
     protected function mapRow(array $row, array $columns = [])

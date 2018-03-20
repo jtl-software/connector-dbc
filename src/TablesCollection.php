@@ -76,7 +76,7 @@ class TablesCollection
     public function get($name)
     {
         if(!$this->has($name)) {
-            throw CDBCException::tableNotFound($name);
+            throw RuntimeException::tableNotFound($name);
         }
         return $this->tables[$name];
     }
@@ -88,11 +88,11 @@ class TablesCollection
     public function filterByInstanceClass($className)
     {
         if(!class_exists($className)) {
-            throw CDBCException::classNotFound($className);
+            throw RuntimeException::classNotFound($className);
         }
 
         if(!is_subclass_of($className, AbstractTable::class)) {
-            throw CDBCException::classNotChildOfTable($className);
+            throw RuntimeException::classNotChildOfTable($className);
         }
 
         $tables = array_filter($this->toArray(), function(AbstractTable $table) use ($className) {

@@ -6,7 +6,7 @@
 namespace jtl\Connector\CDBC;
 
 
-class CDBCException extends \RuntimeException
+class RuntimeException extends \RuntimeException
 {
     const TABLE_NOT_FOUND = 10;
     const TABLE_EMPTY = 20;
@@ -16,7 +16,7 @@ class CDBCException extends \RuntimeException
 
     /**
      * @param string $tableName
-     * @return CDBCException
+     * @return RuntimeException
      */
     public static function tableNotFound($tableName)
     {
@@ -25,7 +25,7 @@ class CDBCException extends \RuntimeException
 
     /**
      * @param string $tableName
-     * @return CDBCException
+     * @return RuntimeException
      */
     public static function tableEmpty($tableName)
     {
@@ -34,7 +34,7 @@ class CDBCException extends \RuntimeException
 
     /**
      * @param string $columnName
-     * @return CDBCException
+     * @return RuntimeException
      */
     public static function columnNotFound($columnName)
     {
@@ -43,7 +43,7 @@ class CDBCException extends \RuntimeException
 
     /**
      * @param string $className
-     * @return CDBCException
+     * @return RuntimeException
      */
     public static function classNotFound($className)
     {
@@ -52,7 +52,7 @@ class CDBCException extends \RuntimeException
 
     /**
      * @param string $className
-     * @return CDBCException
+     * @return RuntimeException
      */
     public static function classNotChildOfTable($className)
     {
