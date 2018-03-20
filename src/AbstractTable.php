@@ -39,6 +39,9 @@ abstract class AbstractTable
      * @param string $column
      * @param mixed $value
      * @return AbstractTable
+     * @throws TableException
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Schema\SchemaException
      */
     protected function restrict($column, $value)
     {
@@ -65,6 +68,7 @@ abstract class AbstractTable
     /**
      * @return Table
      * @throws TableException
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function getTableSchema()
     {
@@ -89,6 +93,8 @@ abstract class AbstractTable
 
     /**
      * @return string[]
+     * @throws TableException
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function getColumnTypes()
     {
@@ -101,6 +107,8 @@ abstract class AbstractTable
 
     /**
      * @return string[]
+     * @throws TableException
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function getColumnNames()
     {
@@ -131,9 +139,11 @@ abstract class AbstractTable
     }
 
     /**
-     * @param mixed[] $row
+     * @param string[] $row
      * @param string[] $columns
      * @return mixed[]
+     * @throws TableException
+     * @throws \Doctrine\DBAL\DBALException
      */
     protected function mapRow(array $row, array $columns = [])
     {

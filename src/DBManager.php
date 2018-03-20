@@ -58,6 +58,7 @@ class DBManager
 
     /**
      * @return string[]
+     * @throws TableException
      */
     public function getSchema()
     {
@@ -67,6 +68,7 @@ class DBManager
 
     /**
      * @return string[]
+     * @throws TableException
      */
     public function getSchemaUpdate()
     {
@@ -91,6 +93,7 @@ class DBManager
     }
 
     /**
+     * @throws \Exception
      * @return void
      */
     public function updateDatabaseSchema()
@@ -129,6 +132,7 @@ class DBManager
 
     /**
      * @return Table[]
+     * @throws TableException
      */
     protected function getSchemaTables()
     {
@@ -144,6 +148,7 @@ class DBManager
      * @param Configuration|null $config
      * @param string|null $tablesPrefix
      * @return DBManager
+     * @throws \Doctrine\DBAL\DBALException
      */
     public static function createFromPDO(\PDO $pdo, Configuration $config = null, $tablesPrefix = null)
     {
@@ -160,6 +165,7 @@ class DBManager
      * @param Configuration|null $config
      * @param string|null $tablesPrefix
      * @return DBManager
+     * @throws \Doctrine\DBAL\DBALException
      */
     public static function createFromParams(array $params, Configuration $config = null, $tablesPrefix = null)
     {
