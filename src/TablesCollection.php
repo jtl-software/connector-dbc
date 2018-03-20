@@ -39,16 +39,15 @@ class TablesCollection
      */
     public function removeByInstance(AbstractTable $table)
     {
-        $index = $table->getTableName();
-        if(isset($this->tables[$index]) && ($this->tables[$index] === $table)) {
-            unset($this->tables[$index]);
-            return true;
+        $name = $table->getTableName();
+        if($this->has($name) && ($this->get($name) === $table)) {
+            return $this->removeByName($name);
         }
         return false;
     }
 
     /**
-     * @param integer $name
+     * @param string $name
      * @return boolean
      */
     public function removeByName($name)
@@ -61,7 +60,7 @@ class TablesCollection
     }
 
     /**
-     * @param integer $name
+     * @param string $name
      * @return boolean
      */
     public function has($name)
@@ -70,16 +69,37 @@ class TablesCollection
     }
 
     /**
-     * @param integer $name
+     * @param string $name
      * @return AbstractTable
      * @throws \Exception
      */
     public function get($name)
     {
         if(!$this->has($name)) {
-            throw TableException::tableNotFound($name);
+            throw CDBCException::tableNotFound($name);
         }
         return $this->tables[$name];
+    }
+
+    /**
+     * @param string $className
+     * @return TablesCollection
+     */
+    public function filterByInstanceClass($className)
+    {
+        if(!class_exists($className)) {
+            throw CDBCException::classNotFound($className);
+        }
+
+        if(!is_subclass_of($className, AbstractTable::class)) {
+            throw CDBCException::classNotChildOfTable($className);
+        }
+
+        $tables = array_filter($this->toArray(), function(AbstractTable $table) use ($className) {
+            return $table instanceof $className;
+        });
+
+        return new static($tables);
     }
 
     /**

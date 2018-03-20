@@ -58,7 +58,7 @@ class DBManager
 
     /**
      * @return string[]
-     * @throws TableException
+     * @throws CDBCException
      */
     public function getSchema()
     {
@@ -68,7 +68,7 @@ class DBManager
 
     /**
      * @return string[]
-     * @throws TableException
+     * @throws CDBCException
      */
     public function getSchemaUpdate()
     {
@@ -132,7 +132,7 @@ class DBManager
 
     /**
      * @return Table[]
-     * @throws TableException
+     * @throws CDBCException
      */
     protected function getSchemaTables()
     {
