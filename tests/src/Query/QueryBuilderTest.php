@@ -3,14 +3,14 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Query;
+namespace Jtl\Connector\Dbc\Query;
 
-use jtl\Connector\CDBC\CoordinatesStub;
-use jtl\Connector\CDBC\DBTestCase;
-use jtl\Connector\CDBC\Schema\TableRestriction;
+use Jtl\Connector\Dbc\CoordinatesStub;
+use Jtl\Connector\Dbc\DbTestCase;
+use Jtl\Connector\Dbc\Schema\TableRestriction;
 
 
-class QueryBuilderTest extends DBTestCase
+class QueryBuilderTest extends DbTestCase
 {
     /**
      * @var QueryBuilder
@@ -32,7 +32,7 @@ class QueryBuilderTest extends DBTestCase
      */
     protected $globalIdentifiers = ['foo' => 'bar'];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->getYamlDataSet()->addYamlFile(TESTROOT . '/files/coordinates_stub.yaml');
         $this->coordsTable = new CoordinatesStub($this->getDBManager());

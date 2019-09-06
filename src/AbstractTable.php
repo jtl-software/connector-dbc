@@ -3,34 +3,39 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC;
+
+namespace Jtl\Connector\Dbc;
+
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
-use jtl\Connector\CDBC\Schema\TableRestriction;
+use Jtl\Connector\Dbc\Query\QueryBuilder;
+use Jtl\Connector\Dbc\Schema\TableRestriction;
 
 
 abstract class AbstractTable
 {
     /**
-     * @var DBManager
+     * @var DbManager
      */
     protected $dbManager;
 
     /**
      * Table constructor.
-     * @param DBManager $dbManager
+     * @param DbManager $dbManager
      * @throws \Exception
      */
-    public function __construct(DBManager $dbManager)
+    public function __construct(DbManager $dbManager)
     {
         $this->dbManager = $dbManager;
         $dbManager->registerTable($this);
     }
 
     /**
-     * @return DBManager
+     * @return DbManager
      */
-    public function getDbManager()
+    public function getDbManager(): DbManager
     {
         return $this->dbManager;
     }
@@ -40,27 +45,27 @@ abstract class AbstractTable
      * @param mixed $value
      * @return AbstractTable
      * @throws RuntimeException
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Doctrine\DBAL\Schema\SchemaException
+     * @throws DBALException
+     * @throws SchemaException
      */
-    protected function restrict($column, $value)
+    protected function restrict(string $column, $value): AbstractTable
     {
         $this->getConnection()->restrictTable(new TableRestriction($this->getTableSchema(), $column, $value));
         return $this;
     }
 
     /**
-     * @return \jtl\Connector\CDBC\Query\QueryBuilder
+     * @return QueryBuilder
      */
-    protected function createQueryBuilder()
+    protected function createQueryBuilder(): QueryBuilder
     {
         return $this->getConnection()->createQueryBuilder();
     }
 
     /**
-     * @return \jtl\Connector\CDBC\Connection
+     * @return Connection
      */
-    protected function getConnection()
+    protected function getConnection(): Connection
     {
         return $this->getDbManager()->getConnection();
     }
@@ -68,13 +73,13 @@ abstract class AbstractTable
     /**
      * @return Table
      * @throws RuntimeException
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
-    public function getTableSchema()
+    public function getTableSchema(): Table
     {
         $tableSchema = new Table($this->getTableName());
         $this->createTableSchema($tableSchema);
-        if(count($tableSchema->getColumns()) === 0) {
+        if (count($tableSchema->getColumns()) === 0) {
             throw RuntimeException::tableEmpty($tableSchema->getName());
         }
         return $tableSchema;
@@ -83,9 +88,9 @@ abstract class AbstractTable
     /**
      * @return string
      */
-    public function getTableName()
+    public function getTableName(): string
     {
-        if($this->getDbManager()->hasTablesPrefix()){
+        if ($this->getDbManager()->hasTablesPrefix()) {
             return $this->getDbManager()->getTablesPrefix() . '_' . $this->getName();
         }
         return $this->getName();
@@ -94,12 +99,12 @@ abstract class AbstractTable
     /**
      * @return string[]
      * @throws RuntimeException
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
-    public function getColumnTypes()
+    public function getColumnTypes(): array
     {
         $columns = [];
-        foreach($this->getTableSchema()->getColumns() as $column) {
+        foreach ($this->getTableSchema()->getColumns() as $column) {
             $columns[$column->getName()] = $column->getType()->getName();
         }
         return $columns;
@@ -108,9 +113,9 @@ abstract class AbstractTable
     /**
      * @return string[]
      * @throws RuntimeException
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
-    public function getColumnNames()
+    public function getColumnNames(): array
     {
         return array_keys($this->getColumnTypes());
     }
@@ -118,22 +123,22 @@ abstract class AbstractTable
     /**
      * @return string
      */
-    abstract protected function getName();
+    abstract protected function getName(): string;
 
     /**
      * @param $tableSchema Table
      * @return void
      */
-    abstract protected function createTableSchema(Table $tableSchema);
+    abstract protected function createTableSchema(Table $tableSchema): void;
 
     /**
      * @param mixed[] $rows
      * @param string[] $columns
      * @return mixed[]
      */
-    protected function mapRows(array $rows, array $columns = [])
+    protected function mapRows(array $rows, array $columns = []): array
     {
-        return array_map(function(array $row) use ($columns){
+        return array_map(function (array $row) use ($columns) {
             return $this->mapRow($row, $columns);
         }, $rows);
     }
@@ -143,37 +148,37 @@ abstract class AbstractTable
      * @param string[] $columns
      * @return mixed[]
      * @throws RuntimeException
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     protected function mapRow(array $row, array $columns = [])
     {
         $types = $this->getColumnTypes();
         $numericIndices = is_int(key($row));
 
-        if($numericIndices){
+        if ($numericIndices) {
             $types = array_values($types);
         }
 
-        if(count($columns) > 0) {
+        if (count($columns) > 0) {
             $types = array_intersect_key($types, array_fill_keys($columns, $columns));
         }
 
-        if(count($types) === 0) {
+        if (count($types) === 0) {
             return $row;
         }
 
         $result = [];
-        foreach($row as $index => $value){
-            if(!isset($types[$index])){
+        foreach ($row as $index => $value) {
+            if (!isset($types[$index])) {
                 continue;
             }
 
             $result[$index] = $value;
-            if(Type::hasType($types[$index])) {
+            if (Type::hasType($types[$index])) {
                 $result[$index] = Type::getType($types[$index])->convertToPHPValue($value, $this->dbManager->getConnection()->getDatabasePlatform());
 
                 //Dirty BIGINT to int cast
-                if($types[$index] === Type::BIGINT) {
+                if ($types[$index] === Type::BIGINT) {
                     $result[$index] = (int)$result[$index];
                 }
             }

@@ -3,22 +3,23 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC;
+namespace Jtl\Connector\Dbc;
 
-class DBManagerStub extends DBManager
+class DbManagerStub extends DbManager
 {
     /**
-     * @return AbstractTable[]
+     * @return array
      */
-    public function getTables()
+    public function getTables(): array
     {
         return parent::getTables();
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Table[]
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public function getSchemaTables()
+    public function getSchemaTables(): array
     {
         return parent::getSchemaTables();
     }

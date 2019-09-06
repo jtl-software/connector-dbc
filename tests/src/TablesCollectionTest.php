@@ -3,16 +3,16 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2018 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC;
+namespace Jtl\Connector\Dbc;
 
-class TablesCollectionTest extends DBTestCase
+class TablesCollectionTest extends DbTestCase
 {
     /**
      * @var TablesCollection
      */
     protected $collection;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->collection = new TablesCollection([$this->table]);
@@ -81,7 +81,7 @@ class TablesCollectionTest extends DBTestCase
     {
         $tables[] = $this->table;
         $tables[] = new class($this->getDBManager()) extends TableStub {
-            public function getName()
+            public function getName(): string
             {
                 return 'tableX';
             }

@@ -3,9 +3,9 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Query;
+namespace Jtl\Connector\Dbc\Query;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
-use jtl\Connector\CDBC\Connection;
+use Jtl\Connector\Dbc\Connection;
 
 class QueryBuilder extends \Doctrine\DBAL\Query\QueryBuilder
 {
@@ -28,7 +28,7 @@ class QueryBuilder extends \Doctrine\DBAL\Query\QueryBuilder
     /**
      * @return string
      */
-    public function getSQL()
+    public function getSQL(): string
     {
         foreach($this->getQueryPart('from') as $table) {
             $this->assignTableRestrictions(is_array($table) ? $table['table'] : $table);
@@ -39,7 +39,7 @@ class QueryBuilder extends \Doctrine\DBAL\Query\QueryBuilder
     /**
      * @param string $table
      */
-    protected function assignTableRestrictions($table)
+    protected function assignTableRestrictions($table): void
     {
         if (isset($this->tableRestrictions[$table])) {
             foreach ($this->tableRestrictions[$table] as $column => $value) {

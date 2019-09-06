@@ -3,14 +3,16 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC;
+
+namespace Jtl\Connector\Dbc;
+
 use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
-use jtl\Connector\CDBC\AbstractTable;
 
-class DBManager
+class DbManager
 {
     /**
      * @var Connection
@@ -23,7 +25,7 @@ class DBManager
     protected $tables = [];
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $tablesPrefix;
 
@@ -32,7 +34,7 @@ class DBManager
      * @param Connection $connection
      * @param string $tablesPrefix
      */
-    public function __construct(Connection $connection, $tablesPrefix = null)
+    public function __construct(Connection $connection, string $tablesPrefix = null)
     {
         $this->connection = $connection;
         $this->tablesPrefix = $tablesPrefix;
@@ -41,16 +43,16 @@ class DBManager
     /**
      * @return Connection
      */
-    public function getConnection()
+    public function getConnection(): Connection
     {
         return $this->connection;
     }
 
     /**
      * @param AbstractTable $table
-     * @return DBManager
+     * @return DbManager
      */
-    public function registerTable(AbstractTable $table)
+    public function registerTable(AbstractTable $table): DbManager
     {
         $this->tables[$table->getTableName()] = $table;
         return $this;
@@ -58,9 +60,9 @@ class DBManager
 
     /**
      * @return string[]
-     * @throws RuntimeException
+     * @throws DBALException
      */
-    public function getSchema()
+    public function getSchema(): array
     {
         $schema = new Schema($this->getSchemaTables());
         return $schema->toSql($this->connection->getDatabasePlatform());
@@ -68,15 +70,17 @@ class DBManager
 
     /**
      * @return string[]
-     * @throws RuntimeException
+     * @throws DBALException
      */
-    public function getSchemaUpdate()
+    public function getSchemaUpdate(): array
     {
         $tables = $this->getSchemaTables();
-        $schemaTableNames = array_map(function(Table $table){ return $table->getName(); }, $tables);
+        $schemaTableNames = array_map(function (Table $table) {
+            return $table->getName();
+        }, $tables);
         $fromSchema = $this->connection->getSchemaManager()->createSchema();
-        foreach($fromSchema->getTables() as $table){
-            if(!in_array($table->getName(), $schemaTableNames)){
+        foreach ($fromSchema->getTables() as $table) {
+            if (!in_array($table->getName(), $schemaTableNames)) {
                 $tables[] = clone $table;
             }
         }
@@ -86,30 +90,31 @@ class DBManager
 
     /**
      * @return boolean
+     * @throws DBALException
      */
-    public function hasSchemaUpdate()
+    public function hasSchemaUpdate(): bool
     {
         return count($this->getSchemaUpdate()) > 0;
     }
 
     /**
-     * @throws \Exception
-     * @return void
+     * @throws DBALException
+     * @throws \Throwable
      */
-    public function updateDatabaseSchema()
+    public function updateDatabaseSchema(): void
     {
         $ddls = $this->getSchemaUpdate();
-        $this->connection->transactional(function($connection) use ($ddls){
-           foreach($ddls as $ddl){
-               $connection->executeQuery($ddl);
-           }
+        $this->connection->transactional(function ($connection) use ($ddls) {
+            foreach ($ddls as $ddl) {
+                $connection->executeQuery($ddl);
+            }
         });
     }
 
     /**
      * @return boolean
      */
-    public function hasTablesPrefix()
+    public function hasTablesPrefix(): bool
     {
         return is_string($this->tablesPrefix) && strlen($this->tablesPrefix) > 0;
     }
@@ -117,7 +122,7 @@ class DBManager
     /**
      * @return string
      */
-    public function getTablesPrefix()
+    public function getTablesPrefix(): ?string
     {
         return $this->tablesPrefix;
     }
@@ -125,19 +130,19 @@ class DBManager
     /**
      * @return AbstractTable[]
      */
-    protected function getTables()
+    protected function getTables(): array
     {
         return array_values($this->tables);
     }
 
     /**
-     * @return Table[]
-     * @throws RuntimeException
+     * @return array
+     * @throws DBALException
      */
-    protected function getSchemaTables()
+    protected function getSchemaTables(): array
     {
         $schemaTables = [];
-        foreach($this->getTables() as $table){
+        foreach ($this->getTables() as $table) {
             $schemaTables[] = $table->getTableSchema();
         }
         return $schemaTables;
@@ -147,10 +152,10 @@ class DBManager
      * @param \PDO $pdo
      * @param Configuration|null $config
      * @param string|null $tablesPrefix
-     * @return DBManager
-     * @throws \Doctrine\DBAL\DBALException
+     * @return DbManager
+     * @throws DBALException
      */
-    public static function createFromPDO(\PDO $pdo, Configuration $config = null, $tablesPrefix = null)
+    public static function createFromPDO(\PDO $pdo, Configuration $config = null, string $tablesPrefix = null): DbManager
     {
         $params = [
             'pdo' => $pdo,
@@ -164,10 +169,10 @@ class DBManager
      * @param string[] $params
      * @param Configuration|null $config
      * @param string|null $tablesPrefix
-     * @return DBManager
-     * @throws \Doctrine\DBAL\DBALException
+     * @return DbManager
+     * @throws DBALException
      */
-    public static function createFromParams(array $params, Configuration $config = null, $tablesPrefix = null)
+    public static function createFromParams(array $params, Configuration $config = null, string $tablesPrefix = null): DbManager
     {
         $params['wrapperClass'] = Connection::class;
         $connection = DriverManager::getConnection($params, $config);

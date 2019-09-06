@@ -3,11 +3,11 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Schema;
-use jtl\Connector\CDBC\DBTestCase;
-use jtl\Connector\CDBC\TableStub;
+namespace Jtl\Connector\Dbc\Schema;
+use Jtl\Connector\Dbc\DbTestCase;
+use Jtl\Connector\Dbc\TableStub;
 
-class TableRestrictionTest extends DBTestCase
+class TableRestrictionTest extends DbTestCase
 {
     public function testInitializationSuccessful()
     {

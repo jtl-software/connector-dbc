@@ -3,11 +3,11 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2016 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC;
+namespace Jtl\Connector\Dbc;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\Database\DefaultConnection;
 
-abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
+abstract class DbTestCase extends \PHPUnit\DbUnit\TestCase
 {
     const TABLES_PREFIX = 'pre';
     const SCHEMA = TESTROOT . '/tmp/db.sqlite';
@@ -17,12 +17,12 @@ abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
      */
     protected $pdo;
     /**
-     * @var \jtl\Connector\CDBC\DBManagerStub
+     * @var \Jtl\Connector\Dbc\DbManagerStub
      */
     protected $dbManager;
 
     /**
-     * @var \jtl\Connector\CDBC\TableStub
+     * @var \Jtl\Connector\Dbc\TableStub
      */
     protected $table;
 
@@ -32,7 +32,7 @@ abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
     protected $yamlDataSet;
 
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->table = new TableStub($this->getDBManager());
         if($this->getDBManager()->hasSchemaUpdate()){
@@ -56,12 +56,12 @@ abstract class DBTestCase extends \PHPUnit\DbUnit\TestCase
     }
 
     /**
-     * @return DBManagerStub
+     * @return DbManagerStub
      */
     protected function getDBManager()
     {
-        if(!$this->dbManager instanceof \jtl\Connector\CDBC\DBManagerStub){
-            $this->dbManager = DBManagerStub::createFromPDO($this->getConnection()->getConnection(), null, self::TABLES_PREFIX);
+        if(!$this->dbManager instanceof \Jtl\Connector\Dbc\DbManagerStub){
+            $this->dbManager = DbManagerStub::createFromPDO($this->getConnection()->getConnection(), null, self::TABLES_PREFIX);
         }
         return $this->dbManager;
     }

@@ -3,9 +3,12 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC;
-use jtl\Connector\CDBC\Query\QueryBuilder;
-use jtl\Connector\CDBC\Schema\TableRestriction;
+namespace Jtl\Connector\Dbc;
+
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Jtl\Connector\Dbc\Query\QueryBuilder;
+use Jtl\Connector\Dbc\Schema\TableRestriction;
 
 class Connection extends \Doctrine\DBAL\Connection
 {
@@ -18,7 +21,7 @@ class Connection extends \Doctrine\DBAL\Connection
      * @param TableRestriction $restriction
      * @return Connection
      */
-    public function restrictTable(TableRestriction $restriction)
+    public function restrictTable(TableRestriction $restriction): Connection
     {
         $this->tableRestrictions[$restriction->getTable()->getName()][$restriction->getColumnName()] = $restriction->getColumnValue();
         return $this;
@@ -29,7 +32,7 @@ class Connection extends \Doctrine\DBAL\Connection
      * @param string $column
      * @return boolean
      */
-    public function hasTableRestriction($tableExpression, $column)
+    public function hasTableRestriction($tableExpression, $column): bool
     {
         return isset($this->tableRestrictions[$tableExpression][$column]);
     }
@@ -38,13 +41,13 @@ class Connection extends \Doctrine\DBAL\Connection
      * @param string|null $tableExpression
      * @return mixed[]
      */
-    public function getTableRestrictions($tableExpression = null)
+    public function getTableRestrictions(string $tableExpression = null): array
     {
-        if($tableExpression === null) {
+        if ($tableExpression === null) {
             return $this->tableRestrictions;
         }
 
-        if(!isset($this->tableRestrictions[$tableExpression])) {
+        if (!isset($this->tableRestrictions[$tableExpression])) {
             $this->tableRestrictions[$tableExpression] = [];
         }
         return $this->tableRestrictions[$tableExpression];
@@ -53,35 +56,36 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * @return QueryBuilder
      */
-    public function createQueryBuilder()
+    public function createQueryBuilder(): QueryBuilder
     {
         return new QueryBuilder($this, $this->getTableRestrictions());
     }
 
     /**
      * @param string $tableExpression
-     * @param array $data
-     * @param array $types
+     * @param mixed[] $data
+     * @param string[] $types
      * @return integer
+     * @throws DBALException
      */
-    public function insert($tableExpression, array $data, array $types = [])
+    public function insert($tableExpression, array $data, array $types = []): int
     {
         return parent::insert($tableExpression, array_merge($data, $this->getTableRestrictions($tableExpression)), $types);
     }
 
     /**
-     * @param $tableExpression
+     * @param string $tableExpression
      * @param mixed[] $data
-     * @param array $types
+     * @param string[] $types
      * @return integer
      * @throws \Exception
      */
-    public function multiInsert($tableExpression, array $data, array $types = [])
+    public function multiInsert(string $tableExpression, array $data, array $types = []): int
     {
         $affectedRows = 0;
         $this->beginTransaction();
         try {
-            foreach($data as $row){
+            foreach ($data as $row) {
                 $affectedRows += $this->insert($tableExpression, $row, $types);
             }
             $this->commit();
@@ -94,12 +98,13 @@ class Connection extends \Doctrine\DBAL\Connection
 
     /**
      * @param string $tableExpression
-     * @param array $data
-     * @param array $identifier
-     * @param array $types
+     * @param mixed[] $data
+     * @param mixed[] $identifier
+     * @param string[] $types
      * @return integer
+     * @throws DBALException
      */
-    public function update($tableExpression, array $data, array $identifier, array $types = [])
+    public function update($tableExpression, array $data, array $identifier, array $types = []): int
     {
         $restrictions = $this->getTableRestrictions($tableExpression);
         $data = array_merge($data, $restrictions);
@@ -109,15 +114,16 @@ class Connection extends \Doctrine\DBAL\Connection
 
     /**
      * @param string $tableExpression
-     * @param array $identifier
-     * @param array $types
-     * @return integer
+     * @param mixed[] $identifier
+     * @param string[] $types
+     * @return int
+     * @throws DBALException
+     * @throws InvalidArgumentException
      */
-    public function delete($tableExpression, array $identifier, array $types = [])
+    public function delete($tableExpression, array $identifier, array $types = []): int
     {
         $restrictions = $this->getTableRestrictions($tableExpression);
         $identifier = array_merge($identifier, $restrictions);
         return parent::delete($tableExpression, $identifier, $types);
     }
-
 }

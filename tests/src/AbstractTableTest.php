@@ -3,20 +3,20 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Mapping;
+namespace Jtl\Connector\Dbc\Mapping;
 use Doctrine\DBAL\Types\Type;
-use jtl\Connector\CDBC\CoordinatesStub;
-use jtl\Connector\CDBC\DBTestCase;
-use jtl\Connector\CDBC\TableStub;
+use Jtl\Connector\Dbc\CoordinatesStub;
+use Jtl\Connector\Dbc\DbTestCase;
+use Jtl\Connector\Dbc\TableStub;
 
-class AbstractTableTest extends DBTestCase
+class AbstractTableTest extends DbTestCase
 {
     /**
      * @var CoordinatesStub
      */
     protected $coords;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->getYamlDataSet()->addYamlFile(TESTROOT . '/files/coordinates_stub.yaml');
         $this->coords = new CoordinatesStub($this->getDBManager());

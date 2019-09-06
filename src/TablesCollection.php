@@ -3,7 +3,8 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC;
+
+namespace Jtl\Connector\Dbc;
 
 class TablesCollection
 {
@@ -18,7 +19,7 @@ class TablesCollection
      */
     public function __construct(array $tables = [])
     {
-        foreach($tables as $table){
+        foreach ($tables as $table) {
             $this->set($table);
         }
     }
@@ -27,7 +28,7 @@ class TablesCollection
      * @param AbstractTable $table
      * @return TablesCollection
      */
-    public function set(AbstractTable $table)
+    public function set(AbstractTable $table): TablesCollection
     {
         $this->tables[$table->getTableName()] = $table;
         return $this;
@@ -36,11 +37,12 @@ class TablesCollection
     /**
      * @param AbstractTable $table
      * @return boolean
+     * @throws \Exception
      */
-    public function removeByInstance(AbstractTable $table)
+    public function removeByInstance(AbstractTable $table): bool
     {
         $name = $table->getTableName();
-        if($this->has($name) && ($this->get($name) === $table)) {
+        if ($this->has($name) && ($this->get($name) === $table)) {
             return $this->removeByName($name);
         }
         return false;
@@ -50,9 +52,9 @@ class TablesCollection
      * @param string $name
      * @return boolean
      */
-    public function removeByName($name)
+    public function removeByName(string $name): bool
     {
-        if($this->has($name)) {
+        if ($this->has($name)) {
             unset($this->tables[$name]);
             return true;
         }
@@ -63,7 +65,7 @@ class TablesCollection
      * @param string $name
      * @return boolean
      */
-    public function has($name)
+    public function has(string $name)
     {
         return isset($this->tables[$name]) && $this->tables[$name] instanceof AbstractTable;
     }
@@ -73,9 +75,9 @@ class TablesCollection
      * @return AbstractTable
      * @throws \Exception
      */
-    public function get($name)
+    public function get(string $name): AbstractTable
     {
-        if(!$this->has($name)) {
+        if (!$this->has($name)) {
             throw RuntimeException::tableNotFound($name);
         }
         return $this->tables[$name];
@@ -85,17 +87,17 @@ class TablesCollection
      * @param string $className
      * @return TablesCollection
      */
-    public function filterByInstanceClass($className)
+    public function filterByInstanceClass(string $className): TablesCollection
     {
-        if(!class_exists($className)) {
+        if (!class_exists($className)) {
             throw RuntimeException::classNotFound($className);
         }
 
-        if(!is_subclass_of($className, AbstractTable::class)) {
+        if (!is_subclass_of($className, AbstractTable::class)) {
             throw RuntimeException::classNotChildOfTable($className);
         }
 
-        $tables = array_filter($this->toArray(), function(AbstractTable $table) use ($className) {
+        $tables = array_filter($this->toArray(), function (AbstractTable $table) use ($className) {
             return $table instanceof $className;
         });
 
@@ -105,7 +107,7 @@ class TablesCollection
     /**
      * @return AbstractTable[]
      */
-    public function toArray()
+    public function toArray(): array
     {
         return array_values($this->tables);
     }

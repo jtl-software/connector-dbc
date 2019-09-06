@@ -3,11 +3,11 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC;
+namespace Jtl\Connector\Dbc;
 use Doctrine\DBAL\Schema\Table;
 
 
-class DBManagerTest extends DBTestCase
+class DbManagerTest extends DbTestCase
 {
     public function testRegisterTable()
     {
@@ -51,13 +51,13 @@ class DBManagerTest extends DBTestCase
 
     public function testCreateFromPDO()
     {
-        $dbm = DBManager::createFromPDO($this->getPDO());
-        $this->assertInstanceOf(DBManager::class, $dbm);
+        $dbm = DbManager::createFromPDO($this->getPDO());
+        $this->assertInstanceOf(DbManager::class, $dbm);
     }
 
     public function testCreateFromParams()
     {
-        $dbm = DBManager::createFromParams(['url' => 'sqlite:///:memory:']);
-        $this->assertInstanceOf(DBManager::class, $dbm);
+        $dbm = DbManager::createFromParams(['url' => 'sqlite:///:memory:']);
+        $this->assertInstanceOf(DbManager::class, $dbm);
     }
 }

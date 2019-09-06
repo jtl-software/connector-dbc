@@ -3,7 +3,7 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC;
+namespace Jtl\Connector\Dbc;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
@@ -16,12 +16,12 @@ class CoordinatesStub extends AbstractTable
 
     const TABLE_NAME = 'coordinates';
 
-    public function getName()
+    public function getName(): string
     {
         return self::TABLE_NAME;
     }
 
-    protected function createTableSchema(Table $tableSchema)
+    protected function createTableSchema(Table $tableSchema): void
     {
         $tableSchema->addColumn(self::COL_X, Type::FLOAT, ['default' => 0.0]);
         $tableSchema->addColumn(self::COL_Y, Type::FLOAT, ['default' => 0.0]);

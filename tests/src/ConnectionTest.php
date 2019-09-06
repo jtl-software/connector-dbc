@@ -3,20 +3,20 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC;
+namespace Jtl\Connector\Dbc;
 
 use Doctrine\DBAL\DriverManager;
-use jtl\Connector\CDBC\Query\QueryBuilder;
-use jtl\Connector\CDBC\Schema\TableRestriction;
+use Jtl\Connector\Dbc\Query\QueryBuilder;
+use Jtl\Connector\Dbc\Schema\TableRestriction;
 
-class ConnectionTest extends DBTestCase
+class ConnectionTest extends DbTestCase
 {
     /**
      * @var Connection
      */
     protected $connection;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $params = [

@@ -3,7 +3,7 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
-namespace jtl\Connector\CDBC\Schema;
+namespace Jtl\Connector\Dbc\Schema;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 
@@ -31,7 +31,7 @@ class TableRestriction
      * @param mixed $columnValue
      * @throws SchemaException
      */
-    public function __construct(Table $table, $columnName, $columnValue)
+    public function __construct(Table $table, string $columnName, $columnValue)
     {
         if(!$table->hasColumn($columnName)) {
             throw SchemaException::columnDoesNotExist($columnName, $table->getName());
@@ -45,7 +45,7 @@ class TableRestriction
     /**
      * @return Table
      */
-    public function getTable()
+    public function getTable(): Table
     {
         return $this->table;
     }
@@ -53,7 +53,7 @@ class TableRestriction
     /**
      * @return string
      */
-    public function getColumnName()
+    public function getColumnName(): string
     {
         return $this->columnName;
     }

@@ -13,17 +13,16 @@
   },
   "autoload": {
     "psr-4": {
-      "jtl\\Connector\\CDBC\\": "src/"
+      "Jtl\\Connector\\Dbc\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "jtl\\Connector\\CDBC\\": "tests/src/"
+      "Jtl\\Connector\\Dbc\\": "tests/src/"
     }
   },
   "require-dev": {
-    "phpunit/phpunit": "^6.0",
-    "phpunit/dbunit": "^3.0",
-    "phpunit/php-code-coverage": "^5.0"
+    "phpunit/phpunit": "^7.0",
+    "phpunit/dbunit": "^4.0"
   }
 }
