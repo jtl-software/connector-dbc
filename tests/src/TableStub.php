@@ -4,6 +4,8 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace Jtl\Connector\Dbc;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
@@ -27,12 +29,13 @@ class TableStub extends AbstractTable
      * @param string $column
      * @param mixed $value
      * @return AbstractTable
+     * @throws DBALException
+     * @throws SchemaException
      */
     public function restrict($column, $value): AbstractTable
     {
         return parent::restrict($column, $value);
     }
-
 
     /**
      * @param Table $tableSchema
@@ -51,7 +54,7 @@ class TableStub extends AbstractTable
      * @param int $fetchType
      * @param array $columns
      * @return array|mixed[]
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function findAll($fetchType = \PDO::FETCH_ASSOC, array $columns = [])
     {

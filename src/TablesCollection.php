@@ -89,19 +89,17 @@ class TablesCollection
      */
     public function filterByInstanceClass(string $className): TablesCollection
     {
-        if (!class_exists($className)) {
-            throw RuntimeException::classNotFound($className);
-        }
+        return new static($this->filterArrayByInstanceClass($className));
+    }
 
-        if (!is_subclass_of($className, AbstractTable::class)) {
-            throw RuntimeException::classNotChildOfTable($className);
-        }
-
-        $tables = array_filter($this->toArray(), function (AbstractTable $table) use ($className) {
-            return $table instanceof $className;
-        });
-
-        return new static($tables);
+    /**
+     * @param string $className
+     * @return AbstractTable|null
+     */
+    public function filterOneByInstanceClass(string $className): ?AbstractTable
+    {
+        $tables = $this->filterArrayByInstanceClass($className);
+        return count($tables) > 0 ? reset($tables) : null;
     }
 
     /**
@@ -110,5 +108,24 @@ class TablesCollection
     public function toArray(): array
     {
         return array_values($this->tables);
+    }
+
+    /**
+     * @param string $className
+     * @return AbstractTable[]
+     */
+    protected function filterArrayByInstanceClass(string $className): array
+    {
+        if (!class_exists($className)) {
+            throw RuntimeException::classNotFound($className);
+        }
+
+        if (!is_a($className, AbstractTable::class, true)) {
+            throw RuntimeException::classNotChildOfTable($className);
+        }
+
+        return array_filter($this->toArray(), function (AbstractTable $table) use ($className) {
+            return $table instanceof $className;
+        });
     }
 }

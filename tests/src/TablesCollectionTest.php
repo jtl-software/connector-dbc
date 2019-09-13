@@ -3,6 +3,7 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2018 JTL-Software GmbH
  */
+
 namespace Jtl\Connector\Dbc;
 
 class TablesCollectionTest extends DbTestCase
@@ -80,7 +81,8 @@ class TablesCollectionTest extends DbTestCase
     public function testFilterByInstanceClass()
     {
         $tables[] = $this->table;
-        $tables[] = new class($this->getDBManager()) extends TableStub {
+        $tables[] = new class($this->getDBManager()) extends TableStub
+        {
             public function getName(): string
             {
                 return 'tableX';
@@ -109,5 +111,21 @@ class TablesCollectionTest extends DbTestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionCode(RuntimeException::CLASS_NOT_A_TABLE);
         $this->collection->filterByInstanceClass(\ArrayIterator::class);
+    }
+
+    public function testFilterOneByInstanceClass()
+    {
+        $t2Stub = new Table2Stub($this->getDBManager());
+        $this->collection->set($t2Stub);
+
+        $expected = $this->table;
+        $actual = $this->collection->filterOneByInstanceClass(AbstractTable::class);
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFilterOneByInstanceClassReturnNull()
+    {
+        $actual = $this->collection->filterOneByInstanceClass(Table2Stub::class);
+        $this->assertNull($actual);
     }
 }
