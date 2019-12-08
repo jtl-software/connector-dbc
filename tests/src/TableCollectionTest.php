@@ -6,17 +6,17 @@
 
 namespace Jtl\Connector\Dbc;
 
-class TablesCollectionTest extends DbTestCase
+class TableCollectionTest extends DbTestCase
 {
     /**
-     * @var TablesCollection
+     * @var TableCollection
      */
     protected $collection;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->collection = new TablesCollection([$this->table]);
+        $this->collection = new TableCollection([$this->table]);
     }
 
     public function testSet()
@@ -77,7 +77,6 @@ class TablesCollectionTest extends DbTestCase
         $this->collection->get('foobar');
     }
 
-
     public function testFilterByInstanceClass()
     {
         $tables[] = $this->table;
@@ -91,10 +90,10 @@ class TablesCollectionTest extends DbTestCase
         };
         $tables[] = new Table2Stub($this->getDBManager());
 
-        $collection = new TablesCollection($tables);
+        $collection = new TableCollection($tables);
         $filtered = $collection->filterByInstanceClass(TableStub::class);
 
-        $this->assertInstanceOf(TablesCollection::class, $filtered);
+        $this->assertInstanceOf(TableCollection::class, $filtered);
         $this->assertNotEquals($collection, $filtered);
         $this->assertCount(2, $filtered->toArray());
     }

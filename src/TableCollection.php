@@ -6,7 +6,7 @@
 
 namespace Jtl\Connector\Dbc;
 
-class TablesCollection
+class TableCollection
 {
     /**
      * @var AbstractTable[]
@@ -26,9 +26,9 @@ class TablesCollection
 
     /**
      * @param AbstractTable $table
-     * @return TablesCollection
+     * @return TableCollection
      */
-    public function set(AbstractTable $table): TablesCollection
+    public function set(AbstractTable $table): TableCollection
     {
         $this->tables[$table->getTableName()] = $table;
         return $this;
@@ -85,9 +85,9 @@ class TablesCollection
 
     /**
      * @param string $className
-     * @return TablesCollection
+     * @return TableCollection
      */
-    public function filterByInstanceClass(string $className): TablesCollection
+    public function filterByInstanceClass(string $className): TableCollection
     {
         return new static($this->filterArrayByInstanceClass($className));
     }
