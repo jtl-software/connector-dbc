@@ -12,10 +12,12 @@ class TableRestrictionTest extends DbTestCase
     public function testInitializationSuccessful()
     {
         $tableSchema = $this->table->getTableSchema();
-        $restriction = new TableRestriction($tableSchema, TableStub::B, 'c');
+        $column = TableStub::B;
+        $value = 'a string';
+        $restriction = new TableRestriction($tableSchema, $column, $value);
         $this->assertEquals($tableSchema, $restriction->getTable());
-        $this->assertEquals(TableStub::B, $restriction->getColumnName());
-        $this->assertEquals('c', $restriction->getColumnValue());
+        $this->assertEquals($column, $restriction->getColumnName());
+        $this->assertEquals($value, $restriction->getColumnValue());
     }
 
     /**
@@ -26,5 +28,16 @@ class TableRestrictionTest extends DbTestCase
     {
         $tableSchema = $this->table->getTableSchema();
         new TableRestriction($tableSchema, 'yolo', 'c');
+    }
+
+    public function testCreate()
+    {
+        $tableSchema = $this->table->getTableSchema();
+        $column = TableStub::C;
+        $value = new \DateTimeImmutable('2007-08-31T16:47+00:00');
+        $restriction = TableRestriction::create($tableSchema, $column, $value);
+        $this->assertEquals($tableSchema, $restriction->getTable());
+        $this->assertEquals($column, $restriction->getColumnName());
+        $this->assertEquals($value, $restriction->getColumnValue());
     }
 }

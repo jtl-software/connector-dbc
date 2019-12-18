@@ -3,6 +3,7 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
+
 namespace Jtl\Connector\Dbc\Query;
 
 use Jtl\Connector\Dbc\CoordinatesStub;
@@ -43,11 +44,10 @@ class QueryBuilderTest extends DbTestCase
     public function testTableRestrictionWithSelect()
     {
         $this->qb
-                 ->select('something')
-                 ->from($this->tableExpression)
-                 ->where('yo = :yo')
-                 ->orWhere('hanni = nanni')
-        ;
+            ->select('something')
+            ->from($this->tableExpression)
+            ->where('yo = :yo')
+            ->orWhere('hanni = nanni');
 
         $sql = $this->qb->getSQL();
         $whereSplit = explode('WHERE', $sql);
@@ -59,8 +59,7 @@ class QueryBuilderTest extends DbTestCase
     {
         $this->qb
             ->insert($this->tableExpression)
-            ->values(['a' => ':a', 'b' => ':b'])
-        ;
+            ->values(['a' => ':a', 'b' => ':b']);
 
         $sql = $this->qb->getSQL();
         $valuesSplit = explode('VALUES', $sql);
@@ -79,14 +78,14 @@ class QueryBuilderTest extends DbTestCase
 
         $setParams = array_map('trim', explode(',', $paramsSplit[0]));
         $sets = [];
-        foreach($setParams as $value){
+        foreach ($setParams as $value) {
             $split = array_map('trim', explode('=', $value));
             $sets[$split[0]] = $split[1];
         }
 
         $whereParams = array_map('trim', explode(',', $paramsSplit[1]));
         $wheres = [];
-        foreach($whereParams as $value){
+        foreach ($whereParams as $value) {
             $split = array_map('trim', explode('=', $value));
             $wheres[$split[0]] = $split[1];
         }
@@ -117,9 +116,9 @@ class QueryBuilderTest extends DbTestCase
 
         $qb = $this->getDBManager()->getConnection()->createQueryBuilder();
         $qb->update($this->coordsTable->getTableName())
-           ->set('z', ':z')
-           ->setParameter('z', 10.5)
-           ->execute();
+            ->set('z', ':z')
+            ->setParameter('z', 10.5)
+            ->execute();
 
         $datasets = $this->coordsTable->findAll();
         $this->assertEquals(10.5, $datasets[0]['z']);

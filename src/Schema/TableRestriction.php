@@ -65,4 +65,16 @@ class TableRestriction
     {
         return $this->value;
     }
+
+    /**
+     * @param Table $table
+     * @param string $columnName
+     * @param mixed $columnValue
+     * @return TableRestriction
+     * @throws SchemaException
+     */
+    public static function create(Table $table, string $columnName, $columnValue): TableRestriction
+    {
+        return new static($table, $columnName, $columnValue);
+    }
 }

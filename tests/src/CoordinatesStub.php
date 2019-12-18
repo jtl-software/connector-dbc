@@ -5,7 +5,7 @@
  */
 namespace Jtl\Connector\Dbc;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 
 class CoordinatesStub extends AbstractTable
@@ -23,9 +23,9 @@ class CoordinatesStub extends AbstractTable
 
     protected function createTableSchema(Table $tableSchema): void
     {
-        $tableSchema->addColumn(self::COL_X, Type::FLOAT, ['default' => 0.0]);
-        $tableSchema->addColumn(self::COL_Y, Type::FLOAT, ['default' => 0.0]);
-        $tableSchema->addColumn(self::COL_Z, Type::FLOAT, ['default' => 0.0]);
+        $tableSchema->addColumn(self::COL_X, Types::FLOAT, ['default' => 0.0]);
+        $tableSchema->addColumn(self::COL_Y, Types::FLOAT, ['default' => 0.0]);
+        $tableSchema->addColumn(self::COL_Z, Types::FLOAT, ['default' => 0.0]);
         $tableSchema->setPrimaryKey([self::COL_X, self::COL_Y, self::COL_Z]);
     }
 
@@ -38,7 +38,7 @@ class CoordinatesStub extends AbstractTable
     public function addCoordinate($x, $y, $z)
     {
         $data = [self::COL_X => $x, self::COL_Y => $y, self::COL_Z => $z];
-        $types = [self::COL_X => Type::FLOAT, self::COL_Y => Type::FLOAT, self::COL_Z => Type::FLOAT];
+        $types = [self::COL_X => Types::FLOAT, self::COL_Y => Types::FLOAT, self::COL_Z => Types::FLOAT];
 
         return $this->getConnection()
              ->insert($this->getTableName(), $data, $types) > 0;

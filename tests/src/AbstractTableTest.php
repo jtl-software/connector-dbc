@@ -4,7 +4,7 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace Jtl\Connector\Dbc\Mapping;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Jtl\Connector\Dbc\CoordinatesStub;
 use Jtl\Connector\Dbc\DbTestCase;
 use Jtl\Connector\Dbc\TableStub;
@@ -64,9 +64,9 @@ class AbstractTableTest extends DbTestCase
         $this->assertArrayHasKey(CoordinatesStub::COL_X, $columns);
         $this->assertArrayHasKey(CoordinatesStub::COL_Y, $columns);
         $this->assertArrayHasKey(CoordinatesStub::COL_Z, $columns);
-        $this->assertEquals(Type::FLOAT, $columns[CoordinatesStub::COL_X]);
-        $this->assertEquals(Type::FLOAT, $columns[CoordinatesStub::COL_Y]);
-        $this->assertEquals(Type::FLOAT, $columns[CoordinatesStub::COL_Y]);
+        $this->assertEquals(Types::FLOAT, $columns[CoordinatesStub::COL_X]);
+        $this->assertEquals(Types::FLOAT, $columns[CoordinatesStub::COL_Y]);
+        $this->assertEquals(Types::FLOAT, $columns[CoordinatesStub::COL_Y]);
     }
 
     public function testGetColumnNames()
@@ -96,7 +96,7 @@ class AbstractTableTest extends DbTestCase
         $this->assertTrue(is_string($row[TableStub::B]));
         $this->assertEquals('b string', $row[TableStub::B]);
         $this->assertArrayHasKey(TableStub::C, $row);
-        $this->assertInstanceOf(\DateTime::class, $row[TableStub::C]);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $row[TableStub::C]);
     }
 
     public function testMapTableRowsNumeric()
@@ -114,7 +114,7 @@ class AbstractTableTest extends DbTestCase
         $this->assertTrue(is_string($row[2]));
         $this->assertEquals('b string', $row[2]);
         $this->assertArrayHasKey(3, $row);
-        $this->assertInstanceOf(\DateTime::class, $row[3]);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $row[3]);
     }
 
     public function testMapTableRowsPartiallyAssoc()
@@ -127,7 +127,7 @@ class AbstractTableTest extends DbTestCase
         $this->assertTrue(is_int($row[TableStub::A]));
         $this->assertEquals(4, $row[TableStub::A]);
         $this->assertArrayHasKey(TableStub::C, $row);
-        $this->assertInstanceOf(\DateTime::class, $row[TableStub::C]);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $row[TableStub::C]);
     }
 
     public function testMapTableRowsPartiallyNumeric()
