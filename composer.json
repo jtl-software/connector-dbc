@@ -1,7 +1,8 @@
 {
   "name": "jtl/connector-dbc",
-  "description": "A database API for connectors.",
-  "type": "project",
+  "description": "A database API for connectors",
+  "license": "MIT",
+  "type": "library",
   "authors": [
     {
       "name": "Immanuel Klinkenberg",
