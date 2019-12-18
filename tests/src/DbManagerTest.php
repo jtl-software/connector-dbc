@@ -4,8 +4,8 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace Jtl\Connector\Dbc;
-use Doctrine\DBAL\Schema\Table;
 
+use Doctrine\DBAL\Schema\Table;
 
 class DbManagerTest extends DbTestCase
 {

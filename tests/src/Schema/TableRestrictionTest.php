@@ -4,6 +4,7 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace Jtl\Connector\Dbc\Schema;
+
 use Jtl\Connector\Dbc\DbTestCase;
 use Jtl\Connector\Dbc\TableStub;
 

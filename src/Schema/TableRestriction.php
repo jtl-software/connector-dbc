@@ -4,6 +4,7 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace Jtl\Connector\Dbc\Schema;
+
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 
@@ -33,7 +34,7 @@ class TableRestriction
      */
     public function __construct(Table $table, string $columnName, $columnValue)
     {
-        if(!$table->hasColumn($columnName)) {
+        if (!$table->hasColumn($columnName)) {
             throw SchemaException::columnDoesNotExist($columnName, $table->getName());
         }
 

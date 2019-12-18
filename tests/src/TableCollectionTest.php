@@ -80,13 +80,11 @@ class TableCollectionTest extends DbTestCase
     public function testFilterByInstanceClass()
     {
         $tables[] = $this->table;
-        $tables[] = new class($this->getDBManager()) extends TableStub
-        {
+        $tables[] = new class($this->getDBManager()) extends TableStub {
             public function getName(): string
             {
                 return 'tableX';
             }
-
         };
         $tables[] = new Table2Stub($this->getDBManager());
 

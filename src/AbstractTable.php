@@ -12,7 +12,6 @@ use Doctrine\DBAL\Types\Type;
 use Jtl\Connector\Dbc\Query\QueryBuilder;
 use Jtl\Connector\Dbc\Schema\TableRestriction;
 
-
 abstract class AbstractTable
 {
     /**

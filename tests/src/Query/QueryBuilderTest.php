@@ -10,7 +10,6 @@ use Jtl\Connector\Dbc\CoordinatesStub;
 use Jtl\Connector\Dbc\DbTestCase;
 use Jtl\Connector\Dbc\Schema\TableRestriction;
 
-
 class QueryBuilderTest extends DbTestCase
 {
     /**
@@ -52,7 +51,7 @@ class QueryBuilderTest extends DbTestCase
         $sql = $this->qb->getSQL();
         $whereSplit = explode('WHERE', $sql);
         $andSplit = array_map([$this, 'myTrim'], explode('AND', $whereSplit[1]));
-        $this->assertTrue(in_array('foo = :glob_id_foo', $andSplit));
+        $this->assertTrue(in_array('foo = :glob_id_foo', $andSplit, true));
     }
 
     public function testTableRestrictionWithInsert()
@@ -65,7 +64,7 @@ class QueryBuilderTest extends DbTestCase
         $valuesSplit = explode('VALUES', $sql);
         $valuesString = str_replace(['(', ')'], ['', ''], $valuesSplit[1]);
         $values = array_map('trim', explode(',', $valuesString));
-        $this->assertTrue(in_array(':glob_id_foo', $values));
+        $this->assertTrue(in_array(':glob_id_foo', $values, true));
     }
 
     public function testGlobalIdentifierWithUpdate()
@@ -102,7 +101,7 @@ class QueryBuilderTest extends DbTestCase
         $sql = $this->qb->getSQL();
         $whereSplit = explode('WHERE', $sql);
         $andSplit = array_map([$this, 'myTrim'], explode('AND', $whereSplit[1]));
-        $this->assertTrue(in_array('foo = :glob_id_foo', $andSplit));
+        $this->assertTrue(in_array('foo = :glob_id_foo', $andSplit, true));
     }
 
     public function testTableRestriction()

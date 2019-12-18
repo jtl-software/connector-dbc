@@ -4,6 +4,7 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace Jtl\Connector\Dbc\Mapping;
+
 use Doctrine\DBAL\Types\Types;
 use Jtl\Connector\Dbc\CoordinatesStub;
 use Jtl\Connector\Dbc\DbTestCase;

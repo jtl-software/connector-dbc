@@ -4,6 +4,7 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace Jtl\Connector\Dbc\Query;
+
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Jtl\Connector\Dbc\Connection;
 
@@ -30,7 +31,7 @@ class QueryBuilder extends \Doctrine\DBAL\Query\QueryBuilder
      */
     public function getSQL(): string
     {
-        foreach($this->getQueryPart('from') as $table) {
+        foreach ($this->getQueryPart('from') as $table) {
             $this->assignTableRestrictions(is_array($table) ? $table['table'] : $table);
         }
         return parent::getSQL();

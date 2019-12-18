@@ -4,9 +4,9 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace Jtl\Connector\Dbc;
+
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
-
 
 class CoordinatesStub extends AbstractTable
 {
@@ -89,7 +89,7 @@ class CoordinatesStub extends AbstractTable
         $qb->select(self::COL_X, self::COL_Y, self::COL_Z)
             ->from($this->getTableName());
 
-        foreach($parameters as $column => $value) {
+        foreach ($parameters as $column => $value) {
             $qb->where($column . ' = :' . $column)->setParameter($column, $value);
         }
         $stmt = $qb->execute();

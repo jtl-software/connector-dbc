@@ -6,7 +6,6 @@
 
 namespace Jtl\Connector\Dbc;
 
-
 class RuntimeException extends \RuntimeException
 {
     const TABLE_NOT_FOUND = 10;

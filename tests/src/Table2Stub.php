@@ -4,9 +4,9 @@
  * @copyright 2010-2017 JTL-Software GmbH
  */
 namespace Jtl\Connector\Dbc;
+
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
-
 
 class Table2Stub extends AbstractTable
 {

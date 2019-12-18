@@ -80,7 +80,7 @@ class DbManager
         }, $tables);
         $fromSchema = $this->connection->getSchemaManager()->createSchema();
         foreach ($fromSchema->getTables() as $table) {
-            if (!in_array($table->getName(), $schemaTableNames)) {
+            if (!in_array($table->getName(), $schemaTableNames, true)) {
                 $tables[] = clone $table;
             }
         }

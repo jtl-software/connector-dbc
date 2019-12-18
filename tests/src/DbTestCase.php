@@ -4,6 +4,7 @@
  * @copyright 2010-2016 JTL-Software GmbH
  */
 namespace Jtl\Connector\Dbc;
+
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\Database\DefaultConnection;
 
@@ -35,7 +36,7 @@ abstract class DbTestCase extends \PHPUnit\DbUnit\TestCase
     protected function setUp(): void
     {
         $this->table = new TableStub($this->getDBManager());
-        if($this->getDBManager()->hasSchemaUpdate()){
+        if ($this->getDBManager()->hasSchemaUpdate()) {
             $this->getDBManager()->updateDatabaseSchema();
         }
         parent::setUp();
@@ -46,8 +47,8 @@ abstract class DbTestCase extends \PHPUnit\DbUnit\TestCase
      */
     protected function getPDO()
     {
-        if(!$this->pdo instanceof \PDO){
-            if(file_exists(self::SCHEMA)){
+        if (!$this->pdo instanceof \PDO) {
+            if (file_exists(self::SCHEMA)) {
                 unlink(self::SCHEMA);
             }
             $this->pdo = new \PDO('sqlite:' . self::SCHEMA);
@@ -60,7 +61,7 @@ abstract class DbTestCase extends \PHPUnit\DbUnit\TestCase
      */
     protected function getDBManager()
     {
-        if(!$this->dbManager instanceof \Jtl\Connector\Dbc\DbManagerStub){
+        if (!$this->dbManager instanceof \Jtl\Connector\Dbc\DbManagerStub) {
             $this->dbManager = DbManagerStub::createFromPDO($this->getConnection()->getConnection(), null, self::TABLES_PREFIX);
         }
         return $this->dbManager;
@@ -79,7 +80,7 @@ abstract class DbTestCase extends \PHPUnit\DbUnit\TestCase
      */
     protected function getYamlDataSet()
     {
-        if(!$this->yamlDataSet instanceof YamlDataSet){
+        if (!$this->yamlDataSet instanceof YamlDataSet) {
             $this->yamlDataSet = new YamlDataSet(TESTROOT . '/files/table_stub.yaml');
         }
         return $this->yamlDataSet;
