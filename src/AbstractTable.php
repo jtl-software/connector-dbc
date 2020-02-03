@@ -9,6 +9,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Jtl\Connector\Dbc\Query\QueryBuilder;
 use Jtl\Connector\Dbc\Schema\TableRestriction;
 
@@ -172,11 +173,11 @@ abstract class AbstractTable
             }
 
             $result[$index] = $value;
-            if (Type::hasType($types[$index])) {
+            if (Type::hasType($types[$index]) && $types[$index] !== Types::BINARY) {
                 $result[$index] = Type::getType($types[$index])->convertToPHPValue($value, $this->dbManager->getConnection()->getDatabasePlatform());
 
                 //Dirty BIGINT to int cast
-                if ($types[$index] === Type::BIGINT) {
+                if ($types[$index] === Types::BIGINT) {
                     $result[$index] = (int)$result[$index];
                 }
             }
