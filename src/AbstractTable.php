@@ -90,7 +90,7 @@ abstract class AbstractTable
     public function getTableName(): string
     {
         if ($this->getDbManager()->hasTablesPrefix()) {
-            return $this->getDbManager()->getTablesPrefix() . '_' . $this->getName();
+            return $this->getDbManager()->getTablesPrefix() . $this->getName();
         }
         return $this->getName();
     }

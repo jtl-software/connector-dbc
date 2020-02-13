@@ -30,7 +30,7 @@ class DbManagerTest extends DbTestCase
         $coordinateTable = $tables[1];
         $this->assertEquals('coordinates', $coordinateTable->getName());
         $schemaTables = $this->dbManager->getSchemaTables();
-        $this->assertEquals(self::TABLES_PREFIX, substr($schemaTables[1]->getName(), 0, 3));
+        $this->assertEquals(self::TABLES_PREFIX, substr($schemaTables[1]->getName(), 0, strlen(self::TABLES_PREFIX)));
     }
 
     public function testHasSchemaUpdate()
