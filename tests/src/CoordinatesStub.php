@@ -5,6 +5,7 @@
  */
 namespace Jtl\Connector\Dbc;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 
@@ -34,8 +35,9 @@ class CoordinatesStub extends AbstractTable
      * @param float $y
      * @param float $z
      * @return boolean
+     * @throws DBALException
      */
-    public function addCoordinate($x, $y, $z)
+    public function addCoordinate(float $x, float $y, float $z)
     {
         $data = [self::COL_X => $x, self::COL_Y => $y, self::COL_Z => $z];
         $types = [self::COL_X => Types::FLOAT, self::COL_Y => Types::FLOAT, self::COL_Z => Types::FLOAT];
@@ -56,7 +58,7 @@ class CoordinatesStub extends AbstractTable
      * @param float $x
      * @return float[]
      */
-    public function findByX($x)
+    public function findByX(float $x)
     {
         return $this->findBy([self::COL_X => $x]);
     }
@@ -65,7 +67,7 @@ class CoordinatesStub extends AbstractTable
      * @param float $y
      * @return float[]
      */
-    public function findByY($y)
+    public function findByY(float $y)
     {
         return $this->findBy([self::COL_Y => $y]);
     }
@@ -74,7 +76,7 @@ class CoordinatesStub extends AbstractTable
      * @param float $z
      * @return float[]
      */
-    public function findByZ($z)
+    public function findByZ(float $z)
     {
         return $this->findBy([self::COL_Z => $z]);
     }

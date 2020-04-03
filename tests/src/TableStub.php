@@ -64,4 +64,26 @@ class TableStub extends AbstractTable
 
         return $this->mapRows($stmt->fetchAll($fetchType), $columns);
     }
+
+    /**
+     * @param array $identifier
+     * @param int $fetchType
+     * @param array $columns
+     * @return array|mixed[]
+     * @throws DBALException
+     */
+    public function find(array $identifier, $fetchType = \PDO::FETCH_ASSOC, array $columns = [])
+    {
+        $qb = $this->createQueryBuilder()->select(array_keys($this->getColumnTypes()))
+            ->from($this->getTableName());
+
+        foreach($identifier as $column => $value) {
+            $qb->andWhere(sprintf('%s = :%s', $column, $column))
+               ->setParameter($column, $value);
+        }
+
+        $stmt = $qb->execute();
+
+        return $this->mapRows($stmt->fetchAll($fetchType), $columns);
+    }
 }

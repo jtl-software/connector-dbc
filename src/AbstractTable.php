@@ -3,9 +3,12 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
+
 namespace Jtl\Connector\Dbc;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
@@ -19,6 +22,11 @@ abstract class AbstractTable
      * @var DbManager
      */
     protected $dbManager;
+
+    /**
+     * @var Table
+     */
+    protected $tableSchema;
 
     /**
      * Table constructor.
@@ -76,12 +84,14 @@ abstract class AbstractTable
      */
     public function getTableSchema(): Table
     {
-        $tableSchema = new Table($this->getTableName());
-        $this->createTableSchema($tableSchema);
-        if (count($tableSchema->getColumns()) === 0) {
-            throw RuntimeException::tableEmpty($tableSchema->getName());
+        if (is_null($this->tableSchema)) {
+            $this->tableSchema = new Table($this->getTableName());
+            $this->createTableSchema($this->tableSchema);
+            if (count($this->tableSchema->getColumns()) === 0) {
+                throw RuntimeException::tableEmpty($this->tableSchema->getName());
+            }
         }
-        return $tableSchema;
+        return $this->tableSchema;
     }
 
     /**
@@ -120,6 +130,53 @@ abstract class AbstractTable
     }
 
     /**
+     * @param mixed[] $data
+     * @param string[]|null $types
+     * @return int
+     * @throws DBALException
+     */
+    public function insert(array $data, array $types = null): int
+    {
+        if (is_null($types)) {
+            $types = $this->filterColumnTypes(array_keys($data));
+        }
+
+        return $this->getConnection()->insert($this->getTableName(), $data, $types);
+    }
+
+    /**
+     * @param array $data
+     * @param array $identifier
+     * @param array|null $types
+     * @return integer
+     * @throws DBALException
+     */
+    public function update(array $data, array $identifier, array $types = null): int
+    {
+        if (is_null($types)) {
+            $types = $this->filterColumnTypes(array_unique(array_merge(array_keys($data), array_keys($identifier))));
+        }
+
+        return $this->getConnection()->update($this->getTableName(), $data, $identifier, $types);
+    }
+
+    /**
+     * @param mixed[] $identifier
+     * @param string[]|null $types
+     * @return int
+     * @throws DBALException
+     * @throws InvalidArgumentException
+     */
+    public function delete(array $identifier, array $types = null): int
+    {
+        if (is_null($types)) {
+            $types = $this->filterColumnTypes(array_keys($identifier));
+        }
+
+        return $this->getConnection()->delete($this->getTableName(), $identifier, $types);
+    }
+
+    /**
      * @return string
      */
     abstract protected function getName(): string;
@@ -129,6 +186,18 @@ abstract class AbstractTable
      * @return void
      */
     abstract protected function createTableSchema(Table $tableSchema): void;
+
+    /**
+     * @param array $columnNames
+     * @return array
+     * @throws DBALException
+     */
+    protected function filterColumnTypes(array $columnNames): array
+    {
+        return array_filter($this->getColumnTypes(), function (string $columnName) use ($columnNames) {
+            return in_array($columnName, $columnNames);
+        }, \ARRAY_FILTER_USE_KEY);
+    }
 
     /**
      * @param mixed[] $rows

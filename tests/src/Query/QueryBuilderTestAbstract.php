@@ -7,10 +7,10 @@
 namespace Jtl\Connector\Dbc\Query;
 
 use Jtl\Connector\Dbc\CoordinatesStub;
-use Jtl\Connector\Dbc\DbTestCase;
+use Jtl\Connector\Dbc\AbstractDbTestCase;
 use Jtl\Connector\Dbc\Schema\TableRestriction;
 
-class QueryBuilderTest extends DbTestCase
+class QueryBuilderTestAbstract extends AbstractDbTestCase
 {
     /**
      * @var QueryBuilder

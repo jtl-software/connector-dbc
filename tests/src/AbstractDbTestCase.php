@@ -5,10 +5,11 @@
  */
 namespace Jtl\Connector\Dbc;
 
+use Doctrine\DBAL\DBALException;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\Database\DefaultConnection;
 
-abstract class DbTestCase extends \PHPUnit\DbUnit\TestCase
+abstract class AbstractDbTestCase extends \PHPUnit\DbUnit\TestCase
 {
     const TABLES_PREFIX = 'pre_';
     const SCHEMA = TESTROOT . '/tmp/db.sqlite';
@@ -18,12 +19,12 @@ abstract class DbTestCase extends \PHPUnit\DbUnit\TestCase
      */
     protected $pdo;
     /**
-     * @var \Jtl\Connector\Dbc\DbManagerStub
+     * @var DbManagerStub
      */
     protected $dbManager;
 
     /**
-     * @var \Jtl\Connector\Dbc\TableStub
+     * @var TableStub
      */
     protected $table;
 
@@ -57,11 +58,12 @@ abstract class DbTestCase extends \PHPUnit\DbUnit\TestCase
     }
 
     /**
-     * @return DbManagerStub
+     * @return DbManager|DbManagerStub
+     * @throws DBALException
      */
     protected function getDBManager()
     {
-        if (!$this->dbManager instanceof \Jtl\Connector\Dbc\DbManagerStub) {
+        if (!$this->dbManager instanceof DbManagerStub) {
             $this->dbManager = DbManagerStub::createFromPDO($this->getConnection()->getConnection(), null, self::TABLES_PREFIX);
         }
         return $this->dbManager;

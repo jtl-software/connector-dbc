@@ -3,14 +3,15 @@
  * @author Immanuel Klinkenberg <immanuel.klinkenberg@jtl-software.com>
  * @copyright 2010-2017 JTL-Software GmbH
  */
+
 namespace Jtl\Connector\Dbc\Mapping;
 
 use Doctrine\DBAL\Types\Types;
 use Jtl\Connector\Dbc\CoordinatesStub;
-use Jtl\Connector\Dbc\DbTestCase;
+use Jtl\Connector\Dbc\AbstractDbTestCase;
 use Jtl\Connector\Dbc\TableStub;
 
-class AbstractTableTest extends DbTestCase
+class AbstractTableTestAbstract extends AbstractDbTestCase
 {
     /**
      * @var CoordinatesStub
@@ -143,5 +144,76 @@ class AbstractTableTest extends DbTestCase
         $this->assertArrayHasKey(1, $row);
         $this->assertTrue(is_string($row[1]));
         $this->assertEquals('b string', $row[1]);
+    }
+
+    public function testInsertWithTableColumnTypes()
+    {
+        $a = mt_rand();
+        $b = 'foobar';
+        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
+        $rows = $this->table->find(['a' => $a, 'b' => $b]);
+        $this->assertCount(1, $rows);
+        $data = reset($rows);
+        $this->assertArrayHasKey('c', $data);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $data['c']);
+        $this->assertEquals($c, $data['c']);
+    }
+
+    public function testInsertWithoutTypes()
+    {
+        $a = mt_rand();
+        $b = 'foobar';
+        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c->format('Y-m-d H:i:s')], []);
+        $rows = $this->table->find(['a' => $a, 'b' => $b]);
+        $this->assertCount(1, $rows);
+        $data = reset($rows);
+        $this->assertArrayHasKey('c', $data);
+        $this->assertEquals($c, $data['c']);
+    }
+
+    public function testUpdateWithTableColumnTypes()
+    {
+        $a = mt_rand();
+        $b = 'foobar';
+        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $newC = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));;
+        $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
+        $this->table->update(['c' => $newC], ['a' => $a, 'b' => $b]);
+        $rows = $this->table->find(['a' => $a, 'b' => $b]);
+        $this->assertEquals($newC, $rows[0]['c']);
+    }
+
+    public function testUpdateWithoutTypes()
+    {
+        $a = mt_rand();
+        $b = 'foobar';
+        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $newC = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));;
+        $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
+        $this->table->update(['c' => $newC->format('Y-m-d H:i:s')], ['a' => $a, 'b' => $b], []);
+        $rows = $this->table->find(['a' => $a, 'b' => $b]);
+        $this->assertEquals($newC, $rows[0]['c']);
+    }
+
+    public function testDeleteWithTableColumnTypes()
+    {
+        $a = mt_rand();
+        $b = 'foobar';
+        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
+        $this->table->delete(['a' => $a, 'c' => $c]);
+        $this->assertCount(0, $this->table->find(['a' => $a, 'b' => $b]));
+    }
+
+    public function testDeleteWithoutTypes()
+    {
+        $a = mt_rand();
+        $b = 'foobar';
+        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
+        $this->table->delete(['a' => $a, 'c' => $c->format('Y-m-d H:i:s')], []);
+        $this->assertCount(0, $this->table->find(['a' => $a, 'b' => $b]));
     }
 }
