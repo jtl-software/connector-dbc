@@ -6,7 +6,7 @@
 
 namespace Jtl\Connector\Dbc;
 
-class TableCollectionTestAbstract extends AbstractDbTestCase
+class TableCollectionTest extends AbstractDbTestCase
 {
     /**
      * @var TableCollection

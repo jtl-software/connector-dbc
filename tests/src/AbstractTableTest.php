@@ -11,7 +11,7 @@ use Jtl\Connector\Dbc\CoordinatesStub;
 use Jtl\Connector\Dbc\AbstractDbTestCase;
 use Jtl\Connector\Dbc\TableStub;
 
-class AbstractTableTestAbstract extends AbstractDbTestCase
+class AbstractTableTest extends AbstractDbTestCase
 {
     /**
      * @var CoordinatesStub
