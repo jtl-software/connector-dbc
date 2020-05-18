@@ -27,17 +27,17 @@ class DbManager
     /**
      * @var string|null
      */
-    protected $tablesPrefix;
+    protected $tablePrefix;
 
     /**
      * DBManager constructor.
      * @param Connection $connection
-     * @param string $tablesPrefix
+     * @param string $tablePrefix
      */
-    public function __construct(Connection $connection, string $tablesPrefix = null)
+    public function __construct(Connection $connection, string $tablePrefix = null)
     {
         $this->connection = $connection;
-        $this->tablesPrefix = $tablesPrefix;
+        $this->tablePrefix = $tablePrefix;
     }
 
     /**
@@ -114,17 +114,17 @@ class DbManager
     /**
      * @return boolean
      */
-    public function hasTablesPrefix(): bool
+    public function hasTablePrefix(): bool
     {
-        return is_string($this->tablesPrefix) && strlen($this->tablesPrefix) > 0;
+        return is_string($this->tablePrefix) && strlen($this->tablePrefix) > 0;
     }
 
     /**
      * @return string
      */
-    public function getTablesPrefix(): ?string
+    public function getTablePrefix(): ?string
     {
-        return $this->tablesPrefix;
+        return $this->tablePrefix;
     }
 
     /**
@@ -151,31 +151,31 @@ class DbManager
     /**
      * @param \PDO $pdo
      * @param Configuration|null $config
-     * @param string|null $tablesPrefix
+     * @param string|null $tablePrefix
      * @return DbManager
      * @throws DBALException
      */
-    public static function createFromPDO(\PDO $pdo, Configuration $config = null, string $tablesPrefix = null): DbManager
+    public static function createFromPDO(\PDO $pdo, Configuration $config = null, string $tablePrefix = null): DbManager
     {
         $params = [
             'pdo' => $pdo,
             'wrapperClass' => Connection::class
         ];
         $connection = DriverManager::getConnection($params, $config);
-        return new static($connection, $tablesPrefix);
+        return new static($connection, $tablePrefix);
     }
 
     /**
      * @param string[] $params
      * @param Configuration|null $config
-     * @param string|null $tablesPrefix
+     * @param string|null $tablePrefix
      * @return DbManager
      * @throws DBALException
      */
-    public static function createFromParams(array $params, Configuration $config = null, string $tablesPrefix = null): DbManager
+    public static function createFromParams(array $params, Configuration $config = null, string $tablePrefix = null): DbManager
     {
         $params['wrapperClass'] = Connection::class;
         $connection = DriverManager::getConnection($params, $config);
-        return new static($connection, $tablesPrefix);
+        return new static($connection, $tablePrefix);
     }
 }

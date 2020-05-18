@@ -23,14 +23,14 @@ class AbstractDbManagerTest extends AbstractDbTestCase
     public function testTablesPrefix()
     {
         new CoordinatesStub($this->dbManager);
-        $this->assertTrue($this->dbManager->hasTablesPrefix());
-        $this->assertEquals(self::TABLES_PREFIX, $this->dbManager->getTablesPrefix());
+        $this->assertTrue($this->dbManager->hasTablePrefix());
+        $this->assertEquals(self::TABLE_PREFIX, $this->dbManager->getTablePrefix());
         $tables = $this->dbManager->getTables();
         /** @var CoordinatesStub $coordinateTable */
         $coordinateTable = $tables[1];
         $this->assertEquals('coordinates', $coordinateTable->getName());
         $schemaTables = $this->dbManager->getSchemaTables();
-        $this->assertEquals(self::TABLES_PREFIX, substr($schemaTables[1]->getName(), 0, strlen(self::TABLES_PREFIX)));
+        $this->assertEquals(self::TABLE_PREFIX, substr($schemaTables[1]->getName(), 0, strlen(self::TABLE_PREFIX)));
     }
 
     public function testHasSchemaUpdate()

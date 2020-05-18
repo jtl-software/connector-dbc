@@ -32,7 +32,7 @@ class AbstractTableTest extends AbstractDbTestCase
 
     public function testGetTableName()
     {
-        $this->assertEquals(self::TABLES_PREFIX . $this->coords->getName(), $this->coords->getTableName());
+        $this->assertEquals(self::TABLE_PREFIX . $this->coords->getName(), $this->coords->getTableName());
     }
 
     public function testRestrict()

@@ -11,7 +11,7 @@ use PHPUnit\DbUnit\Database\DefaultConnection;
 
 abstract class AbstractDbTestCase extends \PHPUnit\DbUnit\TestCase
 {
-    const TABLES_PREFIX = 'pre_';
+    const TABLE_PREFIX = 'pre_';
     const SCHEMA = TESTROOT . '/tmp/db.sqlite';
 
     /**
@@ -64,7 +64,7 @@ abstract class AbstractDbTestCase extends \PHPUnit\DbUnit\TestCase
     protected function getDBManager()
     {
         if (!$this->dbManager instanceof DbManagerStub) {
-            $this->dbManager = DbManagerStub::createFromPDO($this->getConnection()->getConnection(), null, self::TABLES_PREFIX);
+            $this->dbManager = DbManagerStub::createFromPDO($this->getConnection()->getConnection(), null, self::TABLE_PREFIX);
         }
         return $this->dbManager;
     }
