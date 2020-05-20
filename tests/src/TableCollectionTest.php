@@ -15,8 +15,10 @@ class TableCollectionTest extends DbTestCase
 
     protected function setUp(): void
     {
+        $this->table = new TableStub($this->getDBManager());
         parent::setUp();
         $this->collection = new TableCollection([$this->table]);
+        $this->insertFixtures($this->table, self::getTableStubFixtures());
     }
 
     public function testSet()

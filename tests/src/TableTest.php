@@ -20,9 +20,11 @@ class TableTest extends DbTestCase
 
     protected function setUp(): void
     {
-        $this->getYamlDataSet()->addYamlFile(TESTROOT . '/files/coordinates_stub.yaml');
+        $this->table = new TableStub($this->getDBManager());
         $this->coords = new CoordinatesStub($this->getDBManager());
         parent::setUp();
+        $this->insertFixtures($this->table, self::getTableStubFixtures());
+        $this->insertFixtures($this->coords, self::getCoordinatesFixtures());
     }
 
     public function testGetName()
@@ -215,5 +217,15 @@ class TableTest extends DbTestCase
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
         $this->table->delete(['a' => $a, 'c' => $c->format('Y-m-d H:i:s')], []);
         $this->assertCount(0, $this->table->find(['a' => $a, 'b' => $b]));
+    }
+
+    protected function getCoordsTableFixtures(): array
+    {
+        return [
+            ["x" => 1, "y" => 2, "z" => 3],
+            ["x" => 1, "y" => 4, "z" => 5.],
+            ["x" => 3, "y" => 1, "z" => 2],
+            ["x" => 2, "y" => 3, "z" => 1],
+        ];
     }
 }

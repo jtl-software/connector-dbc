@@ -6,9 +6,8 @@
 namespace Jtl\Connector\Dbc;
 
 use Doctrine\DBAL\DBALException;
-use PHPUnit\DbUnit\DataSet\YamlDataSet;
-use PHPUnit\DbUnit\Database\DefaultConnection;
-use PHPUnit\DbUnit\TestCase;
+use Doctrine\DBAL\Query\QueryBuilder;
+use PHPUnit\Framework\TestCase;
 
 abstract class DbTestCase extends TestCase
 {
@@ -18,30 +17,24 @@ abstract class DbTestCase extends TestCase
     /**
      * @var PDO
      */
-    protected $pdo;
+    private $pdo;
+
     /**
      * @var DbManagerStub
      */
-    protected $dbManager;
+    private $dbManager;
 
     /**
      * @var TableStub
      */
     protected $table;
 
-    /**
-     * @var YamlDataSet
-     */
-    protected $yamlDataSet;
-
-
     protected function setUp(): void
     {
-        $this->table = new TableStub($this->getDBManager());
+        parent::setUp();
         if ($this->getDBManager()->hasSchemaUpdate()) {
             $this->getDBManager()->updateDatabaseSchema();
         }
-        parent::setUp();
     }
 
     /**
@@ -65,35 +58,75 @@ abstract class DbTestCase extends TestCase
     protected function getDBManager()
     {
         if (!$this->dbManager instanceof DbManagerStub) {
-            $this->dbManager = DbManagerStub::createFromPDO($this->getConnection()->getConnection(), null, self::TABLE_PREFIX);
+            $this->dbManager = DbManagerStub::createFromPDO($this->getPDO(), null, self::TABLE_PREFIX);
         }
         return $this->dbManager;
     }
 
     /**
-     * @return DefaultConnection;
+     * @param string $tableName
+     * @param array $conditions
+     * @return int
+     * @throws DBALException
      */
-    protected function getConnection()
+    protected function countRows(string $tableName, array $conditions = []): int
     {
-        return $this->createDefaultDBConnection($this->getPDO(), self::SCHEMA);
-    }
+        $connection = $this->getDbManager()->getConnection();
 
-    /**
-     * @return YamlDataSet
-     */
-    protected function getYamlDataSet()
-    {
-        if (!$this->yamlDataSet instanceof YamlDataSet) {
-            $this->yamlDataSet = new YamlDataSet(TESTROOT . '/files/table_stub.yaml');
+        $qb = (new QueryBuilder($connection))
+            ->select($connection->getDatabasePlatform()->getCountExpression('*'))
+            ->from($tableName);
+
+        foreach ($conditions as $column => $value) {
+            $qb
+                ->andWhere(sprintf('%s = :%s', $column, $column))
+                ->setParameter($column, $value);
         }
-        return $this->yamlDataSet;
+
+        return $qb->execute()->fetchColumn();
     }
 
     /**
-     * @return YamlDataSet
+     * @param AbstractTable $table
+     * @param array $fixtures
+     * @throws DBALException
      */
-    protected function getDataSet()
+    protected function insertFixtures(AbstractTable $table, array $fixtures)
     {
-        return $this->getYamlDataSet();
+        foreach($fixtures as $fixture) {
+            $table->insert($fixture);
+        }
+    }
+
+    /**
+     * @return mixed[]
+     */
+    protected function getTableFixtures(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public static function getTableStubFixtures(): array
+    {
+        return [
+            ["id" => 1, "a" => 1, "b" => "a string", "c" => new \DateTimeImmutable("2017-03-29 00:00:00")],
+            ["id" => 3, "a" => 4, "b" => "b string", "c" => new \DateTimeImmutable("2015-03-25 13:12:25")],
+        ];
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public static function getCoordinatesFixtures(): array
+    {
+        return [
+            ["x" => 1, "y" => 2, "z" => 3],
+            ["x" => 1, "y" => 4, "z" => 5.],
+            ["x" => 3, "y" => 1, "z" => 2],
+            ["x" => 2, "y" => 3, "z" => 1],
+        ];
     }
 }

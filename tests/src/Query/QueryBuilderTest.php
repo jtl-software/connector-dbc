@@ -34,10 +34,10 @@ class QueryBuilderTest extends DbTestCase
 
     protected function setUp(): void
     {
-        $this->getYamlDataSet()->addYamlFile(TESTROOT . '/files/coordinates_stub.yaml');
         $this->coordsTable = new CoordinatesStub($this->getDBManager());
         $this->qb = new QueryBuilder($this->getDBManager()->getConnection(), [$this->tableExpression => $this->globalIdentifiers]);
         parent::setUp();
+        $this->insertFixtures($this->coordsTable, self::getCoordinatesFixtures());
     }
 
     public function testTableRestrictionWithSelect()
@@ -108,7 +108,7 @@ class QueryBuilderTest extends DbTestCase
     {
         $this->getDBManager()->getConnection()->restrictTable(new TableRestriction($this->coordsTable->getTableSchema(), CoordinatesStub::COL_X, 1.));
         //$this->getDBManager()->getConnection()->setGlobalIdentifier('x', 1.);
-        $this->assertTableRowCount($this->coordsTable->getTableName(), 4);
+        $this->assertEquals(4, $this->countRows($this->coordsTable->getTableName()));
         $datasets = $this->coordsTable->findAll();
         $this->assertEquals(3, $datasets[0]['z']);
         $this->assertEquals(5., $datasets[1]['z']);

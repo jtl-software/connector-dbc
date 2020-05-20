@@ -5,11 +5,20 @@
  */
 namespace Jtl\Connector\Dbc\Schema;
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Schema\SchemaException;
 use Jtl\Connector\Dbc\DbTestCase;
 use Jtl\Connector\Dbc\TableStub;
 
 class TableRestrictionTest extends DbTestCase
 {
+    protected function setUp(): void
+    {
+        $this->table = new TableStub($this->getDBManager());
+        parent::setUp();
+        $this->insertFixtures($this->table, self::getTableStubFixtures());
+    }
+
     public function testInitializationSuccessful()
     {
         $tableSchema = $this->table->getTableSchema();
@@ -22,11 +31,13 @@ class TableRestrictionTest extends DbTestCase
     }
 
     /**
-     * @expectedException \Doctrine\DBAL\Schema\SchemaException
-     * @expectedExceptionCode \Doctrine\DBAL\Schema\SchemaException::COLUMN_DOESNT_EXIST
+     * @throws SchemaException
+     * @throws DBALException
      */
     public function testInitializationWithNotExistingColumn()
     {
+        $this->expectException(SchemaException::class);
+        $this->expectExceptionCode(SchemaException::COLUMN_DOESNT_EXIST);
         $tableSchema = $this->table->getTableSchema();
         new TableRestriction($tableSchema, 'yolo', 'c');
     }

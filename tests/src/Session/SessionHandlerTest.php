@@ -4,7 +4,6 @@ namespace Jtl\Connector\Dbc\Session;
 
 use Jtl\Connector\Dbc\DbTestCase;
 use Jtl\Connector\Dbc\DbManager;
-use PHPUnit\Framework\MockObject\MockObject;
 
 class SessionHandlerTest extends DbTestCase
 {
@@ -70,9 +69,9 @@ class SessionHandlerTest extends DbTestCase
         $sessionId = uniqid('sess', true);
         $sessionData = 'serializedSessionData';
 
-        $this->assertTableRowCount($this->handler->getTableName(), 0);
+        $this->assertEquals(0, $this->countRows($this->handler->getTableName()));
         $this->handler->write($sessionId, $sessionData);
-        $this->assertTableRowCount($this->handler->getTableName(), 1);
+        $this->assertEquals(1, $this->countRows($this->handler->getTableName()));
     }
 
     public function testWriteUpdate()
@@ -114,11 +113,11 @@ class SessionHandlerTest extends DbTestCase
             SessionHandler::EXPIRES_AT => (new \DateTimeImmutable())->setTimestamp(time() - 1)
         ];
 
-        $this->assertTableRowCount($this->handler->getTableName(), 0);
+        $this->assertEquals(0, $this->countRows($this->handler->getTableName()));
         $this->handler->insert($data);
-        $this->assertTableRowCount($this->handler->getTableName(), 1);
+        $this->assertEquals(1, $this->countRows($this->handler->getTableName()));
         $this->handler->destroy($sessionId);
-        $this->assertTableRowCount($this->handler->getTableName(), 0);
+        $this->assertEquals(0, $this->countRows($this->handler->getTableName()));
     }
 
     public function testGc()
@@ -139,8 +138,8 @@ class SessionHandlerTest extends DbTestCase
             ]);
         }
 
-        $this->assertTableRowCount($this->handler->getTableName(), $insertedRows);
+        $this->assertEquals($insertedRows, $this->countRows($this->handler->getTableName()));
         $this->handler->gc(1234);
-        $this->assertTableRowCount($this->handler->getTableName(), $insertedRows - $expiredCount);
+        $this->assertEquals($insertedRows - $expiredCount, $this->countRows($this->handler->getTableName()));
     }
 }
