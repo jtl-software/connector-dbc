@@ -114,7 +114,7 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface
             ->from($this->getTableName())
             ->where($this->getConnection()->getExpressionBuilder()->eq(self::SESSION_ID, ':sessionId'))
             ->setParameter('sessionId', $sessionId)
-            ->andWhere($this->getConnection()->getExpressionBuilder()->gt(self::EXPIRES_AT, sprintf(':%s', 'now')))
+            ->andWhere($this->getConnection()->getExpressionBuilder()->gt(self::EXPIRES_AT, ':now'))
             ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE)
             ->execute();
 

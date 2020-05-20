@@ -7,7 +7,7 @@ namespace Jtl\Connector\Dbc;
 
 use Doctrine\DBAL\Schema\Table;
 
-class AbstractDbManagerTest extends AbstractDbTestCase
+class DbManagerTest extends DbTestCase
 {
     public function testRegisterTable()
     {

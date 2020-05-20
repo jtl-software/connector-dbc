@@ -2,11 +2,11 @@
 
 namespace Jtl\Connector\Dbc\Session;
 
-use Jtl\Connector\Dbc\AbstractDbTestCase;
+use Jtl\Connector\Dbc\DbTestCase;
 use Jtl\Connector\Dbc\DbManager;
 use PHPUnit\Framework\MockObject\MockObject;
 
-class SessionHandlerTest extends AbstractDbTestCase
+class SessionHandlerTest extends DbTestCase
 {
     protected $handler;
 

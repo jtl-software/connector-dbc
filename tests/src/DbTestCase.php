@@ -8,8 +8,9 @@ namespace Jtl\Connector\Dbc;
 use Doctrine\DBAL\DBALException;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\Database\DefaultConnection;
+use PHPUnit\DbUnit\TestCase;
 
-abstract class AbstractDbTestCase extends \PHPUnit\DbUnit\TestCase
+abstract class DbTestCase extends TestCase
 {
     const TABLE_PREFIX = 'pre_';
     const SCHEMA = TESTROOT . '/tmp/db.sqlite';

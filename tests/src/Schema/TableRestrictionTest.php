@@ -5,10 +5,10 @@
  */
 namespace Jtl\Connector\Dbc\Schema;
 
-use Jtl\Connector\Dbc\AbstractDbTestCase;
+use Jtl\Connector\Dbc\DbTestCase;
 use Jtl\Connector\Dbc\TableStub;
 
-class TableRestrictionTestAbstract extends AbstractDbTestCase
+class TableRestrictionTest extends DbTestCase
 {
     public function testInitializationSuccessful()
     {
