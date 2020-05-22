@@ -85,7 +85,7 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface
     public function gc($maxLifetime)
     {
         $this->createQueryBuilder()
-            ->delete($this->getTableName())
+            ->delete()
             ->andWhere($this->getConnection()->getExpressionBuilder()->lt(self::EXPIRES_AT, ':now'))
             ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE)
             ->execute();
@@ -111,7 +111,6 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface
     {
         $stmt = $this->createQueryBuilder()
             ->select(self::SESSION_DATA)
-            ->from($this->getTableName())
             ->where($this->getConnection()->getExpressionBuilder()->eq(self::SESSION_ID, ':sessionId'))
             ->setParameter('sessionId', $sessionId)
             ->andWhere($this->getConnection()->getExpressionBuilder()->gt(self::EXPIRES_AT, ':now'))

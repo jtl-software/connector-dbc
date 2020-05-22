@@ -9,6 +9,7 @@ namespace Jtl\Connector\Dbc\Mapping;
 use Doctrine\DBAL\Types\Types;
 use Jtl\Connector\Dbc\CoordinatesStub;
 use Jtl\Connector\Dbc\DbTestCase;
+use Jtl\Connector\Dbc\RuntimeException;
 use Jtl\Connector\Dbc\TableStub;
 
 class TableTest extends DbTestCase
@@ -85,67 +86,87 @@ class TableTest extends DbTestCase
         $this->assertEquals(CoordinatesStub::COL_Z, $columns[2]);
     }
 
-    public function testMapTableRowsAssoc()
+    public function testConvertToPhpValuesAssoc()
     {
-        $rows = $this->table->findAll();
-        $this->assertArrayHasKey(1, $rows);
-        $row = $rows[1];
-        $this->assertArrayHasKey(TableStub::ID, $row);
-        $this->assertTrue(is_int($row[TableStub::ID]));
-        $this->assertEquals(3, $row[TableStub::ID]);
-        $this->assertArrayHasKey(TableStub::A, $row);
-        $this->assertTrue(is_int($row[TableStub::A]));
-        $this->assertEquals(4, $row[TableStub::A]);
-        $this->assertArrayHasKey(TableStub::B, $row);
-        $this->assertTrue(is_string($row[TableStub::B]));
-        $this->assertEquals('b string', $row[TableStub::B]);
-        $this->assertArrayHasKey(TableStub::C, $row);
-        $this->assertInstanceOf(\DateTimeImmutable::class, $row[TableStub::C]);
+        $connection = $this->table->getDbManager()->getConnection();
+        $rows = $connection->createQueryBuilder()
+            ->select($this->table->getColumnNames())
+            ->from($this->table->getTableName())
+            ->execute()
+            ->fetchAll();
+
+        $this->assertCount(2, $rows);
+        $mappedRow = $this->invokeMethodFromObject($this->table, 'convertToPhpValues', $rows[1]);
+        $this->assertArrayHasKey(TableStub::ID, $mappedRow);
+        $this->assertTrue(is_int($mappedRow[TableStub::ID]));
+        $this->assertEquals(3, $mappedRow[TableStub::ID]);
+        $this->assertArrayHasKey(TableStub::A, $mappedRow);
+        $this->assertTrue(is_int($mappedRow[TableStub::A]));
+        $this->assertEquals(4, $mappedRow[TableStub::A]);
+        $this->assertArrayHasKey(TableStub::B, $mappedRow);
+        $this->assertTrue(is_string($mappedRow[TableStub::B]));
+        $this->assertEquals('b string', $mappedRow[TableStub::B]);
+        $this->assertArrayHasKey(TableStub::C, $mappedRow);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $mappedRow[TableStub::C]);
     }
 
-    public function testMapTableRowsNumeric()
+    public function testConvertToPhpValuesPartiallyAssoc()
     {
-        $rows = $this->table->findAll(\PDO::FETCH_NUM);
-        $this->assertArrayHasKey(1, $rows);
-        $row = $rows[1];
-        $this->assertArrayHasKey(0, $row);
-        $this->assertTrue(is_int($row[0]));
-        $this->assertEquals(3, $row[0]);
-        $this->assertArrayHasKey(1, $row);
-        $this->assertTrue(is_int($row[1]));
-        $this->assertEquals(4, $row[1]);
-        $this->assertArrayHasKey(2, $row);
-        $this->assertTrue(is_string($row[2]));
-        $this->assertEquals('b string', $row[2]);
-        $this->assertArrayHasKey(3, $row);
-        $this->assertInstanceOf(\DateTimeImmutable::class, $row[3]);
+        $connection = $this->table->getDbManager()->getConnection();
+        $rows = $connection->createQueryBuilder()
+            ->select(['a', 'c'])
+            ->from($this->table->getTableName())
+            ->execute()
+            ->fetchAll();
+
+        $this->assertCount(2, $rows);
+        $mappedRow = $this->invokeMethodFromObject($this->table, 'convertToPhpValues', $rows[1]);
+        $this->assertCount(2, $mappedRow);
+        $this->assertArrayHasKey(TableStub::A, $mappedRow);
+        $this->assertTrue(is_int($mappedRow[TableStub::A]));
+        $this->assertEquals(4, $mappedRow[TableStub::A]);
+        $this->assertArrayHasKey(TableStub::C, $mappedRow);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $mappedRow[TableStub::C]);
     }
 
-    public function testMapTableRowsPartiallyAssoc()
+    public function testConvertToPhpValuesNumeric()
     {
-        $rows = $this->table->findAll(\PDO::FETCH_ASSOC, ['a', 'c']);
-        $this->assertArrayHasKey(1, $rows);
-        $row = $rows[1];
-        $this->assertCount(2, $row);
-        $this->assertArrayHasKey(TableStub::A, $row);
-        $this->assertTrue(is_int($row[TableStub::A]));
-        $this->assertEquals(4, $row[TableStub::A]);
-        $this->assertArrayHasKey(TableStub::C, $row);
-        $this->assertInstanceOf(\DateTimeImmutable::class, $row[TableStub::C]);
+        $connection = $this->table->getDbManager()->getConnection();
+        $rows = $connection->createQueryBuilder()
+            ->select($this->table->getColumnNames())
+            ->from($this->table->getTableName())
+            ->execute()
+            ->fetchAll(\PDO::FETCH_NUM);
+
+        $this->assertCount(2, $rows);
+        $mappedRow = $this->invokeMethodFromObject($this->table, 'convertToPhpValues', $rows[1]);
+        $this->assertArrayHasKey(0, $mappedRow);
+        $this->assertTrue(is_int($mappedRow[0]));
+        $this->assertEquals(3, $mappedRow[0]);
+        $this->assertArrayHasKey(1, $mappedRow);
+        $this->assertTrue(is_int($mappedRow[1]));
+        $this->assertEquals(4, $mappedRow[1]);
+        $this->assertArrayHasKey(2, $mappedRow);
+        $this->assertTrue(is_string($mappedRow[2]));
+        $this->assertEquals('b string', $mappedRow[2]);
+        $this->assertArrayHasKey(3, $mappedRow);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $mappedRow[3]);
     }
 
-    public function testMapTableRowsPartiallyNumeric()
+    public function testConvertToPhpValuesPartiallyNumericFails()
     {
-        $rows = $this->table->findAll(\PDO::FETCH_NUM, [0, 2]);
-        $this->assertArrayHasKey(1, $rows);
-        $row = $rows[1];
-        $this->assertCount(2, $row);
-        $this->assertArrayHasKey(0, $row);
-        $this->assertTrue(is_int($row[0]));
-        $this->assertEquals(3, $row[0]);
-        $this->assertArrayHasKey(1, $row);
-        $this->assertTrue(is_string($row[1]));
-        $this->assertEquals('b string', $row[1]);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionCode(RuntimeException::INDICES_MISSING);
+
+        $connection = $this->table->getDbManager()->getConnection();
+        $rows = $connection->createQueryBuilder()
+            ->select(['a', 'c'])
+            ->from($this->table->getTableName())
+            ->execute()
+            ->fetchAll(\PDO::FETCH_NUM);
+
+        $this->assertCount(2, $rows);
+        $this->invokeMethodFromObject($this->table, 'convertToPhpValues', $rows[1]);
     }
 
     public function testInsertWithTableColumnTypes()
@@ -217,15 +238,5 @@ class TableTest extends DbTestCase
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
         $this->table->delete(['a' => $a, 'c' => $c->format('Y-m-d H:i:s')], []);
         $this->assertCount(0, $this->table->find(['a' => $a, 'b' => $b]));
-    }
-
-    protected function getCoordsTableFixtures(): array
-    {
-        return [
-            ["x" => 1, "y" => 2, "z" => 3],
-            ["x" => 1, "y" => 4, "z" => 5.],
-            ["x" => 3, "y" => 1, "z" => 2],
-            ["x" => 2, "y" => 3, "z" => 1],
-        ];
     }
 }

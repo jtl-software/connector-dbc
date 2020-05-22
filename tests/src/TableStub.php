@@ -52,17 +52,21 @@ class TableStub extends AbstractTable
 
     /**
      * @param int $fetchType
-     * @param array $columns
-     * @return array|mixed[]
+     * @param array|null $columns
+     * @return mixed[]
      * @throws DBALException
      */
-    public function findAll($fetchType = \PDO::FETCH_ASSOC, array $columns = [])
+    public function findAll($fetchType = \PDO::FETCH_ASSOC, array $columns = null)
     {
-        $stmt = $this->createQueryBuilder()->select(array_keys($this->getColumnTypes()))
+        if(is_null($columns)) {
+            $columns = $this->getColumnNames();
+        }
+
+        $stmt = $this->createQueryBuilder()->select($columns)
                                            ->from($this->getTableName())
                                            ->execute();
 
-        return $this->mapRows($stmt->fetchAll($fetchType), $columns);
+        return $this->convertAllToPhpValues($stmt->fetchAll($fetchType));
     }
 
     /**
@@ -72,9 +76,13 @@ class TableStub extends AbstractTable
      * @return array|mixed[]
      * @throws DBALException
      */
-    public function find(array $identifier, $fetchType = \PDO::FETCH_ASSOC, array $columns = [])
+    public function find(array $identifier, $fetchType = \PDO::FETCH_ASSOC, array $columns = null)
     {
-        $qb = $this->createQueryBuilder()->select(array_keys($this->getColumnTypes()))
+        if(is_null($columns)) {
+            $columns = $this->getColumnNames();
+        }
+
+        $qb = $this->createQueryBuilder()->select($columns)
             ->from($this->getTableName());
 
         foreach($identifier as $column => $value) {
@@ -84,6 +92,6 @@ class TableStub extends AbstractTable
 
         $stmt = $qb->execute();
 
-        return $this->mapRows($stmt->fetchAll($fetchType), $columns);
+        return $this->convertAllToPhpValues($stmt->fetchAll($fetchType));
     }
 }

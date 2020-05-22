@@ -8,54 +8,64 @@ namespace Jtl\Connector\Dbc;
 
 class RuntimeException extends \RuntimeException
 {
-    const TABLE_NOT_FOUND = 10;
-    const TABLE_EMPTY = 20;
-    const COLUMN_NOT_FOUND = 30;
-    const CLASS_NOT_FOUND = 40;
-    const CLASS_NOT_A_TABLE = 50;
+    public const
+        TABLE_NOT_FOUND = 10,
+        TABLE_EMPTY = 20,
+        COLUMN_NOT_FOUND = 30,
+        CLASS_NOT_FOUND = 40,
+        CLASS_NOT_A_TABLE = 50,
+        INDICES_MISSING = 60;
 
     /**
      * @param string $tableName
      * @return RuntimeException
      */
-    public static function tableNotFound(string $tableName): RuntimeException
+    public static function tableNotFound(string $tableName): self
     {
-        return new static('Table with name ' . $tableName . ' not found!', self::TABLE_NOT_FOUND);
+        return new static(sprintf('Table with name %s not found', $tableName), self::TABLE_NOT_FOUND);
     }
 
     /**
      * @param string $tableName
      * @return RuntimeException
      */
-    public static function tableEmpty(string $tableName): RuntimeException
+    public static function tableEmpty(string $tableName): self
     {
-        return new static('Table ' . $tableName . ' is empty. It needs at least one column!', self::TABLE_EMPTY);
+        return new static(sprintf('Table %s is empty. At least one column is required', $tableName), self::TABLE_EMPTY);
     }
 
     /**
      * @param string $columnName
      * @return RuntimeException
      */
-    public static function columnNotFound(string $columnName): RuntimeException
+    public static function columnNotFound(string $columnName): self
     {
-        return new static('Column with name ' . $columnName . ' not found!', self::COLUMN_NOT_FOUND);
+        return new static(sprintf('A Column with name %s could not get found', $columnName), self::COLUMN_NOT_FOUND);
     }
 
     /**
      * @param string $className
      * @return RuntimeException
      */
-    public static function classNotFound(string $className): RuntimeException
+    public static function classNotFound(string $className): self
     {
-        return new static('A class with name ' . $className . ' is not known!', self::CLASS_NOT_FOUND);
+        return new static(sprintf('A class with name %s could not get found', $className), self::CLASS_NOT_FOUND);
     }
 
     /**
      * @param string $className
      * @return RuntimeException
      */
-    public static function classNotChildOfTable(string $className): RuntimeException
+    public static function classNotChildOfTable(string $className): self
     {
-        return new static('The class ' . $className . ' does not inherit from ' . AbstractTable::class . '!', self::CLASS_NOT_A_TABLE);
+        return new static(sprintf('The class %s does not inherit from %s', $className, AbstractTable::class), self::CLASS_NOT_A_TABLE);
+    }
+
+    /**
+     * @return RuntimeException
+     */
+    public static function numericIndicesMissing(): self
+    {
+        return new static('Converting a row with a subset of columns is only possible with associative indices', self::INDICES_MISSING);
     }
 }

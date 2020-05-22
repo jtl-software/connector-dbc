@@ -8,7 +8,6 @@ namespace Jtl\Connector\Dbc;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
@@ -62,11 +61,17 @@ abstract class AbstractTable
     }
 
     /**
+     * @param string|null $tableAlias
      * @return QueryBuilder
      */
-    protected function createQueryBuilder(): QueryBuilder
+    protected function createQueryBuilder(string $tableAlias = null): QueryBuilder
     {
-        return $this->getConnection()->createQueryBuilder();
+        return new QueryBuilder(
+            $this->getConnection(),
+            $this->getConnection()->getTableRestrictions(),
+            $this->getTableName(),
+            $tableAlias
+        );
     }
 
     /**
@@ -138,7 +143,7 @@ abstract class AbstractTable
     public function insert(array $data, array $types = null): int
     {
         if (is_null($types)) {
-            $types = $this->filterColumnTypes(array_keys($data));
+            $types = $this->getColumnTypesFor(array_keys($data));
         }
 
         return $this->getConnection()->insert($this->getTableName(), $data, $types);
@@ -154,7 +159,7 @@ abstract class AbstractTable
     public function update(array $data, array $identifier, array $types = null): int
     {
         if (is_null($types)) {
-            $types = $this->filterColumnTypes(array_unique(array_merge(array_keys($data), array_keys($identifier))));
+            $types = $this->getColumnTypesFor(array_unique(array_merge(array_keys($data), array_keys($identifier))));
         }
 
         return $this->getConnection()->update($this->getTableName(), $data, $identifier, $types);
@@ -170,7 +175,7 @@ abstract class AbstractTable
     public function delete(array $identifier, array $types = null): int
     {
         if (is_null($types)) {
-            $types = $this->filterColumnTypes(array_keys($identifier));
+            $types = $this->getColumnTypesFor(array_keys($identifier));
         }
 
         return $this->getConnection()->delete($this->getTableName(), $identifier, $types);
@@ -192,7 +197,7 @@ abstract class AbstractTable
      * @return array
      * @throws DBALException
      */
-    protected function filterColumnTypes(array $columnNames): array
+    protected function getColumnTypesFor(array $columnNames): array
     {
         return array_filter($this->getColumnTypes(), function (string $columnName) use ($columnNames) {
             return in_array($columnName, $columnNames);
@@ -201,48 +206,38 @@ abstract class AbstractTable
 
     /**
      * @param mixed[] $rows
-     * @param string[] $columns
      * @return mixed[]
      */
-    protected function mapRows(array $rows, array $columns = []): array
+    protected function convertAllToPhpValues(array $rows): array
     {
-        return array_map(function (array $row) use ($columns) {
-            return $this->mapRow($row, $columns);
+        return array_map(function (array $row) {
+            return $this->convertToPhpValues($row);
         }, $rows);
     }
 
     /**
      * @param string[] $row
-     * @param string[] $columns
      * @return mixed[]
      * @throws RuntimeException
      * @throws DBALException
      */
-    protected function mapRow(array $row, array $columns = [])
+    protected function convertToPhpValues(array $row)
     {
         $types = $this->getColumnTypes();
         $numericIndices = is_int(key($row));
+
+        if ($numericIndices && count($row) < count($types)) {
+            throw RuntimeException::numericIndicesMissing();
+        }
 
         if ($numericIndices) {
             $types = array_values($types);
         }
 
-        if (count($columns) > 0) {
-            $types = array_intersect_key($types, array_fill_keys($columns, $columns));
-        }
-
-        if (count($types) === 0) {
-            return $row;
-        }
-
         $result = [];
         foreach ($row as $index => $value) {
-            if (!isset($types[$index])) {
-                continue;
-            }
-
             $result[$index] = $value;
-            if (Type::hasType($types[$index]) && $types[$index] !== Types::BINARY) {
+            if (isset($types[$index]) && Type::hasType($types[$index]) && $types[$index] !== Types::BINARY) {
                 $result[$index] = Type::getType($types[$index])->convertToPHPValue($value, $this->dbManager->getConnection()->getDatabasePlatform());
 
                 //Dirty BIGINT to int cast
@@ -252,6 +247,6 @@ abstract class AbstractTable
             }
         }
 
-        return $numericIndices ? array_values($result) : $result;
+        return $result;
     }
 }

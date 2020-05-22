@@ -99,11 +99,18 @@ abstract class DbTestCase extends TestCase
     }
 
     /**
-     * @return mixed[]
+     * @param object $object
+     * @param string $methodName
+     * @param mixed ...$methodArgs
+     * @return mixed
+     * @throws \ReflectionException
      */
-    protected function getTableFixtures(): array
+    protected function invokeMethodFromObject(object $object, string $methodName, ...$methodArgs)
     {
-        return [];
+        $reflection = new \ReflectionClass($object);
+        $method = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
+        return $method->invoke($object, ...$methodArgs);
     }
 
     /**
