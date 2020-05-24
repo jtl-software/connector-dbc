@@ -8,8 +8,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Jtl\Connector\Dbc\AbstractTable;
 use Jtl\Connector\Dbc\DbManager;
+use Jtl\Connector\Dbc\Query\QueryBuilder;
 
-class SessionHandler extends AbstractTable implements \SessionHandlerInterface
+class SessionHandler extends AbstractTable implements \SessionHandlerInterface, \SessionUpdateTimestampHandlerInterface
 {
     public const
         SESSION_ID = 'session_id',
@@ -86,7 +87,7 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface
     {
         $this->createQueryBuilder()
             ->delete()
-            ->andWhere($this->getConnection()->getExpressionBuilder()->lt(self::EXPIRES_AT, ':now'))
+            ->andWhere($this->getConnection()->getExpressionBuilder()->lte(self::EXPIRES_AT, ':now'))
             ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE)
             ->execute();
 
@@ -109,14 +110,7 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface
      */
     public function read($sessionId)
     {
-        $stmt = $this->createQueryBuilder()
-            ->select(self::SESSION_DATA)
-            ->where($this->getConnection()->getExpressionBuilder()->eq(self::SESSION_ID, ':sessionId'))
-            ->setParameter('sessionId', $sessionId)
-            ->andWhere($this->getConnection()->getExpressionBuilder()->gt(self::EXPIRES_AT, ':now'))
-            ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE)
-            ->execute();
-
+        $stmt = $this->createReadQuery($sessionId, [self::SESSION_DATA])->execute();
         if ($stmt instanceof \PDOStatement) {
             return (string)$stmt->fetchColumn();
         }
@@ -133,7 +127,7 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface
     {
         $data = [
             self::SESSION_DATA => $sessionData,
-            self::EXPIRES_AT => (new \DateTimeImmutable())->setTimestamp(time() + $this->maxLifetime)
+            self::EXPIRES_AT => (new \DateTimeImmutable())->setTimestamp($this->calculateExpiryTime())
         ];
 
         $rowCount = $this->update($data, [self::SESSION_ID => $sessionId]);
@@ -143,5 +137,57 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface
         }
 
         return true;
+    }
+
+    /**
+     * @param string $sessionId
+     * @return boolean
+     */
+    public function validateId($sessionId)
+    {
+        $stmt = $this->createReadQuery($sessionId, [self::SESSION_ID])->execute();
+
+        if($stmt instanceof \PDOStatement) {
+            return $stmt->fetchColumn() === $sessionId;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $sessionId
+     * @param string $sessionData
+     * @return boolean
+     * @throws DBALException
+     */
+    public function updateTimestamp($sessionId, $sessionData)
+    {
+        return $this->update(
+            [self::EXPIRES_AT => (new \DateTimeImmutable())->setTimestamp($this->calculateExpiryTime())],
+            [self::SESSION_ID => $sessionId]
+        ) === 1;
+    }
+
+    /**
+     * @param string $sessionId
+     * @param array|string[] $columns
+     * @return QueryBuilder
+     */
+    protected function createReadQuery(string $sessionId, array $columns = [self::SESSION_DATA]): QueryBuilder
+    {
+        return $this->createQueryBuilder()
+            ->select($columns)
+            ->where($this->getConnection()->getExpressionBuilder()->eq(self::SESSION_ID, ':sessionId'))
+            ->setParameter('sessionId', $sessionId)
+            ->andWhere($this->getConnection()->getExpressionBuilder()->gt(self::EXPIRES_AT, ':now'))
+            ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE);
+    }
+
+    /**
+     * @return integer
+     */
+    protected function calculateExpiryTime(): int
+    {
+        return time() + $this->maxLifetime;
     }
 }

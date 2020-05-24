@@ -2,6 +2,8 @@
 
 namespace Jtl\Connector\Dbc\Session;
 
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Jtl\Connector\Dbc\DbTestCase;
 use Jtl\Connector\Dbc\DbManager;
 
@@ -31,7 +33,7 @@ class SessionHandlerTest extends DbTestCase
         $this->assertEquals($expected, $reflMaxLifetimeProp->getValue($handler));
     }
 
-    public function testReadSessionValid()
+    public function testReadSessionSuccess()
     {
         $sessionId = uniqid('sess', true);
         $sessionData = 'serializedSessionData';
@@ -62,6 +64,11 @@ class SessionHandlerTest extends DbTestCase
 
         $actual = $this->handler->read($sessionId);
         $this->assertEquals('', $actual);
+    }
+
+    public function testReadSessionDoesNotExist()
+    {
+        $this->assertEquals('', $this->handler->read(uniqid('presess', true)));
     }
 
     public function testWriteInsert()
@@ -127,7 +134,7 @@ class SessionHandlerTest extends DbTestCase
         for ($i = 0; $i < $insertedRows; $i++) {
             $expiresAt = (new \DateTimeImmutable())->setTimestamp(time() + 1);
             if (mt_rand(0, 1) === 1) {
-                $expiresAt = (new \DateTimeImmutable())->setTimestamp(time() - 1);
+                $expiresAt = (new \DateTimeImmutable())->setTimestamp(time());
                 $expiredCount++;
             }
 
@@ -142,4 +149,82 @@ class SessionHandlerTest extends DbTestCase
         $this->handler->gc(1234);
         $this->assertEquals($insertedRows - $expiredCount, $this->countRows($this->handler->getTableName()));
     }
+
+    public function testValidateIdSuccess()
+    {
+        $sessionId = uniqid('sess', true);
+        $sessionData = 'whateverData';
+
+        $data = [
+            SessionHandler::SESSION_ID => $sessionId,
+            SessionHandler::SESSION_DATA => $sessionData,
+            SessionHandler::EXPIRES_AT => (new \DateTimeImmutable())->setTimestamp(time() + 1)
+        ];
+
+        $this->handler->insert($data);
+
+        $this->assertTrue($this->handler->validateId($sessionId));
+    }
+
+    public function testValidateIdSessionExpired()
+    {
+        $sessionId = uniqid('sess', true);
+        $sessionData = 'whateverData';
+
+        $data = [
+            SessionHandler::SESSION_ID => $sessionId,
+            SessionHandler::SESSION_DATA => $sessionData,
+            SessionHandler::EXPIRES_AT => (new \DateTimeImmutable())->setTimestamp(time())
+        ];
+
+        $this->handler->insert($data);
+
+        $this->assertFalse($this->handler->validateId($sessionId));
+    }
+
+    public function testValidateIdSessionDoesNotExist()
+    {
+        $this->assertFalse($this->handler->validateId(uniqid('foobar', true)));
+    }
+
+    public function testUpdateTimestamp()
+    {
+        $sessionId = uniqid('sess', true);
+        $sessionData = 'whateverData';
+        $expiresAt = time() + 1;
+
+
+        $data = [
+            SessionHandler::SESSION_ID => $sessionId,
+            SessionHandler::SESSION_DATA => $sessionData,
+            SessionHandler::EXPIRES_AT => (new \DateTimeImmutable())->setTimestamp($expiresAt)
+        ];
+
+        $this->handler->insert($data);
+
+        $reflection = new \ReflectionClass($this->handler);
+        $maxLifetimeProp = $reflection->getProperty('maxLifetime');
+        $maxLifetimeProp->setAccessible(true);
+        $maxLifeTime = $maxLifetimeProp->getValue($this->handler);
+
+        $expectedExpiresAtTimestamp = time() + $maxLifeTime;
+
+        $this->handler->updateTimestamp($sessionId, $sessionData);
+
+        $qb = $this->getDbManager()->getConnection()->createQueryBuilder();
+
+        $stmt = $qb
+            ->select(SessionHandler::EXPIRES_AT)
+            ->from($this->handler->getTableName())
+            ->where(sprintf('%s = :sessionId', SessionHandler::SESSION_ID))
+            ->setParameter('sessionId', $sessionId)
+            ->execute();
+
+        /** @var \DateTimeImmutable $expiresAt */
+        $expiresAt = Type::getType(Types::DATETIME_IMMUTABLE)
+            ->convertToPHPValue($stmt->fetchColumn(), $this->getDBManager()->getConnection()->getDatabasePlatform());
+
+        $this->assertEquals($expectedExpiresAtTimestamp, $expiresAt->getTimestamp());
+    }
+
 }

@@ -136,16 +136,13 @@ class DbManager
     }
 
     /**
-     * @return array
-     * @throws DBALException
+     * @return Table[]
      */
     protected function getSchemaTables(): array
     {
-        $schemaTables = [];
-        foreach ($this->getTables() as $table) {
-            $schemaTables[] = $table->getTableSchema();
-        }
-        return $schemaTables;
+        return array_map(function (AbstractTable $table) {
+            return $table->getTableSchema();
+        }, $this->getTables());
     }
 
     /**
