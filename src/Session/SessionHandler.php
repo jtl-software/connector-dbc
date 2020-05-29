@@ -162,10 +162,12 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface, 
      */
     public function updateTimestamp($sessionId, $sessionData)
     {
-        return $this->update(
+        $this->update(
             [self::EXPIRES_AT => (new \DateTimeImmutable())->setTimestamp($this->calculateExpiryTime())],
             [self::SESSION_ID => $sessionId]
-        ) === 1;
+        );
+
+        return true;
     }
 
     /**
