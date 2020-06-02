@@ -2,10 +2,13 @@
 
 namespace Jtl\Connector\Dbc\Session;
 
+use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Jtl\Connector\Dbc\DbTestCase;
 use Jtl\Connector\Dbc\DbManager;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class SessionHandlerTest extends DbTestCase
 {
@@ -97,6 +100,40 @@ class SessionHandlerTest extends DbTestCase
         $newData = 'yalla';
         $this->handler->write($sessionId, $newData);
         $this->assertEquals($newData, $this->handler->read($sessionId));
+    }
+
+    public function testWriteInsertSimultaneouslySameSessionId()
+    {
+        $sessionId = uniqid('sess', true);
+        $sessionData = 'sdoliufndvnsdzf089wezu089eu';
+
+        /** @var SessionHandler|MockObject $handler */
+        $handler = $this->getMockBuilder(SessionHandler::class)
+            ->setConstructorArgs([$this->getDBManager()])
+            ->onlyMethods(['insert', 'update'])
+            ->getMock();
+
+        $handler
+            ->expects($this->once())
+            ->method('insert')
+            ->willThrowException(new UniqueConstraintViolationException('Duplicate Key entry', $this->createMock(DriverException::class)));
+
+        $expiryTime = $this->invokeMethodFromObject($this->handler, 'calculateExpiryTime');
+
+        $updateData = [
+            SessionHandler::SESSION_DATA => $sessionData,
+            SessionHandler::EXPIRES_AT => (new \DateTimeImmutable())->setTimestamp($expiryTime)
+        ];
+
+        $updateIdentifier = [SessionHandler::SESSION_ID => $sessionId];
+
+        $handler
+            ->expects($this->exactly(2))
+            ->method('update')
+            ->with($updateData, $updateIdentifier)
+            ->willReturnOnConsecutiveCalls(0, 1);
+
+        $handler->write($sessionId, $sessionData);
     }
 
     public function testClose()
@@ -202,16 +239,11 @@ class SessionHandlerTest extends DbTestCase
 
         $this->handler->insert($data);
 
-        $reflection = new \ReflectionClass($this->handler);
-        $maxLifetimeProp = $reflection->getProperty('maxLifetime');
-        $maxLifetimeProp->setAccessible(true);
-        $maxLifeTime = $maxLifetimeProp->getValue($this->handler);
-
-        $expectedExpiresAtTimestamp = time() + $maxLifeTime;
-
         $this->handler->updateTimestamp($sessionId, $sessionData);
 
         $qb = $this->getDbManager()->getConnection()->createQueryBuilder();
+
+        $expectedExpiresAtTimestamp = $this->invokeMethodFromObject($this->handler, 'calculateExpiryTime');
 
         $stmt = $qb
             ->select(SessionHandler::EXPIRES_AT)

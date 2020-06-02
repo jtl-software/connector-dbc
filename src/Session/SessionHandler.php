@@ -4,6 +4,7 @@ namespace Jtl\Connector\Dbc\Session;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Jtl\Connector\Dbc\AbstractTable;
@@ -132,8 +133,11 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface, 
 
         $rowCount = $this->update($data, [self::SESSION_ID => $sessionId]);
         if ($rowCount === 0) {
-            $data[self::SESSION_ID] = $sessionId;
-            $this->insert($data);
+            try {
+                $this->insert(array_merge($data, [self::SESSION_ID => $sessionId]));
+            } catch (UniqueConstraintViolationException $ex) {
+                $this->update($data, [self::SESSION_ID => $sessionId]);
+            }
         }
 
         return true;
