@@ -258,5 +258,4 @@ class SessionHandlerTest extends TestCase
 
         $this->assertEquals($expectedExpiresAtTimestamp, $expiresAt->getTimestamp());
     }
-
 }

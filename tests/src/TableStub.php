@@ -58,7 +58,7 @@ class TableStub extends AbstractTable
      */
     public function findAll($fetchType = \PDO::FETCH_ASSOC, array $columns = null)
     {
-        if(is_null($columns)) {
+        if (is_null($columns)) {
             $columns = $this->getColumnNames();
         }
 
@@ -78,14 +78,14 @@ class TableStub extends AbstractTable
      */
     public function find(array $identifier, $fetchType = \PDO::FETCH_ASSOC, array $columns = null)
     {
-        if(is_null($columns)) {
+        if (is_null($columns)) {
             $columns = $this->getColumnNames();
         }
 
         $qb = $this->createQueryBuilder()->select($columns)
             ->from($this->getTableName());
 
-        foreach($identifier as $column => $value) {
+        foreach ($identifier as $column => $value) {
             $qb->andWhere(sprintf('%s = :%s', $column, $column))
                ->setParameter($column, $value);
         }

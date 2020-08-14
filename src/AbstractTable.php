@@ -225,7 +225,7 @@ abstract class AbstractTable
     protected function getColumnTypesFor(string ...$columnNames): array
     {
         return array_filter($this->getColumnTypes(), function (string $columnName) use ($columnNames) {
-            return in_array($columnName, $columnNames);
+            return in_array($columnName, $columnNames, true);
         }, \ARRAY_FILTER_USE_KEY);
     }
 

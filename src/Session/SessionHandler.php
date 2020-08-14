@@ -151,7 +151,7 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface, 
     {
         $stmt = $this->createReadQuery($sessionId, [self::SESSION_ID])->execute();
 
-        if($stmt instanceof \PDOStatement) {
+        if ($stmt instanceof \PDOStatement) {
             return $stmt->fetchColumn() === $sessionId;
         }
 

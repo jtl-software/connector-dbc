@@ -38,8 +38,7 @@ class QueryBuilder extends \Doctrine\DBAL\Query\QueryBuilder
         array $tableRestrictions = [],
         string $fromTable = null,
         string $fromAlias = null
-    )
-    {
+    ) {
         parent::__construct($connection);
         $this->tableRestrictions = $tableRestrictions;
         $this->fromTable = $fromTable;

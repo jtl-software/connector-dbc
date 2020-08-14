@@ -84,11 +84,11 @@ class DbManagerTest extends TestCase
         $callback = $dbm->createSchemaAssetsFilterCallback();
         $tables = $this->createTableStubs($dbm);
 
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $this->assertTrue($callback($table->getTableName()));
         }
 
-        for($i = 0; $i < count($tables); $i++) {
+        for ($i = 0; $i < count($tables); $i++) {
             $this->assertFalse($callback(uniqid('nxtbl-')));
         }
     }
@@ -100,11 +100,11 @@ class DbManagerTest extends TestCase
      */
     protected function createTableStubs(DbManager $dbManager, int $amount = null): array
     {
-        if(is_null($amount)) {
+        if (is_null($amount)) {
             $amount = mt_rand(1, 10);
         }
 
-        return array_map(function(DbManager $dbManager) {
+        return array_map(function (DbManager $dbManager) {
             return new class($dbManager) extends AbstractTable {
                 protected $tableName;
 

@@ -201,7 +201,8 @@ class TableTest extends TestCase
         $a = mt_rand();
         $b = 'foobar';
         $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
-        $newC = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));;
+        $newC = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        ;
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
         $this->table->update(['c' => $newC], ['a' => $a, 'b' => $b]);
         $rows = $this->table->find(['a' => $a, 'b' => $b]);
@@ -213,7 +214,8 @@ class TableTest extends TestCase
         $a = mt_rand();
         $b = 'foobar';
         $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
-        $newC = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));;
+        $newC = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        ;
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
         $this->table->update(['c' => $newC->format('Y-m-d H:i:s')], ['a' => $a, 'b' => $b], []);
         $rows = $this->table->find(['a' => $a, 'b' => $b]);

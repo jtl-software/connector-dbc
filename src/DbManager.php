@@ -129,7 +129,7 @@ class DbManager
                 return $table->getTableName();
             }, $this->getTables());
 
-            return in_array($tableName, $tableNames);
+            return in_array($tableName, $tableNames, true);
         };
     }
 
@@ -155,31 +155,31 @@ class DbManager
     /**
      * @param \PDO $pdo
      * @param Configuration|null $config
-     * @param string|null $tablePrefix
+     * @param string|null $tablesPrefix
      * @return DbManager
      * @throws DBALException
      */
-    public static function createFromPDO(\PDO $pdo, Configuration $config = null, string $tablePrefix = null): DbManager
+    public static function createFromPDO(\PDO $pdo, Configuration $config = null, string $tablesPrefix = null): DbManager
     {
         $params = [
             'pdo' => $pdo,
             'wrapperClass' => Connection::class
         ];
         $connection = DriverManager::getConnection($params, $config);
-        return new static($connection, $tablePrefix);
+        return new static($connection, $tablesPrefix);
     }
 
     /**
      * @param string[] $params
      * @param Configuration|null $config
-     * @param string|null $tablePrefix
+     * @param string|null $tablesPrefix
      * @return DbManager
      * @throws DBALException
      */
-    public static function createFromParams(array $params, Configuration $config = null, string $tablePrefix = null): DbManager
+    public static function createFromParams(array $params, Configuration $config = null, string $tablesPrefix = null): DbManager
     {
         $params['wrapperClass'] = Connection::class;
         $connection = DriverManager::getConnection($params, $config);
-        return new static($connection, $tablePrefix);
+        return new static($connection, $tablesPrefix);
     }
 }

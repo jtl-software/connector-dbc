@@ -93,7 +93,7 @@ abstract class TestCase extends JtlTestCase
      */
     protected function insertFixtures(AbstractTable $table, array $fixtures)
     {
-        foreach($fixtures as $fixture) {
+        foreach ($fixtures as $fixture) {
             $table->insert($fixture);
         }
     }
