@@ -6,11 +6,11 @@ use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Jtl\Connector\Dbc\DbTestCase;
+use Jtl\Connector\Dbc\TestCase;
 use Jtl\Connector\Dbc\DbManager;
 use PHPUnit\Framework\MockObject\MockObject;
 
-class SessionHandlerTest extends DbTestCase
+class SessionHandlerTest extends TestCase
 {
     protected $handler;
 

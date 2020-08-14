@@ -7,10 +7,10 @@ namespace Jtl\Connector\Dbc\Schema;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\SchemaException;
-use Jtl\Connector\Dbc\DbTestCase;
+use Jtl\Connector\Dbc\TestCase;
 use Jtl\Connector\Dbc\TableStub;
 
-class TableRestrictionTest extends DbTestCase
+class TableRestrictionTest extends TestCase
 {
     protected function setUp(): void
     {

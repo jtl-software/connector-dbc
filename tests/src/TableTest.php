@@ -8,11 +8,11 @@ namespace Jtl\Connector\Dbc\Mapping;
 
 use Doctrine\DBAL\Types\Types;
 use Jtl\Connector\Dbc\CoordinatesStub;
-use Jtl\Connector\Dbc\DbTestCase;
+use Jtl\Connector\Dbc\TestCase;
 use Jtl\Connector\Dbc\RuntimeException;
 use Jtl\Connector\Dbc\TableStub;
 
-class TableTest extends DbTestCase
+class TableTest extends TestCase
 {
     /**
      * @var CoordinatesStub

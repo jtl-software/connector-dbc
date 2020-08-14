@@ -6,8 +6,9 @@
 namespace Jtl\Connector\Dbc;
 
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
 
-class DbManagerTest extends DbTestCase
+class DbManagerTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -30,8 +31,8 @@ class DbManagerTest extends DbTestCase
     public function testTablesPrefix()
     {
         new CoordinatesStub($this->getDbManager());
-        $this->assertTrue($this->getDbManager()->hasTablePrefix());
-        $this->assertEquals(self::TABLE_PREFIX, $this->getDbManager()->getTablePrefix());
+        $this->assertTrue($this->getDbManager()->hasTablesPrefix());
+        $this->assertEquals(self::TABLE_PREFIX, $this->getDbManager()->getTablesPrefix());
         $tables = $this->getDbManager()->getTables();
         /** @var CoordinatesStub $coordinateTable */
         $coordinateTable = $tables[1];
@@ -40,20 +41,29 @@ class DbManagerTest extends DbTestCase
         $this->assertEquals(self::TABLE_PREFIX, substr($schemaTables[1]->getName(), 0, strlen(self::TABLE_PREFIX)));
     }
 
-    public function testHasSchemaUpdate()
+    public function testHasSchemaUpdates()
     {
+        $this->assertFalse($this->getDBManager()->hasSchemaUpdates());
         new CoordinatesStub($this->getDbManager());
         $tables = $this->getDbManager()->getSchemaTables();
         $this->assertCount(2, $tables);
-        $this->assertTrue($this->getDbManager()->hasSchemaUpdate());
+        $this->assertTrue($this->getDbManager()->hasSchemaUpdates());
+    }
+
+    public function testGetSchemaUpdates()
+    {
+        $dbManager = $this->getDBManager();
+        $this->assertCount(0, $dbManager->getSchemaUpdates());
+        new CoordinatesStub($this->getDbManager());
+        $this->assertCount(1, $dbManager->getSchemaUpdates());
     }
 
     public function testUpdateDatabaseSchema()
     {
         new CoordinatesStub($this->getDbManager());
-        $this->assertTrue($this->getDbManager()->hasSchemaUpdate());
+        $this->assertTrue($this->getDbManager()->hasSchemaUpdates());
         $this->getDbManager()->updateDatabaseSchema();
-        $this->assertFalse($this->getDbManager()->hasSchemaUpdate());
+        $this->assertFalse($this->getDbManager()->hasSchemaUpdates());
     }
 
     public function testCreateFromPDO()
@@ -66,5 +76,55 @@ class DbManagerTest extends DbTestCase
     {
         $dbm = DbManager::createFromParams(['url' => 'sqlite:///:memory:']);
         $this->assertInstanceOf(DbManager::class, $dbm);
+    }
+
+    public function testCreateSchemaAssetsFilterCallback()
+    {
+        $dbm = DbManager::createFromParams(['url' => 'sqlite:///:memory:']);
+        $callback = $dbm->createSchemaAssetsFilterCallback();
+        $tables = $this->createTableStubs($dbm);
+
+        foreach($tables as $table) {
+            $this->assertTrue($callback($table->getTableName()));
+        }
+
+        for($i = 0; $i < count($tables); $i++) {
+            $this->assertFalse($callback(uniqid('nxtbl-')));
+        }
+    }
+
+    /**
+     * @param DbManager $dbManager
+     * @param int|null $amount
+     * @return AbstractTable[]
+     */
+    protected function createTableStubs(DbManager $dbManager, int $amount = null): array
+    {
+        if(is_null($amount)) {
+            $amount = mt_rand(1, 10);
+        }
+
+        return array_map(function(DbManager $dbManager) {
+            return new class($dbManager) extends AbstractTable {
+                protected $tableName;
+
+                public function __construct(DbManager $dbManager)
+                {
+                    $this->tableName = uniqid('tbl-');
+                    parent::__construct($dbManager);
+                }
+
+                protected function getName(): string
+                {
+                    return $this->tableName;
+                }
+
+                protected function createTableSchema(Table $tableSchema): void
+                {
+                    $tableSchema->addColumn('id', Types::INTEGER);
+                    $tableSchema->setPrimaryKey(['id']);
+                }
+            };
+        }, array_fill(0, $amount, $dbManager));
     }
 }

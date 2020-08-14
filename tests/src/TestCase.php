@@ -7,9 +7,9 @@ namespace Jtl\Connector\Dbc;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Query\QueryBuilder;
-use PHPUnit\Framework\TestCase;
+use Jtl\UnitTest\TestCase as JtlTestCase;
 
-abstract class DbTestCase extends TestCase
+abstract class TestCase extends JtlTestCase
 {
     const TABLE_PREFIX = 'pre_';
     const SCHEMA = TESTROOT . '/tmp/db.sqlite';
@@ -32,7 +32,7 @@ abstract class DbTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        if ($this->getDBManager()->hasSchemaUpdate()) {
+        if ($this->getDBManager()->hasSchemaUpdates()) {
             $this->getDBManager()->updateDatabaseSchema();
         }
     }
@@ -96,21 +96,6 @@ abstract class DbTestCase extends TestCase
         foreach($fixtures as $fixture) {
             $table->insert($fixture);
         }
-    }
-
-    /**
-     * @param object $object
-     * @param string $methodName
-     * @param mixed ...$methodArgs
-     * @return mixed
-     * @throws \ReflectionException
-     */
-    protected function invokeMethodFromObject(object $object, string $methodName, ...$methodArgs)
-    {
-        $reflection = new \ReflectionClass($object);
-        $method = $reflection->getMethod($methodName);
-        $method->setAccessible(true);
-        return $method->invoke($object, ...$methodArgs);
     }
 
     /**

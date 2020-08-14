@@ -27,17 +27,17 @@ class DbManager
     /**
      * @var string|null
      */
-    protected $tablePrefix;
+    protected $tablesPrefix;
 
     /**
-     * DBManager constructor.
+     * DbManager constructor.
      * @param Connection $connection
-     * @param string $tablePrefix
+     * @param string|null $tablesPrefix
      */
-    public function __construct(Connection $connection, string $tablePrefix = null)
+    public function __construct(Connection $connection, string $tablesPrefix = null)
     {
         $this->connection = $connection;
-        $this->tablePrefix = $tablePrefix;
+        $this->tablesPrefix = $tablesPrefix;
     }
 
     /**
@@ -72,40 +72,32 @@ class DbManager
      * @return string[]
      * @throws DBALException
      */
-    public function getSchemaUpdate(): array
+    public function getSchemaUpdates(): array
     {
-        $tables = $this->getSchemaTables();
-        $schemaTableNames = array_map(function (Table $table) {
-            return $table->getName();
-        }, $tables);
+        $originalSchemaAssetsFilter = $this->connection->getConfiguration()->getSchemaAssetsFilter();
+        $this->connection->getConfiguration()->setSchemaAssetsFilter($this->createSchemaAssetsFilterCallback());
         $fromSchema = $this->connection->getSchemaManager()->createSchema();
-        foreach ($fromSchema->getTables() as $table) {
-            if (!in_array($table->getName(), $schemaTableNames, true)) {
-                $tables[] = clone $table;
-            }
-        }
-        $toSchema = new Schema($tables);
-        return $fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform());
+        $updateStatements = $fromSchema->getMigrateToSql(new Schema($this->getSchemaTables()), $this->connection->getDatabasePlatform());
+        $this->connection->getConfiguration()->setSchemaAssetsFilter($originalSchemaAssetsFilter);
+        return $updateStatements;
     }
 
     /**
      * @return boolean
      * @throws DBALException
      */
-    public function hasSchemaUpdate(): bool
+    public function hasSchemaUpdates(): bool
     {
-        return count($this->getSchemaUpdate()) > 0;
+        return count($this->getSchemaUpdates()) > 0;
     }
 
     /**
-     * @throws DBALException
      * @throws \Throwable
      */
     public function updateDatabaseSchema(): void
     {
-        $ddls = $this->getSchemaUpdate();
-        $this->connection->transactional(function ($connection) use ($ddls) {
-            foreach ($ddls as $ddl) {
+        $this->connection->transactional(function ($connection) {
+            foreach ($this->getSchemaUpdates() as $ddl) {
                 $connection->executeQuery($ddl);
             }
         });
@@ -114,17 +106,31 @@ class DbManager
     /**
      * @return boolean
      */
-    public function hasTablePrefix(): bool
+    public function hasTablesPrefix(): bool
     {
-        return is_string($this->tablePrefix) && strlen($this->tablePrefix) > 0;
+        return is_string($this->tablesPrefix) && strlen($this->tablesPrefix) > 0;
     }
 
     /**
      * @return string
      */
-    public function getTablePrefix(): ?string
+    public function getTablesPrefix(): ?string
     {
-        return $this->tablePrefix;
+        return $this->tablesPrefix;
+    }
+
+    /**
+     * @return callable
+     */
+    public function createSchemaAssetsFilterCallback(): callable
+    {
+        return function (string $tableName) {
+            $tableNames = array_map(function (AbstractTable $table) {
+                return $table->getTableName();
+            }, $this->getTables());
+
+            return in_array($tableName, $tableNames);
+        };
     }
 
     /**
@@ -137,6 +143,7 @@ class DbManager
 
     /**
      * @return Table[]
+     * @throws DBALException
      */
     protected function getSchemaTables(): array
     {
