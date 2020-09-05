@@ -9,7 +9,7 @@ use Doctrine\DBAL\DriverManager;
 use Jtl\Connector\Dbc\Query\QueryBuilder;
 use Jtl\Connector\Dbc\Schema\TableRestriction;
 
-class ConnectionTest extends AbstractDbTestCase
+class ConnectionTest extends TestCase
 {
     /**
      * @var Connection
@@ -18,7 +18,9 @@ class ConnectionTest extends AbstractDbTestCase
 
     protected function setUp(): void
     {
+        $this->table = new TableStub($this->getDBManager());
         parent::setUp();
+        $this->insertFixtures($this->table, self::getTableStubFixtures());
         $params = [
             'pdo' => $this->getPDO(),
             'wrapperClass' => Connection::class
@@ -30,7 +32,7 @@ class ConnectionTest extends AbstractDbTestCase
 
     public function testInsertWithTableRestriction()
     {
-        $this->assertTableRowCount($this->table->getTableName(), 2);
+        $this->assertEquals(2, $this->countRows($this->table->getTableName()));
         $this->connection->restrictTable(new TableRestriction($this->table->getTableSchema(), TableStub::B, 'b string'));
         $data = [
           TableStub::A => 25,
@@ -38,7 +40,7 @@ class ConnectionTest extends AbstractDbTestCase
           TableStub::C => '2015-03-25 13:12:25',
         ];
         $this->assertEquals(1, $this->connection->insert($this->table->getTableName(), $data));
-        $this->assertTableRowCount($this->table->getTableName(), 3);
+        $this->assertEquals(3, $this->countRows($this->table->getTableName()));
         $qb = $this->connection->createQueryBuilder();
         $stmt = $qb
             ->select($this->table->getColumnNames())
@@ -55,7 +57,7 @@ class ConnectionTest extends AbstractDbTestCase
 
     public function testUpdateWithTableRestriction()
     {
-        $this->assertTableRowCount($this->table->getTableName(), 2);
+        $this->assertEquals(2, $this->countRows($this->table->getTableName()));
         $this->connection->restrictTable(new TableRestriction($this->table->getTableSchema(), TableStub::B, 'b string'));
         $data = [
             TableStub::A => 25,
@@ -81,10 +83,10 @@ class ConnectionTest extends AbstractDbTestCase
 
     public function testDeleteWithTableRestriction()
     {
-        $this->assertTableRowCount($this->table->getTableName(), 2);
+        $this->assertEquals(2, $this->countRows($this->table->getTableName()));
         $this->connection->restrictTable(new TableRestriction($this->table->getTableSchema(), TableStub::B, 'b string'));
         $this->connection->delete($this->table->getTableName(), [TableStub::B => 'something else']);
-        $this->assertTableRowCount($this->table->getTableName(), 1);
+        $this->assertEquals(1, $this->countRows($this->table->getTableName()));
         $qb = $this->connection->createQueryBuilder();
         $stmt = $qb
             ->select($this->table->getColumnNames())
@@ -97,10 +99,10 @@ class ConnectionTest extends AbstractDbTestCase
 
     public function testDeleteWithTableRestrictionAndAdditionalIdentifier()
     {
-        $this->assertTableRowCount($this->table->getTableName(), 2);
+        $this->assertEquals(2, $this->countRows($this->table->getTableName()));
         $this->connection->restrictTable(new TableRestriction($this->table->getTableSchema(), TableStub::B, 'b string'));
         $this->connection->delete($this->table->getTableName(), [TableStub::A => 99]);
-        $this->assertTableRowCount($this->table->getTableName(), 2);
+        $this->assertEquals(2, $this->countRows($this->table->getTableName()));
     }
 
     public function testHasTableRestriction()
@@ -152,7 +154,7 @@ class ConnectionTest extends AbstractDbTestCase
             TableStub::C => '2019-01-21 15:25:02',
         ];
         $this->assertEquals(1, $this->connection->insert($this->table->getTableName(), $data));
-        $this->assertTableRowCount($this->table->getTableName(), 3);
+        $this->assertEquals(3, $this->countRows($this->table->getTableName()));
     }
 
     public function testMultiInsert()
@@ -171,14 +173,16 @@ class ConnectionTest extends AbstractDbTestCase
         ];
 
         $this->assertEquals(2, $this->connection->multiInsert($this->table->getTableName(), $data));
-        $this->assertTableRowCount($this->table->getTableName(), 4);
+        $this->assertEquals(4, $this->countRows($this->table->getTableName()));
     }
 
     /**
-     * @expectedException \Exception
+     * @throws \Exception
      */
     public function testMultiInsertThrowsException()
     {
+        $this->expectException(\Exception::class);
+
         $data = [];
         $data[] = [
             TableStub::A => 25,
@@ -231,6 +235,6 @@ class ConnectionTest extends AbstractDbTestCase
 
         $result = $stmt->fetchAll();
         $this->assertCount(0, $result);
-        $this->assertTableRowCount($this->table->getTableName(), 1);
+        $this->assertEquals(1, $this->countRows($this->table->getTableName()));
     }
 }

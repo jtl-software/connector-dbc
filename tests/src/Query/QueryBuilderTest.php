@@ -7,10 +7,10 @@
 namespace Jtl\Connector\Dbc\Query;
 
 use Jtl\Connector\Dbc\CoordinatesStub;
-use Jtl\Connector\Dbc\AbstractDbTestCase;
+use Jtl\Connector\Dbc\TestCase;
 use Jtl\Connector\Dbc\Schema\TableRestriction;
 
-class QueryBuilderTestAbstract extends AbstractDbTestCase
+class QueryBuilderTest extends TestCase
 {
     /**
      * @var QueryBuilder
@@ -34,10 +34,10 @@ class QueryBuilderTestAbstract extends AbstractDbTestCase
 
     protected function setUp(): void
     {
-        $this->getYamlDataSet()->addYamlFile(TESTROOT . '/files/coordinates_stub.yaml');
         $this->coordsTable = new CoordinatesStub($this->getDBManager());
         $this->qb = new QueryBuilder($this->getDBManager()->getConnection(), [$this->tableExpression => $this->globalIdentifiers]);
         parent::setUp();
+        $this->insertFixtures($this->coordsTable, self::getCoordinatesFixtures());
     }
 
     public function testTableRestrictionWithSelect()
@@ -107,8 +107,7 @@ class QueryBuilderTestAbstract extends AbstractDbTestCase
     public function testTableRestriction()
     {
         $this->getDBManager()->getConnection()->restrictTable(new TableRestriction($this->coordsTable->getTableSchema(), CoordinatesStub::COL_X, 1.));
-        //$this->getDBManager()->getConnection()->setGlobalIdentifier('x', 1.);
-        $this->assertTableRowCount($this->coordsTable->getTableName(), 4);
+        $this->assertEquals(4, $this->countRows($this->coordsTable->getTableName()));
         $datasets = $this->coordsTable->findAll();
         $this->assertEquals(3, $datasets[0]['z']);
         $this->assertEquals(5., $datasets[1]['z']);
@@ -122,6 +121,89 @@ class QueryBuilderTestAbstract extends AbstractDbTestCase
         $datasets = $this->coordsTable->findAll();
         $this->assertEquals(10.5, $datasets[0]['z']);
         $this->assertEquals(10.5, $datasets[1]['z']);
+    }
+
+    public function testSelectWithLockedFromTableAndCalledFromMethod()
+    {
+        $fromTable = 'tableau';
+        $connection = $this->getDBManager()->getConnection();
+        $qb = new QueryBuilder($connection, [], $fromTable);
+        $actualSql = $qb->select('a', 'b', 'c')->from('somewhere')->getSQL();
+        $expectedSql = 'SELECT a, b, c FROM tableau';
+        $this->assertEquals($expectedSql, $actualSql);
+    }
+
+    public function testSelectWithLockedFromTableAndFromAliasAndNotCalledFromMethod()
+    {
+        $fromTable = 'tableau';
+        $fromAlias = 't';
+        $connection = $this->getDBManager()->getConnection();
+        $qb = new QueryBuilder($connection, [], $fromTable, $fromAlias);
+        $actualSql = $qb->select('a', 't.b', 't.c')->getSQL();
+        $expectedSql = 'SELECT a, t.b, t.c FROM tableau t';
+        $this->assertEquals($expectedSql, $actualSql);
+    }
+
+    public function testInsertWithLockedFromTableAndTableNameInInsert()
+    {
+        $fromTable = 'tableau';
+        $connection = $this->getDBManager()->getConnection();
+        $qb = new QueryBuilder($connection, [], $fromTable);
+        $actualSql = $qb->insert('something')->setValue('foo', ':bar')->getSQL();
+        $expectedSql = 'INSERT INTO tableau (foo) VALUES(:bar)';
+        $this->assertEquals($expectedSql, $actualSql);
+    }
+
+    public function testInsertWithLockedFromTableAndNotTableNameInInsert()
+    {
+        $fromTable = 'tableau';
+        $connection = $this->getDBManager()->getConnection();
+        $qb = new QueryBuilder($connection, [], $fromTable);
+        $actualSql = $qb->insert()->getSQL();
+        $expectedSql = 'INSERT INTO tableau () VALUES()';
+        $this->assertEquals($expectedSql, $actualSql);
+    }
+
+    public function testUpdateWithLockedFromTableAndFromAliasAndTableNameInUpdate()
+    {
+        $fromTable = 'tableau';
+        $fromAlias = 't';
+        $connection = $this->getDBManager()->getConnection();
+        $qb = new QueryBuilder($connection, [], $fromTable, $fromAlias);
+        $actualSql = $qb->update('foobar')->getSQL();
+        $expectedSql = 'UPDATE tableau t SET ';
+        $this->assertEquals($expectedSql, $actualSql);
+    }
+
+    public function testUpdateWithLockedFromTableAndNotTableNameInUpdate()
+    {
+        $fromTable = 'tableau';
+        $connection = $this->getDBManager()->getConnection();
+        $qb = new QueryBuilder($connection, [], $fromTable);
+        $actualSql = $qb->update()->getSQL();
+        $expectedSql = 'UPDATE tableau SET ';
+        $this->assertEquals($expectedSql, $actualSql);
+    }
+
+    public function testDeleteWithLockedFromTableAndTableNameInDelete()
+    {
+        $fromTable = 'tableau';
+        $connection = $this->getDBManager()->getConnection();
+        $qb = new QueryBuilder($connection, [], $fromTable);
+        $actualSql = $qb->delete('foobar')->getSQL();
+        $expectedSql = 'DELETE FROM tableau';
+        $this->assertEquals($expectedSql, $actualSql);
+    }
+
+    public function testDeleteWithLockedFromTableAndFromAliasAndTableNameNotInDelete()
+    {
+        $fromTable = 'tableau';
+        $fromAlias = 't';
+        $connection = $this->getDBManager()->getConnection();
+        $qb = new QueryBuilder($connection, [], $fromTable, $fromAlias);
+        $actualSql = $qb->delete()->getSQL();
+        $expectedSql = 'DELETE FROM tableau t';
+        $this->assertEquals($expectedSql, $actualSql);
     }
 
     public function myTrim($str)

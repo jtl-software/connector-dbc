@@ -8,7 +8,7 @@ namespace Jtl\Connector\Dbc;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Types;
+use Doctrine\DBAL\Types\Type;
 
 class TableStub extends AbstractTable
 {
@@ -43,26 +43,30 @@ class TableStub extends AbstractTable
      */
     protected function createTableSchema(Table $tableSchema): void
     {
-        $tableSchema->addColumn(self::ID, Types::INTEGER, ['autoincrement' => true]);
-        $tableSchema->addColumn(self::A, Types::INTEGER, ['notnull' => false]);
-        $tableSchema->addColumn(self::B, Types::STRING, ['length' => 64]);
-        $tableSchema->addColumn(self::C, Types::DATETIME_IMMUTABLE);
+        $tableSchema->addColumn(self::ID, Type::INTEGER, ['autoincrement' => true]);
+        $tableSchema->addColumn(self::A, Type::INTEGER, ['notnull' => false]);
+        $tableSchema->addColumn(self::B, Type::STRING, ['length' => 64]);
+        $tableSchema->addColumn(self::C, Type::DATETIME_IMMUTABLE);
         $tableSchema->setPrimaryKey([self::ID]);
     }
 
     /**
      * @param int $fetchType
-     * @param array $columns
-     * @return array|mixed[]
+     * @param array|null $columns
+     * @return mixed[]
      * @throws DBALException
      */
-    public function findAll($fetchType = \PDO::FETCH_ASSOC, array $columns = [])
+    public function findAll($fetchType = \PDO::FETCH_ASSOC, array $columns = null)
     {
-        $stmt = $this->createQueryBuilder()->select(array_keys($this->getColumnTypes()))
+        if (is_null($columns)) {
+            $columns = $this->getColumnNames();
+        }
+
+        $stmt = $this->createQueryBuilder()->select($columns)
                                            ->from($this->getTableName())
                                            ->execute();
 
-        return $this->mapRows($stmt->fetchAll($fetchType), $columns);
+        return $this->convertAllToPhpValues($stmt->fetchAll($fetchType));
     }
 
     /**
@@ -72,18 +76,22 @@ class TableStub extends AbstractTable
      * @return array|mixed[]
      * @throws DBALException
      */
-    public function find(array $identifier, $fetchType = \PDO::FETCH_ASSOC, array $columns = [])
+    public function find(array $identifier, $fetchType = \PDO::FETCH_ASSOC, array $columns = null)
     {
-        $qb = $this->createQueryBuilder()->select(array_keys($this->getColumnTypes()))
+        if (is_null($columns)) {
+            $columns = $this->getColumnNames();
+        }
+
+        $qb = $this->createQueryBuilder()->select($columns)
             ->from($this->getTableName());
 
-        foreach($identifier as $column => $value) {
+        foreach ($identifier as $column => $value) {
             $qb->andWhere(sprintf('%s = :%s', $column, $column))
                ->setParameter($column, $value);
         }
 
         $stmt = $qb->execute();
 
-        return $this->mapRows($stmt->fetchAll($fetchType), $columns);
+        return $this->convertAllToPhpValues($stmt->fetchAll($fetchType));
     }
 }
