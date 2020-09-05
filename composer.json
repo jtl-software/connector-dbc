@@ -10,7 +10,8 @@
     }
   ],
   "require": {
-    "doctrine/dbal": "^2.5"
+    "doctrine/dbal": "^2.5",
+    "phpunit/phpunit": "^7.5"
   },
   "autoload": {
     "psr-4": {
@@ -24,7 +25,6 @@
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.16",
-    "phpunit/phpunit": "^9.1",
-    "jtl/unit-test": "^0.1.0"
+    "jtl/unit-test": "^0.1"
   }
 }

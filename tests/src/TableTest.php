@@ -6,7 +6,7 @@
 
 namespace Jtl\Connector\Dbc\Mapping;
 
-use Doctrine\DBAL\Types\Types;
+use Doctrine\DBAL\Types\Type;
 use Jtl\Connector\Dbc\CoordinatesStub;
 use Jtl\Connector\Dbc\TestCase;
 use Jtl\Connector\Dbc\RuntimeException;
@@ -69,9 +69,9 @@ class TableTest extends TestCase
         $this->assertArrayHasKey(CoordinatesStub::COL_X, $columns);
         $this->assertArrayHasKey(CoordinatesStub::COL_Y, $columns);
         $this->assertArrayHasKey(CoordinatesStub::COL_Z, $columns);
-        $this->assertEquals(Types::FLOAT, $columns[CoordinatesStub::COL_X]);
-        $this->assertEquals(Types::FLOAT, $columns[CoordinatesStub::COL_Y]);
-        $this->assertEquals(Types::FLOAT, $columns[CoordinatesStub::COL_Y]);
+        $this->assertEquals(Type::FLOAT, $columns[CoordinatesStub::COL_X]);
+        $this->assertEquals(Type::FLOAT, $columns[CoordinatesStub::COL_Y]);
+        $this->assertEquals(Type::FLOAT, $columns[CoordinatesStub::COL_Y]);
     }
 
     public function testGetColumnNames()

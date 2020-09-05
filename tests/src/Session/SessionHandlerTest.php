@@ -5,7 +5,6 @@ namespace Jtl\Connector\Dbc\Session;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Types\Types;
 use Jtl\Connector\Dbc\TestCase;
 use Jtl\Connector\Dbc\DbManager;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -110,7 +109,7 @@ class SessionHandlerTest extends TestCase
         /** @var SessionHandler|MockObject $handler */
         $handler = $this->getMockBuilder(SessionHandler::class)
             ->setConstructorArgs([$this->getDBManager()])
-            ->onlyMethods(['insert', 'update'])
+            ->setMethods(['insert', 'update'])
             ->getMock();
 
         $handler
@@ -253,7 +252,7 @@ class SessionHandlerTest extends TestCase
             ->execute();
 
         /** @var \DateTimeImmutable $expiresAt */
-        $expiresAt = Type::getType(Types::DATETIME_IMMUTABLE)
+        $expiresAt = Type::getType(Type::DATETIME_IMMUTABLE)
             ->convertToPHPValue($stmt->fetchColumn(), $this->getDBManager()->getConnection()->getDatabasePlatform());
 
         $this->assertEquals($expectedExpiresAtTimestamp, $expiresAt->getTimestamp());

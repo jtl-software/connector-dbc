@@ -121,7 +121,7 @@ class DbManagerTest extends TestCase
 
                 protected function createTableSchema(Table $tableSchema): void
                 {
-                    $tableSchema->addColumn('id', Types::INTEGER);
+                    $tableSchema->addColumn('id', Type::INTEGER);
                     $tableSchema->setPrimaryKey(['id']);
                 }
             };

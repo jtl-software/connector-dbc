@@ -6,7 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Types;
+use Doctrine\DBAL\Types\Type;
 use Jtl\Connector\Dbc\AbstractTable;
 use Jtl\Connector\Dbc\DbManager;
 use Jtl\Connector\Dbc\Query\QueryBuilder;
@@ -54,9 +54,9 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface, 
      */
     protected function createTableSchema(Table $tableSchema): void
     {
-        $tableSchema->addColumn(self::SESSION_ID, Types::STRING, ['length' => 128]);
-        $tableSchema->addColumn(self::SESSION_DATA, Types::BLOB);
-        $tableSchema->addColumn(self::EXPIRES_AT, Types::DATETIME_IMMUTABLE);
+        $tableSchema->addColumn(self::SESSION_ID, Type::STRING, ['length' => 128]);
+        $tableSchema->addColumn(self::SESSION_DATA, Type::BLOB);
+        $tableSchema->addColumn(self::EXPIRES_AT, Type::DATETIME_IMMUTABLE);
         $tableSchema->setPrimaryKey([self::SESSION_ID]);
     }
 
@@ -89,7 +89,7 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface, 
         $this->createQueryBuilder()
             ->delete()
             ->andWhere($this->getConnection()->getExpressionBuilder()->lte(self::EXPIRES_AT, ':now'))
-            ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', new \DateTimeImmutable(), Type::DATETIME_IMMUTABLE)
             ->execute();
 
         return true;
@@ -186,7 +186,7 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface, 
             ->where($this->getConnection()->getExpressionBuilder()->eq(self::SESSION_ID, ':sessionId'))
             ->setParameter('sessionId', $sessionId)
             ->andWhere($this->getConnection()->getExpressionBuilder()->gt(self::EXPIRES_AT, ':now'))
-            ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE);
+            ->setParameter('now', new \DateTimeImmutable(), Type::DATETIME_IMMUTABLE);
     }
 
     /**
