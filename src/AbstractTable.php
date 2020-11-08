@@ -113,7 +113,9 @@ abstract class AbstractTable
     {
         if (is_null($this->tableSchema)) {
             $this->tableSchema = new Table($this->getTableName());
+            $this->preCreateTableSchema($this->tableSchema);
             $this->createTableSchema($this->tableSchema);
+            $this->postCreateTableSchema($this->tableSchema);
             if (count($this->tableSchema->getColumns()) === 0) {
                 throw RuntimeException::tableEmpty($this->tableSchema->getName());
             }
@@ -154,6 +156,22 @@ abstract class AbstractTable
     public function getColumnNames(): array
     {
         return array_keys($this->getColumnTypes());
+    }
+
+    /**
+     * @param Table $tableSchema
+     */
+    public function preCreateTableSchema(Table $tableSchema): void
+    {
+
+    }
+
+    /**
+     * @param Table $tableSchema
+     */
+    public function postCreateTableSchema(Table $tableSchema): void
+    {
+
     }
 
     /**
