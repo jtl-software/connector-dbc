@@ -35,13 +35,12 @@ class UpdateDatabaseSchemaCommand extends AbstractDbManagerCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $force = $input->getOption(self::OPTION_FORCE) !== false;
-        $dbManager = DbManager::createFromParams($this->dbParams);
-        if ($dbManager->hasSchemaUpdates()) {
+        if ($this->dbManager->hasSchemaUpdates()) {
             if ($force) {
-                $dbManager->updateDatabaseSchema();
+                $this->dbManager->updateDatabaseSchema();
                 $output->writeln('Schema updated.');
             } else {
-                foreach ($dbManager->getSchemaUpdates() as $statement) {
+                foreach ($this->dbManager->getSchemaUpdates() as $statement) {
                     $output->writeln(sprintf('%s;', $statement));
                 }
             }

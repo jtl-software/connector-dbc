@@ -9,26 +9,35 @@ $autoloadFiles = [
     dirname(dirname(dirname(__DIR__))) . '/autoload.php',
 ];
 
-$found = false;
+$autoloaderFound = false;
 foreach ($autoloadFiles as $autoloadFile) {
     if (is_file($autoloadFile)) {
         require_once $autoloadFile;
-        $found = true;
+        $autoloaderFound = true;
         break;
     }
 }
 
-if (!$found) {
+if (!$autoloaderFound) {
     throw new \Exception('Composer autoload.php not found. Did you run "composer install"?');
 }
 
-$dbParamsFile = dirname(__DIR__) . '/db-config.php';
+$dbParamsFiles = [
+    dirname(__DIR__) . '/db-config.php',
+    dirname(dirname(dirname(dirname(__DIR__)))) . '/db-config.php',
+];
 
-if (!file_exists($dbParamsFile)) {
-    throw new \Exception('db-config.php file not found');
+$dbParams = null;
+foreach ($dbParamsFiles as $dbParamsFile) {
+    if (file_exists($dbParamsFile)) {
+        $dbParams = require_once $dbParamsFile;
+        break;
+    }
 }
 
-$dbParams = require_once $dbParamsFile;
+if (is_null($dbParams)) {
+    throw new \Exception('db-config.php file not found');
+}
 
 if (is_array($dbParams)) {
     $dbManager = DbManager::createFromParams($dbParams);
@@ -38,17 +47,22 @@ if (is_array($dbParams)) {
     throw new \Exception('Database params do not have a valid format');
 }
 
-$dbTablesFile = dirname(__DIR__) . '/db-tables.php';
+$dbTablesFiles = [
+    dirname(__DIR__) . '/db-tables.php',
+    dirname(dirname(dirname(dirname(__DIR__)))) . '/db-tables.php',
+];
 
-if (file_exists($dbTablesFile)) {
-    $callable = require_once $dbTablesFile;
-    if (!is_callable($callable)) {
-        throw new \Exception('db-tables.php did not return a callable function');
+foreach ($dbTablesFiles as $dbTablesFile) {
+    if (file_exists($dbTablesFile)) {
+        $callable = require_once $dbTablesFile;
+        if (!is_callable($callable)) {
+            throw new \Exception(sprintf('%s did not return a callable function', $dbTablesFile));
+        }
+
+        $callable($dbManager);
     }
-    $callable($dbManager);
 }
 
 $cli = new Application('JTL Database Connectivity Console');
 $cli->add(new UpdateDatabaseSchemaCommand($dbManager));
-
 $cli->run();
