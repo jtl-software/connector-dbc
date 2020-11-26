@@ -10,7 +10,9 @@
     }
   ],
   "require": {
-    "doctrine/dbal": "^2.5"
+    "doctrine/dbal": "^2.5",
+    "symfony/event-dispatcher": "^4.3|^5.1",
+    "symfony/console": "^4.3|^5.1"
   },
   "autoload": {
     "psr-4": {
@@ -26,5 +28,6 @@
     "friendsofphp/php-cs-fixer": "^2.16",
     "jtl/unit-test": "^0.1",
     "phpunit/phpunit": "^7.5"
-  }
+  },
+  "bin": ["bin/jtl-dbc"]
 }

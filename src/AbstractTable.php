@@ -48,7 +48,6 @@ abstract class AbstractTable
         $dbManager->registerTable($this);
     }
 
-
     /**
      * @param mixed[] $data
      * @param string[]|null $types
@@ -135,8 +134,7 @@ abstract class AbstractTable
     }
 
     /**
-     * @return string[]
-     * @throws RuntimeException
+     * @return array
      * @throws DBALException
      */
     public function getColumnTypes(): array
@@ -161,7 +159,7 @@ abstract class AbstractTable
     /**
      * @param Table $tableSchema
      */
-    public function preCreateTableSchema(Table $tableSchema): void
+    protected function preCreateTableSchema(Table $tableSchema): void
     {
 
     }
@@ -169,7 +167,7 @@ abstract class AbstractTable
     /**
      * @param Table $tableSchema
      */
-    public function postCreateTableSchema(Table $tableSchema): void
+    protected function postCreateTableSchema(Table $tableSchema): void
     {
 
     }
@@ -177,6 +175,7 @@ abstract class AbstractTable
     /**
      * @param mixed[] $rows
      * @return mixed[]
+     * @throws DBALException
      */
     protected function convertAllToPhpValues(array $rows): array
     {
@@ -208,7 +207,7 @@ abstract class AbstractTable
         foreach ($row as $index => $value) {
             $result[$index] = $value;
             if (isset($types[$index]) && Type::hasType($types[$index]) && $types[$index] !== Type::BINARY) {
-                $result[$index] = Type::getType($types[$index])->convertToPHPValue($value, $this->dbManager->getConnection()->getDatabasePlatform());
+                $result[$index] = Type::getType($types[$index])->convertToPHPValue($value, $this->getConnection()->getDatabasePlatform());
 
                 //Dirty BIGINT to int cast
                 if ($types[$index] === Type::BIGINT) {

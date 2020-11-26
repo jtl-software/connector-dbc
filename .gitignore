@@ -3,3 +3,5 @@
 /tests/tmp/*
 composer.lock
 .phpunit.result.cache
+db-config.php
+db-tables.php
