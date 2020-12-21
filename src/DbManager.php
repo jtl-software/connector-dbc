@@ -134,6 +134,18 @@ class DbManager
     }
 
     /**
+     * @param string $shortName
+     * @return string
+     */
+    public function createTableName(string $shortName): string
+    {
+        if ($shortName === '') {
+            throw RuntimeException::tableNameEmpty();
+        }
+        return sprintf('%s%s', (string)$this->tablesPrefix, $shortName);
+    }
+
+    /**
      * @return AbstractTable[]
      */
     protected function getTables(): array
@@ -153,6 +165,8 @@ class DbManager
     }
 
     /**
+     * @deprecated Is getting removed in a future release. Use static::createFromParams() instead.
+     *
      * @param \PDO $pdo
      * @param Configuration|null $config
      * @param string|null $tablesPrefix

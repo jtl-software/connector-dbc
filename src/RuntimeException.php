@@ -14,7 +14,8 @@ class RuntimeException extends \RuntimeException
         COLUMN_NOT_FOUND = 30,
         CLASS_NOT_FOUND = 40,
         CLASS_NOT_A_TABLE = 50,
-        INDICES_MISSING = 60;
+        INDICES_MISSING = 60,
+        TABLE_NAME_EMPTY = 70;
 
     /**
      * @param string $tableName
@@ -67,5 +68,13 @@ class RuntimeException extends \RuntimeException
     public static function numericIndicesMissing(): self
     {
         return new static('Converting a row with a subset of columns is only possible with associative indices', self::INDICES_MISSING);
+    }
+
+    /**
+     * @return static
+     */
+    public static function tableNameEmpty(): self
+    {
+        return new static('Table name cannot be an empty string', self::TABLE_NAME_EMPTY);
     }
 }

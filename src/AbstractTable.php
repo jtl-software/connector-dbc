@@ -65,34 +65,34 @@ abstract class AbstractTable
 
     /**
      * @param array $data
-     * @param array $identifier
+     * @param array $identifiers
      * @param array|null $types
      * @return integer
      * @throws DBALException
      */
-    public function update(array $data, array $identifier, array $types = null): int
+    public function update(array $data, array $identifiers, array $types = null): int
     {
         if (is_null($types)) {
-            $types = $this->getColumnTypesFor(...array_unique(array_merge(array_keys($data), array_keys($identifier))));
+            $types = $this->getColumnTypesFor(...array_unique(array_merge(array_keys($data), array_keys($identifiers))));
         }
 
-        return $this->getConnection()->update($this->getTableName(), $data, $identifier, $types);
+        return $this->getConnection()->update($this->getTableName(), $data, $identifiers, $types);
     }
 
     /**
-     * @param mixed[] $identifier
+     * @param mixed[] $identifiers
      * @param string[]|null $types
      * @return int
      * @throws DBALException
      * @throws InvalidArgumentException
      */
-    public function delete(array $identifier, array $types = null): int
+    public function delete(array $identifiers, array $types = null): int
     {
         if (is_null($types)) {
-            $types = $this->getColumnTypesFor(...array_keys($identifier));
+            $types = $this->getColumnTypesFor(...array_keys($identifiers));
         }
 
-        return $this->getConnection()->delete($this->getTableName(), $identifier, $types);
+        return $this->getConnection()->delete($this->getTableName(), $identifiers, $types);
     }
 
     /**
@@ -127,10 +127,7 @@ abstract class AbstractTable
      */
     public function getTableName(): string
     {
-        if ($this->getDbManager()->hasTablesPrefix()) {
-            return $this->getDbManager()->getTablesPrefix() . $this->getName();
-        }
-        return $this->getName();
+        return $this->dbManager->createTableName($this->getName());
     }
 
     /**
@@ -161,7 +158,6 @@ abstract class AbstractTable
      */
     protected function preCreateTableSchema(Table $tableSchema): void
     {
-
     }
 
     /**
@@ -169,7 +165,6 @@ abstract class AbstractTable
      */
     protected function postCreateTableSchema(Table $tableSchema): void
     {
-
     }
 
     /**

@@ -5,6 +5,7 @@
  */
 namespace Jtl\Connector\Dbc;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 
@@ -91,6 +92,40 @@ class DbManagerTest extends TestCase
         for ($i = 0; $i < count($tables); $i++) {
             $this->assertFalse($callback(uniqid('nxtbl-')));
         }
+    }
+
+    /**
+     * @dataProvider tableNameProvider
+     *
+     * @param string $shortName
+     * @param string|null $tablesPrefix
+     * @param string $expectedTableName
+     * @throws DBALException
+     */
+    public function testCreateTableName(string $shortName, ?string $tablesPrefix, string $expectedTableName)
+    {
+        $dbm = DbManager::createFromParams(['url' => 'sqlite:///:memory:'], null, $tablesPrefix);
+        $actualTableName = $dbm->createTableName($shortName);
+        $this->assertEquals($expectedTableName, $actualTableName);
+    }
+
+    public function testCreateTableNameEmptyString()
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionCode(RuntimeException::TABLE_NAME_EMPTY);
+        $dbm = DbManager::createFromParams(['url' => 'sqlite:///:memory:'], null, 'foo');
+        $dbm->createTableName('');
+    }
+
+    /**
+     * @return array
+     */
+    public function tableNameProvider(): array
+    {
+        return [
+            ['foo', null, 'foo'],
+            ['post', 'pre', 'prepost'],
+        ];
     }
 
     /**

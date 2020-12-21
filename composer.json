@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "doctrine/dbal": "^2.5",
+    "doctrine/dbal": "^2.6",
     "symfony/event-dispatcher": "^4.3|^5.1",
     "symfony/console": "^4.3|^5.1"
   },

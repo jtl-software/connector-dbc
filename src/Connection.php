@@ -99,31 +99,31 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * @param string $tableExpression
      * @param mixed[] $data
-     * @param mixed[] $identifier
+     * @param mixed[] $identifiers
      * @param string[] $types
      * @return integer
      * @throws DBALException
      */
-    public function update($tableExpression, array $data, array $identifier, array $types = []): int
+    public function update($tableExpression, array $data, array $identifiers, array $types = []): int
     {
         $restrictions = $this->getTableRestrictions($tableExpression);
         $data = array_merge($data, $restrictions);
-        $identifier = array_merge($identifier, $restrictions);
-        return parent::update($tableExpression, $data, $identifier, $types);
+        $identifiers = array_merge($identifiers, $restrictions);
+        return parent::update($tableExpression, $data, $identifiers, $types);
     }
 
     /**
      * @param string $tableExpression
-     * @param mixed[] $identifier
+     * @param mixed[] $identifiers
      * @param string[] $types
      * @return int
      * @throws DBALException
      * @throws InvalidArgumentException
      */
-    public function delete($tableExpression, array $identifier, array $types = []): int
+    public function delete($tableExpression, array $identifiers, array $types = []): int
     {
         $restrictions = $this->getTableRestrictions($tableExpression);
-        $identifier = array_merge($identifier, $restrictions);
-        return parent::delete($tableExpression, $identifier, $types);
+        $identifiers = array_merge($identifiers, $restrictions);
+        return parent::delete($tableExpression, $identifiers, $types);
     }
 }

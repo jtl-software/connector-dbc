@@ -43,7 +43,7 @@ abstract class TestCase extends JtlTestCase
     protected function getPDO()
     {
         if (!$this->pdo instanceof \PDO) {
-            if(!is_dir(dirname(self::SCHEMA))) {
+            if (!is_dir(dirname(self::SCHEMA))) {
                 mkdir(dirname(self::SCHEMA));
             }
 
