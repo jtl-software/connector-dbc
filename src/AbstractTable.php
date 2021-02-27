@@ -7,6 +7,7 @@
 namespace Jtl\Connector\Dbc;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
@@ -111,7 +112,7 @@ abstract class AbstractTable
     public function getTableSchema(): Table
     {
         if (is_null($this->tableSchema)) {
-            $this->tableSchema = new Table($this->getTableName());
+            $this->tableSchema = $this->createSchemaTable();
             $this->preCreateTableSchema($this->tableSchema);
             $this->createTableSchema($this->tableSchema);
             $this->postCreateTableSchema($this->tableSchema);
@@ -154,16 +155,25 @@ abstract class AbstractTable
     }
 
     /**
-     * @param Table $tableSchema
+     * @return Table
+     * @throws Exception
      */
-    protected function preCreateTableSchema(Table $tableSchema): void
+    protected function createSchemaTable(): Table
+    {
+        return new Table($this->getTableName());
+    }
+
+    /**
+     * @param Table $schemaTable
+     */
+    protected function preCreateTableSchema(Table $schemaTable): void
     {
     }
 
     /**
-     * @param Table $tableSchema
+     * @param Table $schemaTable
      */
-    protected function postCreateTableSchema(Table $tableSchema): void
+    protected function postCreateTableSchema(Table $schemaTable): void
     {
     }
 
@@ -180,12 +190,12 @@ abstract class AbstractTable
     }
 
     /**
-     * @param string[] $row
-     * @return mixed[]
+     * @param array<string> $row
+     * @return array<mixed>
      * @throws RuntimeException
      * @throws DBALException
      */
-    protected function convertToPhpValues(array $row)
+    protected function convertToPhpValues(array $row): array
     {
         $types = $this->getColumnTypes();
         $numericIndices = is_int(key($row));
