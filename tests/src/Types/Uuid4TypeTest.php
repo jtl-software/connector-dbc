@@ -3,6 +3,7 @@
 namespace Jtl\Connector\Dbc\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\ConversionException;
 use PHPUnit\Framework\TestCase;
 
 class Uuid4TypeTest extends TestCase
@@ -15,38 +16,52 @@ class Uuid4TypeTest extends TestCase
     }
 
     /**
-     * @dataProvider valuesProvider
+     * @dataProvider convertToDatabaseValueProvider
      *
-     * @param $uuid
-     * @param string $binaryVersion
-     * @throws \Doctrine\DBAL\Types\ConversionException
+     * @param $givenValue
+     * @param string $convertedValue
+     * @throws ConversionException
      */
-    public function testConvertToDatabaseValue(string $uuid, string $binaryVersion)
+    public function testConvertToDatabaseValue(string $givenValue, string $convertedValue)
     {
         $platform = $this->createMock(AbstractPlatform::class);
         $type = new Uuid4Type();
-        $this->assertEquals($binaryVersion, $type->convertToDatabaseValue($uuid, $platform));
+        $this->assertEquals($convertedValue, $type->convertToDatabaseValue($givenValue, $platform));
     }
 
     /**
-     * @dataProvider valuesProvider
+     * @dataProvider convertToPhpValueProvider
      *
-     * @param string $uuid
-     * @param string $binaryVersion
+     * @param string $givenValue
+     * @param string $convertedValue
      */
-    public function testConvertToPHPValue(string $uuid, string $binaryVersion)
+    public function testConvertToPHPValue(string $givenValue, string $convertedValue)
     {
         $platform = $this->createMock(AbstractPlatform::class);
         $type = new Uuid4Type();
-        $this->assertEquals(str_replace('-', '', $uuid), $type->convertToPHPValue($binaryVersion, $platform));
+        $this->assertEquals($convertedValue, $type->convertToPHPValue($givenValue, $platform));
     }
 
-    public function valuesProvider(): array
+    /**
+     * @return array[]
+     */
+    public function convertToDatabaseValueProvider(): array
     {
-        //UUID , Binary
         return [
             ['336dc2d2-5047-4995-9378-6be53f3b51be', base64_decode('M23C0lBHSZWTeGvlPztRvg==')],
             ['65105f26b55c4f0497d04ac36ed625b7', base64_decode('ZRBfJrVcTwSX0ErDbtYltw==')],
+        ];
+    }
+
+    /**
+     * @return array[]
+     */
+    public function convertToPhpValueProvider(): array
+    {
+        return [
+            [base64_decode('M23C0lBHSZWTeGvlPztRvg=='), '336dc2d25047499593786be53f3b51be'],
+            ['0e68bdd4f95b4fa09dee433b4f9f40e1', '0e68bdd4f95b4fa09dee433b4f9f40e1'],
+            ['0E68BDD4F95B4FA09DEE433B4F9F40E1', '0e68bdd4f95b4fa09dee433b4f9f40e1'],
         ];
     }
 }

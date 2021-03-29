@@ -168,7 +168,7 @@ class SessionHandlerTest extends TestCase
         $expiredCount = 0;
         $insertedRows = mt_rand(3, 10);
         for ($i = 0; $i < $insertedRows; $i++) {
-            $expiresAt = (new \DateTimeImmutable())->setTimestamp(time() + 1);
+            $expiresAt = (new \DateTimeImmutable())->setTimestamp(time() + 2);
             if (mt_rand(0, 1) === 1) {
                 $expiresAt = (new \DateTimeImmutable())->setTimestamp(time());
                 $expiredCount++;
