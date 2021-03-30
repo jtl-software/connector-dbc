@@ -3,6 +3,10 @@
 namespace Jtl\Connector\Dbc\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use PHPUnit\Framework\TestCase;
 
@@ -40,6 +44,22 @@ class Uuid4TypeTest extends TestCase
         $platform = $this->createMock(AbstractPlatform::class);
         $type = new Uuid4Type();
         $this->assertEquals($convertedValue, $type->convertToPHPValue($givenValue, $platform));
+    }
+
+    public function testConvertToPHPValueSQLWithMySqlPlatform()
+    {
+        $platform = new MySqlPlatform();
+        $type = new Uuid4Type();
+        $expectedExpression = 'LOWER(HEX(foo))';
+        $this->assertEquals($expectedExpression, $type->convertToPHPValueSQL('foo', $platform));
+    }
+
+    public function testConvertToPHPValueSQLWithOtherPlatforms()
+    {
+        $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
+        $type = new Uuid4Type();
+        $expectedExpression = 'foo';
+        $this->assertEquals($expectedExpression, $type->convertToPHPValueSQL('foo', $platform));
     }
 
     /**

@@ -4,6 +4,7 @@
 namespace Jtl\Connector\Dbc\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 
@@ -53,6 +54,23 @@ class Uuid4Type extends Type
     }
 
     /**
+     * Modifies the SQL expression (identifier, parameter) to convert to a PHP value.
+     *
+     * @param string           $sqlExpr
+     * @param AbstractPlatform $platform
+     *
+     * @return string
+     */
+    public function convertToPHPValueSQL($sqlExpr, $platform)
+    {
+        if($platform instanceof MySqlPlatform) {
+            return $platform->getLowerExpression(sprintf('HEX(%s)', $sqlExpr));
+        }
+
+        return $sqlExpr;
+    }
+
+    /**
      * @return string
      */
     public function getName()
@@ -65,6 +83,14 @@ class Uuid4Type extends Type
      * @return boolean
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return true;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function canRequireSQLConversion()
     {
         return true;
     }
