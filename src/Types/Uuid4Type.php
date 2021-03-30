@@ -33,7 +33,7 @@ class Uuid4Type extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        return ctype_xdigit($value) ? strtolower($value) : bin2hex($value);
+        return ctype_xdigit(str_replace('-', '', $value)) ? $value : bin2hex($value);
     }
 
     /**
