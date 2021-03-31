@@ -3,6 +3,7 @@
 namespace Jtl\Connector\Dbc\Session;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Schema\Table;
@@ -112,7 +113,7 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface, 
     public function read($sessionId)
     {
         $stmt = $this->createReadQuery($sessionId, [self::SESSION_DATA])->execute();
-        if ($stmt instanceof \PDOStatement) {
+        if (is_object($stmt)) {
             return (string)$stmt->fetchColumn();
         }
         return '';
@@ -150,8 +151,7 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface, 
     public function validateId($sessionId)
     {
         $stmt = $this->createReadQuery($sessionId, [self::SESSION_ID])->execute();
-
-        if ($stmt instanceof \PDOStatement) {
+        if (is_object($stmt)) {
             return $stmt->fetchColumn() === $sessionId;
         }
 
