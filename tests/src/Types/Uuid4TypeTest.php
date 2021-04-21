@@ -7,6 +7,7 @@ use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use PHPUnit\Framework\TestCase;
 
@@ -22,7 +23,7 @@ class Uuid4TypeTest extends TestCase
     /**
      * @dataProvider convertToDatabaseValueProvider
      *
-     * @param $givenValue
+     * @param string $givenValue
      * @param string $convertedValue
      * @throws ConversionException
      */
@@ -46,20 +47,16 @@ class Uuid4TypeTest extends TestCase
         $this->assertEquals($convertedValue, $type->convertToPHPValue($givenValue, $platform));
     }
 
-    public function testConvertToPHPValueSQLWithMySqlPlatform()
+    /**
+     * @dataProvider convertToPHPValueSQLProvider
+     *
+     * @param AbstractPlatform $platform
+     * @param string $columnExpresion
+     * @param string $expectedExpression
+     */
+    public function testConvertToPHPValueSQL(AbstractPlatform $platform, string $columnExpresion, string $expectedExpression)
     {
-        $platform = new MySqlPlatform();
-        $type = new Uuid4Type();
-        $expectedExpression = 'LOWER(HEX(foo))';
-        $this->assertEquals($expectedExpression, $type->convertToPHPValueSQL('foo', $platform));
-    }
-
-    public function testConvertToPHPValueSQLWithOtherPlatforms()
-    {
-        $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
-        $type = new Uuid4Type();
-        $expectedExpression = 'foo';
-        $this->assertEquals($expectedExpression, $type->convertToPHPValueSQL('foo', $platform));
+        $this->assertEquals($expectedExpression, (new Uuid4Type())->convertToPHPValueSQL($columnExpresion, $platform));
     }
 
     /**
@@ -83,6 +80,18 @@ class Uuid4TypeTest extends TestCase
             ['0e68bdd4f95b4fa09dee433b4f9f40e1', '0e68bdd4f95b4fa09dee433b4f9f40e1'],
             ['0E68BDD4F95B4FA09DEE433B4F9F40E1', '0E68BDD4F95B4FA09DEE433B4F9F40E1'],
             ['336dc2d2-5047-4995-9378-6be53f3b51be', '336dc2d2-5047-4995-9378-6be53f3b51be'],
+        ];
+    }
+
+    public function convertToPHPValueSQLProvider(): array
+    {
+        return [
+            [new MySqlPlatform(), 'foo', 'LOWER(HEX(foo))'],
+            [new MariaDb1027Platform(), 'bar', 'LOWER(HEX(bar))'],
+            [new MySQL57Platform(), 'foobar', 'LOWER(HEX(foobar))'],
+            [new MySQL80Platform(), 'yeeha', 'LOWER(HEX(yeeha))'],
+            [new SqlitePlatform(), 'rofl', 'LOWER(HEX(rofl))'],
+            [$this->getMockForAbstractClass(AbstractPlatform::class), 'abcde', 'abcde'],
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace Jtl\Connector\Dbc\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 
@@ -63,7 +64,7 @@ class Uuid4Type extends Type
      */
     public function convertToPHPValueSQL($sqlExpr, $platform)
     {
-        if($platform instanceof MySqlPlatform) {
+        if($platform instanceof MySqlPlatform || $platform instanceof SqlitePlatform) {
             return $platform->getLowerExpression(sprintf('HEX(%s)', $sqlExpr));
         }
 

@@ -3,7 +3,6 @@
 namespace Jtl\Connector\Dbc\Session;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Schema\Table;
