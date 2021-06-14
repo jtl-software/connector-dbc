@@ -146,6 +146,7 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface, 
     /**
      * @param string $sessionId
      * @return boolean
+     * @throws \Doctrine\DBAL\Exception
      */
     public function validateId($sessionId)
     {

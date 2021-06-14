@@ -178,20 +178,19 @@ abstract class AbstractTable
     }
 
     /**
-     * @param mixed[] $rows
-     * @return mixed[]
-     * @throws DBALException
+     * @param string $doctrineType
+     * @param mixed $phpValue
+     * @return mixed
+     * @throws Exception
      */
-    protected function convertAllToPhpValues(array $rows): array
+    protected function convertToDatabaseValue(string $doctrineType, $phpValue)
     {
-        return array_map(function (array $row) {
-            return $this->convertToPhpValues($row);
-        }, $rows);
+        return Type::getType($doctrineType)->convertToDatabaseValue($phpValue, $this->getConnection()->getDatabasePlatform());
     }
 
     /**
      * @param array<string> $row
-     * @return array<mixed>
+     * @return array
      * @throws RuntimeException
      * @throws DBALException
      */
@@ -222,6 +221,18 @@ abstract class AbstractTable
         }
 
         return $result;
+    }
+
+    /**
+     * @param array $rows
+     * @return array
+     * @throws DBALException
+     */
+    protected function convertAllToPhpValues(array $rows): array
+    {
+        return array_map(function (array $row) {
+            return $this->convertToPhpValues($row);
+        }, $rows);
     }
 
     /**
