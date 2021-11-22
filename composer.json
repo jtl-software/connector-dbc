@@ -25,9 +25,9 @@
     }
   },
   "require-dev": {
-    "friendsofphp/php-cs-fixer": "^2.16",
     "jtl/unit-test": "^0.1",
-    "phpunit/phpunit": "^7.5"
+    "phpunit/phpunit": "^7.5",
+    "friendsofphp/php-cs-fixer": "^3.3"
   },
   "bin": ["bin/jtl-dbc"]
 }

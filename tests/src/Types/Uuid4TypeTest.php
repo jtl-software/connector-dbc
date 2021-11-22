@@ -65,8 +65,8 @@ class Uuid4TypeTest extends TestCase
     public function convertToDatabaseValueProvider(): array
     {
         return [
-            ['336dc2d2-5047-4995-9378-6be53f3b51be', base64_decode('M23C0lBHSZWTeGvlPztRvg==')],
-            ['65105f26b55c4f0497d04ac36ed625b7', base64_decode('ZRBfJrVcTwSX0ErDbtYltw==')],
+            ['336dc2d2-5047-4995-9378-6be53f3b51be', base64_decode('M23C0lBHSZWTeGvlPztRvg==', true)],
+            ['65105f26b55c4f0497d04ac36ed625b7', base64_decode('ZRBfJrVcTwSX0ErDbtYltw==', true)],
         ];
     }
 
@@ -76,7 +76,7 @@ class Uuid4TypeTest extends TestCase
     public function convertToPhpValueProvider(): array
     {
         return [
-            [base64_decode('M23C0lBHSZWTeGvlPztRvg=='), '336dc2d25047499593786be53f3b51be'],
+            [base64_decode('M23C0lBHSZWTeGvlPztRvg==', true), '336dc2d25047499593786be53f3b51be'],
             ['0e68bdd4f95b4fa09dee433b4f9f40e1', '0e68bdd4f95b4fa09dee433b4f9f40e1'],
             ['0E68BDD4F95B4FA09DEE433B4F9F40E1', '0E68BDD4F95B4FA09DEE433B4F9F40E1'],
             ['336dc2d2-5047-4995-9378-6be53f3b51be', '336dc2d2-5047-4995-9378-6be53f3b51be'],

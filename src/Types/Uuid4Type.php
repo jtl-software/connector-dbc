@@ -9,7 +9,6 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 
-
 class Uuid4Type extends Type
 {
     public const
@@ -47,7 +46,7 @@ class Uuid4Type extends Type
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         $converted = hex2bin(str_replace('-', '', $value));
-        if($converted === false) {
+        if ($converted === false) {
             throw ConversionException::conversionFailedInvalidType((string)$value, $this->getName(), ['UUIDv4 string']);
         }
 
@@ -64,7 +63,7 @@ class Uuid4Type extends Type
      */
     public function convertToPHPValueSQL($sqlExpr, $platform)
     {
-        if($platform instanceof MySqlPlatform || $platform instanceof SqlitePlatform) {
+        if ($platform instanceof MySqlPlatform || $platform instanceof SqlitePlatform) {
             return $platform->getLowerExpression(sprintf('HEX(%s)', $sqlExpr));
         }
 
