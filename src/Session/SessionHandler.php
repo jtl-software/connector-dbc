@@ -65,6 +65,8 @@ class SessionHandler extends AbstractTable implements \SessionHandlerInterface, 
      */
     public function close()
     {
+        $this->getConnection()->close();
+
         return true;
     }
 

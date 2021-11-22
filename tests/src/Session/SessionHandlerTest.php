@@ -5,6 +5,7 @@ namespace Jtl\Connector\Dbc\Session;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Types\Type;
+use Jtl\Connector\Dbc\Connection;
 use Jtl\Connector\Dbc\TestCase;
 use Jtl\Connector\Dbc\DbManager;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -137,7 +138,24 @@ class SessionHandlerTest extends TestCase
 
     public function testClose()
     {
-        $this->assertTrue($this->handler->close());
+        $connection = $this->createMock(Connection::class);
+
+        $connection
+            ->expects($this->once())
+            ->method('close');
+
+        /** @var SessionHandler|MockObject $handler */
+        $handler = $this->getMockBuilder(SessionHandler::class)
+            ->setConstructorArgs([$this->getDBManager()])
+            ->setMethods(['getConnection'])
+            ->getMock();
+
+        $handler
+            ->expects($this->once())
+            ->method('getConnection')
+            ->willReturn($connection);
+
+        $this->assertTrue($handler->close());
     }
 
     public function testOpen()
