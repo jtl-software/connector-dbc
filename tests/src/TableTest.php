@@ -188,7 +188,7 @@ class TableTest extends TestCase
         $a = mt_rand();
         $b = 'foobar';
         $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
-        $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c->format('Y-m-d H:i:s')], []);
+        $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c->format('Y-m-d H:i:sO')], []);
         $rows = $this->table->find(['a' => $a, 'b' => $b]);
         $this->assertCount(1, $rows);
         $data = reset($rows);
@@ -238,7 +238,7 @@ class TableTest extends TestCase
         $b = 'foobar';
         $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
-        $this->table->delete(['a' => $a, 'c' => $c->format('Y-m-d H:i:s')], []);
+        $this->table->delete(['a' => $a, 'c' => $c->format('Y-m-d H:i:sO')], []);
         $this->assertCount(0, $this->table->find(['a' => $a, 'b' => $b]));
     }
 }
