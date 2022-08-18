@@ -217,7 +217,7 @@ class TableTest extends TestCase
         $newC = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
         ;
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
-        $this->table->update(['c' => $newC->format('Y-m-d H:i:s')], ['a' => $a, 'b' => $b], []);
+        $this->table->update(['c' => $newC->format('Y-m-d H:i:sO')], ['a' => $a, 'b' => $b], []);
         $rows = $this->table->find(['a' => $a, 'b' => $b]);
         $this->assertEquals($newC, $rows[0]['c']);
     }
