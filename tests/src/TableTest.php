@@ -173,7 +173,7 @@ class TableTest extends TestCase
     {
         $a = mt_rand();
         $b = 'foobar';
-        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $c = new \DateTimeImmutable('2020-01-01 01:01:01');
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
         $rows = $this->table->find(['a' => $a, 'b' => $b]);
         $this->assertCount(1, $rows);
@@ -187,7 +187,7 @@ class TableTest extends TestCase
     {
         $a = mt_rand();
         $b = 'foobar';
-        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $c = new \DateTimeImmutable('2020-01-01 01:01:01');
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c->format('Y-m-d H:i:s')], []);
         $rows = $this->table->find(['a' => $a, 'b' => $b]);
         $this->assertCount(1, $rows);
@@ -200,8 +200,8 @@ class TableTest extends TestCase
     {
         $a = mt_rand();
         $b = 'foobar';
-        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
-        $newC = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $c = new \DateTimeImmutable('2020-01-01 01:01:01');
+        $newC = new \DateTimeImmutable('2020-01-02 01:01:01');
         ;
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
         $this->table->update(['c' => $newC], ['a' => $a, 'b' => $b]);
@@ -213,11 +213,11 @@ class TableTest extends TestCase
     {
         $a = mt_rand();
         $b = 'foobar';
-        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
-        $newC = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $c = new \DateTimeImmutable('2020-01-01 01:01:01');
+        $newC = new \DateTimeImmutable('2020-01-02 01:01:01');
         ;
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
-        $this->table->update(['c' => $newC->format('Y-m-d H:i:s')], ['a' => $a, 'b' => $b], []);
+        $this->table->update(['c' => $newC->format('Y-m-d H:i:sO')], ['a' => $a, 'b' => $b], []);
         $rows = $this->table->find(['a' => $a, 'b' => $b]);
         $this->assertEquals($newC, $rows[0]['c']);
     }
@@ -226,7 +226,7 @@ class TableTest extends TestCase
     {
         $a = mt_rand();
         $b = 'foobar';
-        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $c = new \DateTimeImmutable('2020-01-01 01:01:01');
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
         $this->table->delete(['a' => $a, 'c' => $c]);
         $this->assertCount(0, $this->table->find(['a' => $a, 'b' => $b]));
@@ -236,7 +236,7 @@ class TableTest extends TestCase
     {
         $a = mt_rand();
         $b = 'foobar';
-        $c = new \DateTimeImmutable(sprintf('@%d', mt_rand(1, time())));
+        $c = new \DateTimeImmutable('2020-01-01 01:01:01');
         $this->table->insert(['a' => $a, 'b' => $b, 'c' => $c]);
         $this->table->delete(['a' => $a, 'c' => $c->format('Y-m-d H:i:s')], []);
         $this->assertCount(0, $this->table->find(['a' => $a, 'b' => $b]));
