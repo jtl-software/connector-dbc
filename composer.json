@@ -9,6 +9,7 @@
       "email": "immanuel.klinkenberg@jtl-software.com"
     }
   ],
+  "abandoned": "jtl/connector",
   "require": {
     "php": "^8.0 || ^8.1",
     "doctrine/dbal": "^2.6",
